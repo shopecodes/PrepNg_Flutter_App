@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "831283399977",
+    "project_id": "prepng-5585d",
+    "storage_bucket": "prepng-5585d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:831283399977:android:cbfbc8cc9c9c50f1747b38",
+        "android_client_info": {
+          "package_name": "com.example.prep_ng"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5K9R_Mw6fR2NSkplayPW_jFsuX0JPdtM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
