@@ -45,7 +45,8 @@ app.*.map.json
 /android/app/release
 
 # Paystack keys - DO NOT COMMIT
-lib/config/paystack_config.dart
+lib/config/
+!lib/config/paystack_config.dart.template
 
 # Other common files
 *.iml
@@ -57,3 +58,5 @@ build/
 key.properties
 google-services.json
 firebase_options.dart
+
+serviceAccountKey.json

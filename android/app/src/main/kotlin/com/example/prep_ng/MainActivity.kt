@@ -1,4 +1,4 @@
-package com.example.prep_ng
+package com.shorpe.prepng
 
 import io.flutter.embedding.android.FlutterActivity
 

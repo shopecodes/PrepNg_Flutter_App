@@ -1,5 +1,5 @@
 name: prep_ng
-description: "A new Flutter project."
+description: "JAMB & WAEC Exam Preparation App for Nigerian Students"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.0.0+4
 
 environment:
   sdk: ^3.10.0-142.0.dev
@@ -36,20 +36,20 @@ dependencies:
   cupertino_icons: ^1.0.8
   shared_preferences: ^2.2.3
   connectivity_plus: ^7.0.0
-  local_auth: ^2.2.0
+  local_auth: ^3.0.0
   video_player: ^2.9.1
   logger: ^2.0.2
-  google_fonts: ^6.3.1
+  google_fonts: ^8.0.0
   firebase_core: ^4.1.0
   firebase_auth: ^6.0.2
   cloud_firestore: ^6.0.1
-  firebase_storage: 13.0.1
-  image_picker: ^1.0.4
   intl: ^0.20.2
-  firebase_messaging: 16.0.1
   carousel_slider: ^5.1.1
   url_launcher: ^6.3.2
   provider: ^6.1.5+1
+  cached_network_image: ^3.3.1 
+  flutter_paystack_plus: ^2.4.0
+  http: ^1.1.2 
 
 dev_dependencies:
   flutter_test:
@@ -62,6 +62,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   flutter_launcher_icons: ^0.14.4
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -76,15 +77,20 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-  - assets/images/prepng.png
-
+  - assets/images/prepnglogo.png
+  - assets/images/bookillustration1.png
+  - assets/images/bookillustration2.png
+  - assets/images/bookillustration3.jpg
+  - assets/images/bookillustration4.jpg
 flutter_launcher_icons:
-    android: true
-    ios: true
-    image_path: "assets/images/prepng.png"
+    image_path: "assets/images/prepnglogo.png"
+    android: "lancher_icon"
+    ios: false
     min_sdk_android:
     android_gravity: fill
     ios_content_mode: scaleAspectFill
+    adaptive_icon_background: "#ffffff"
+    adaptive_icon_foreground: "assets/images/prepnglogo.png"
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
