@@ -47,6 +47,9 @@ app.*.map.json
 # Paystack keys - DO NOT COMMIT
 lib/config/
 !lib/config/paystack_config.dart.template
+# Paystack keys
+lib/config/paystack_config.dart
+
 
 # Other common files
 *.iml
