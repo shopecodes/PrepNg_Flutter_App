@@ -12,21 +12,61 @@ class CompleteProfileScreen extends StatefulWidget {
   State<CompleteProfileScreen> createState() => _CompleteProfileScreenState();
 }
 
-class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
+class _CompleteProfileScreenState extends State<CompleteProfileScreen>
+    with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
   final _userService = UserService();
-  String _selectedDept = 'Science'; // Default selection
+  String _selectedDept = 'Science';
   bool _isLoading = false;
 
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  // Color palette matching onboarding
+  static const Color _bgColor = Color(0xFFF0F9F4);
+  static const Color _accentGreen = Color(0xFF4CAF7D);
+  static const Color _darkGreen = Color(0xFF1A2E1F);
+
   final List<Map<String, dynamic>> _departments = [
-    {'name': 'Science', 'icon': Icons.science_outlined, 'color': Colors.blue},
-    {'name': 'Arts', 'icon': Icons.palette_outlined, 'color': Colors.purple},
-    {'name': 'Commercial', 'icon': Icons.business_outlined, 'color': Colors.orange},
+    {
+      'name': 'Science',
+      'icon': Icons.science_outlined,
+      'color': const Color(0xFF4CAF7D),
+    },
+    {
+      'name': 'Arts',
+      'icon': Icons.palette_outlined,
+      'color': const Color(0xFF9B7FD4),
+    },
+    {
+      'name': 'Commercial',
+      'icon': Icons.business_outlined,
+      'color': const Color(0xFFE89B4A),
+    },
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      duration: const Duration(milliseconds: 700),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+    _animController.forward();
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -34,25 +74,23 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(
-          message,
-          style: GoogleFonts.poppins(color: Colors.white),
-        ),
-        backgroundColor: isError ? Colors.red.shade700 : Colors.green.shade700,
+        content: Text(message,
+            style: GoogleFonts.poppins(color: Colors.white)),
+        backgroundColor:
+            isError ? Colors.red.shade700 : _accentGreen,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        margin: const EdgeInsets.all(20),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
-  // Function to save profile to Firebase
   Future<void> _saveProfile() async {
-    // Validation
     if (_nameController.text.trim().isEmpty) {
       _showSnackBar('Please enter your name', isError: true);
       return;
     }
-
     if (_nameController.text.trim().length < 3) {
       _showSnackBar('Name must be at least 3 characters', isError: true);
       return;
@@ -69,231 +107,273 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen> {
       if (!mounted) return;
 
       if (success) {
-        // Navigate to Scope Selection Screen
         Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const ScopeSelectionScreen()),
+          MaterialPageRoute(
+              builder: (context) => const ScopeSelectionScreen()),
           (route) => false,
         );
       } else {
-        _showSnackBar('Failed to save profile. Please try again.', isError: true);
+        _showSnackBar('Failed to save profile. Please try again.',
+            isError: true);
       }
     } catch (e) {
-      if (mounted) {
-        _showSnackBar('Error: $e', isError: true);
-      }
+      if (mounted) _showSnackBar('Error: $e', isError: true);
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: Text(
-          'Complete Your Profile',
-          style: GoogleFonts.poppins(
-            fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.green.shade700,
-        elevation: 0,
-        centerTitle: true,
-        automaticallyImplyLeading: false, // Prevent going back
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Colors.green),
-            )
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 20),
+      backgroundColor: _bgColor,
+      body: SafeArea(
+        child: _isLoading
+            ? Center(
+                child: CircularProgressIndicator(color: _accentGreen),
+              )
+            : SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 28, vertical: 16),
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
 
-                  // Welcome Message
-                  Text(
-                    'Welcome to PrepNg! 🎓',
-                    style: GoogleFonts.poppins(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green.shade900,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Let\'s set up your profile to get started',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Colors.grey.shade600,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Profile Icon (non-interactive)
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green.shade50,
-                      border: Border.all(
-                        color: Colors.green.shade700,
-                        width: 3,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: Icon(
-                      Icons.school,
-                      size: 60,
-                      color: Colors.green.shade700,
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Name Input
-                  TextField(
-                    controller: _nameController,
-                    decoration: InputDecoration(
-                      labelText: 'User Name',
-                      hintText: 'Enter your preferred user name',
-                      prefixIcon: const Icon(Icons.person_outline),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide(color: Colors.green.shade700, width: 2),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    textCapitalization: TextCapitalization.words,
-                  ),
-                  const SizedBox(height: 30),
-
-                  // Department Selection
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      'Select Your Department',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey.shade800,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 15),
-
-                  // Department Cards
-                  ...(_departments.map((dept) {
-                    final isSelected = _selectedDept == dept['name'];
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedDept = dept['name'];
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: isSelected ? dept['color'].withOpacity(0.1) : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: isSelected ? dept['color'] : Colors.grey.shade300,
-                            width: isSelected ? 2 : 1,
+                          // Header
+                          Text(
+                            'Complete Your\nProfile 🎓',
+                            style: GoogleFonts.poppins(
+                              fontSize: 30,
+                              fontWeight: FontWeight.w800,
+                              color: _darkGreen,
+                              height: 1.2,
+                            ),
                           ),
-                          boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: dept['color'].withOpacity(0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 4),
-                                  ),
-                                ]
-                              : [],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
+
+                          const SizedBox(height: 8),
+
+                          Text(
+                            "Let's set up your profile to get started",
+                            style: GoogleFonts.poppins(
+                              fontSize: 14,
+                              color: Colors.grey.shade500,
+                            ),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Profile icon
+                          Center(
+                            child: Container(
+                              width: 110,
+                              height: 110,
                               decoration: BoxDecoration(
-                                color: dept['color'].withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(10),
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                border: Border.all(
+                                    color: _accentGreen, width: 3),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        _accentGreen.withValues(alpha: 0.2),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
                               ),
-                              child: Icon(
-                                dept['icon'],
-                                color: dept['color'],
-                                size: 28,
+                              child: Icon(Icons.school_rounded,
+                                  size: 55, color: _accentGreen),
+                            ),
+                          ),
+
+                          const SizedBox(height: 32),
+
+                          // Name input card
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.06),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: TextField(
+                              controller: _nameController,
+                              textCapitalization: TextCapitalization.words,
+                              style: GoogleFonts.poppins(fontSize: 14),
+                              decoration: InputDecoration(
+                                labelText: 'User Name',
+                                labelStyle: GoogleFonts.poppins(
+                                    color: Colors.grey.shade500,
+                                    fontSize: 14),
+                                hintText: 'Enter your preferred name',
+                                hintStyle: GoogleFonts.poppins(
+                                    color: Colors.grey.shade300,
+                                    fontSize: 14),
+                                prefixIcon: Icon(Icons.person_outline,
+                                    color: _accentGreen, size: 20),
+                                filled: true,
+                                fillColor: _bgColor,
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide.none,
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: BorderSide(
+                                      color: _accentGreen, width: 1.5),
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 16),
                               ),
                             ),
-                            const SizedBox(width: 15),
-                            Expanded(
-                              child: Text(
-                                dept['name'],
-                                style: GoogleFonts.poppins(
-                                  fontSize: 16,
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                                  color: isSelected ? dept['color'] : Colors.grey.shade800,
+                          ),
+
+                          const SizedBox(height: 28),
+
+                          // Department label
+                          Text(
+                            'Select Your Department',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              color: _darkGreen,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          // Department cards
+                          ...(_departments.map((dept) {
+                            final isSelected =
+                                _selectedDept == dept['name'];
+                            final color = dept['color'] as Color;
+
+                            return GestureDetector(
+                              onTap: () => setState(
+                                  () => _selectedDept = dept['name']),
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? color.withValues(alpha: 0.08)
+                                      : Colors.white,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? color
+                                        : Colors.grey.shade200,
+                                    width: isSelected ? 2 : 1,
+                                  ),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: color.withValues(
+                                                alpha: 0.15),
+                                            blurRadius: 12,
+                                            offset: const Offset(0, 4),
+                                          ),
+                                        ]
+                                      : [
+                                          BoxShadow(
+                                            color: Colors.black
+                                                .withValues(alpha: 0.04),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 2),
+                                          ),
+                                        ],
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(10),
+                                      decoration: BoxDecoration(
+                                        color:
+                                            color.withValues(alpha: 0.15),
+                                        borderRadius:
+                                            BorderRadius.circular(12),
+                                      ),
+                                      child: Icon(dept['icon'] as IconData,
+                                          color: color, size: 26),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        dept['name'],
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          fontWeight: isSelected
+                                              ? FontWeight.w700
+                                              : FontWeight.w500,
+                                          color: isSelected
+                                              ? color
+                                              : Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      Icon(Icons.check_circle_rounded,
+                                          color: color, size: 24),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }).toList()),
+
+                          const SizedBox(height: 32),
+
+                          // Continue button
+                          GestureDetector(
+                            onTap: _saveProfile,
+                            child: Container(
+                              width: double.infinity,
+                              height: 58,
+                              decoration: BoxDecoration(
+                                color: _accentGreen,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color:
+                                        _accentGreen.withValues(alpha: 0.35),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 8),
+                                  ),
+                                ],
+                              ),
+                              child: Center(
+                                child: Text(
+                                  'Continue',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.white,
+                                  ),
                                 ),
                               ),
                             ),
-                            if (isSelected)
-                              Icon(
-                                Icons.check_circle,
-                                color: dept['color'],
-                                size: 28,
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  }).toList()),
+                          ),
 
-                  const SizedBox(height: 40),
-
-                  // Continue Button
-                  SizedBox(
-                    width: double.infinity,
-                    height: 55,
-                    child: ElevatedButton(
-                      onPressed: _saveProfile,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green.shade700,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        elevation: 3,
-                      ),
-                      child: Text(
-                        'Continue',
-                        style: GoogleFonts.poppins(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                          const SizedBox(height: 32),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

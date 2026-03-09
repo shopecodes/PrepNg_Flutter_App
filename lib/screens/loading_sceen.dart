@@ -1,6 +1,7 @@
 // lib/screens/loading_screen.dart
 
 import 'dart:async';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -25,72 +26,45 @@ class _LoadingScreenState extends State<LoadingScreen>
 
   int _currentTipIndex = 0;
   Timer? _tipTimer;
+  final _random = Random();
 
-  final List<Map<String, String>> _studyTips = [
-    {
-      'emoji': '🎯',
-      'tip': 'Small steps daily = Giant leaps in exams!',
-    },
-    {
-      'emoji': '💡',
-      'tip': 'JAMB loves patterns - spot them, ace them!',
-    },
-    {
-      'emoji': '📚',
-      'tip': 'Your future self will thank you for studying today',
-    },
-    {
-      'emoji': '⚡',
-      'tip': 'Speed + Accuracy = JAMB Success Formula',
-    },
-    {
-      'emoji': '🌟',
-      'tip': 'Every question answered is a step closer to your dream school',
-    },
-    {
-      'emoji': '🔥',
-      'tip': 'Practice doesn\'t make perfect - Perfect practice does!',
-    },
-    {
-      'emoji': '🎓',
-      'tip': 'Champions are made in practice, not in exams',
-    },
-    {
-      'emoji': '💪',
-      'tip': 'You\'re not just preparing for exams - you\'re building excellence!',
-    },
-    {
-      'emoji': '🚀',
-      'tip': 'Your admission letter is just questions away!',
-    },
-    {
-      'emoji': '⏰',
-      'tip': '40 questions in 30 minutes? You\'re training for it right now!',
-    },
+  // Color palette matching onboarding
+  static const Color _bgColor = Color(0xFFF5FAF6);
+  static const Color _accentGreen = Color(0xFF4CAF7D);
+  static const Color _darkGreen = Color(0xFF1A2E1F);
+
+  final List<Map<String, String>> _allTips = [
+    {'emoji': '🎯', 'tip': 'Small steps daily = Giant leaps in exams!'},
+    {'emoji': '💡', 'tip': 'JAMB loves patterns - spot them, ace them!'},
+    {'emoji': '📚', 'tip': 'Your future self will thank you for studying today'},
+    {'emoji': '⚡', 'tip': 'Speed + Accuracy = JAMB Success Formula'},
+    {'emoji': '🌟', 'tip': 'Every question answered is a step closer to your dream school'},
+    {'emoji': '🔥', 'tip': 'Practice doesn\'t make perfect - Perfect practice does!'},
+    {'emoji': '🎓', 'tip': 'Champions are made in practice, not in exams'},
+    {'emoji': '💪', 'tip': 'You\'re not just preparing for exams - you\'re building excellence!'},
+    {'emoji': '🚀', 'tip': 'Your admission letter is just questions away!'},
+    {'emoji': '⏰', 'tip': '40 questions in 30 minutes? You\'re training for it right now!'},
   ];
+
+  late List<Map<String, String>> _studyTips;
 
   @override
   void initState() {
     super.initState();
 
-    // Logo animates in over 1.5 seconds — fast and clean
+    _studyTips = List.from(_allTips)..shuffle(_random);
+
     _logoController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
 
     _logoFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.easeIn,
-      ),
+      CurvedAnimation(parent: _logoController, curve: Curves.easeIn),
     );
 
     _logoScaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _logoController,
-        curve: Curves.elasticOut,
-      ),
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
     );
 
     _tipController = AnimationController(
@@ -98,11 +72,9 @@ class _LoadingScreenState extends State<LoadingScreen>
       vsync: this,
     );
 
-    // Start logo animation immediately
     _logoController.forward();
 
-    // Start tip rotation after logo finishes
-    Future.delayed(const Duration(milliseconds: 1500), () {
+    Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) _startTipRotation();
     });
   }
@@ -129,10 +101,10 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: _bgColor,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -147,21 +119,25 @@ class _LoadingScreenState extends State<LoadingScreen>
                     child: ScaleTransition(
                       scale: _logoScaleAnimation,
                       child: Container(
-                        width: 150,
-                        height: 150,
+                        width: 160,
+                        height: 160,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(28),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.green.withValues(alpha: 0.3),
-                              blurRadius: 20,
+                              color: _accentGreen.withValues(alpha: 0.25),
+                              blurRadius: 30,
                               spreadRadius: 5,
                             ),
                           ],
                         ),
-                        child: Image.asset(
-                          'assets/images/bookillustration1.png',
-                          fit: BoxFit.contain,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(28),
+                          child: Image.asset(
+                            'assets/images/bookillustration3.jpg',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
                     ),
@@ -169,7 +145,7 @@ class _LoadingScreenState extends State<LoadingScreen>
                 },
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 28),
 
               // App Name
               FadeTransition(
@@ -178,23 +154,23 @@ class _LoadingScreenState extends State<LoadingScreen>
                   'PrepNG',
                   style: GoogleFonts.poppins(
                     fontSize: 36,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green.shade700,
+                    fontWeight: FontWeight.w800,
+                    color: _darkGreen,
                     letterSpacing: 1.5,
                   ),
                 ),
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 6),
 
               FadeTransition(
                 opacity: _logoFadeAnimation,
                 child: Text(
                   'JAMB · WAEC',
                   style: GoogleFonts.poppins(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                    letterSpacing: 2,
+                    fontSize: 13,
+                    color: Colors.grey.shade500,
+                    letterSpacing: 3,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -220,21 +196,21 @@ class _LoadingScreenState extends State<LoadingScreen>
                 },
                 child: Container(
                   key: ValueKey<int>(_currentTipIndex),
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(22),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        Colors.green.shade50,
-                        Colors.green.shade100.withValues(alpha: 0.5),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(16),
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                      color: Colors.green.shade200,
-                      width: 1,
+                      color: _accentGreen.withValues(alpha: 0.2),
+                      width: 1.5,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: _accentGreen.withValues(alpha: 0.08),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     children: [
@@ -248,8 +224,8 @@ class _LoadingScreenState extends State<LoadingScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 15,
                           fontWeight: FontWeight.w500,
-                          color: Colors.green.shade900,
-                          height: 1.4,
+                          color: _darkGreen,
+                          height: 1.5,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -258,26 +234,25 @@ class _LoadingScreenState extends State<LoadingScreen>
                 ),
               ),
 
-              const SizedBox(height: 40),
+              const SizedBox(height: 36),
 
-              // Loading Indicator
+              // Loading indicator
               SizedBox(
-                width: 40,
-                height: 40,
+                width: 36,
+                height: 36,
                 child: CircularProgressIndicator(
                   strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                      Colors.green.shade700),
+                  valueColor: AlwaysStoppedAnimation<Color>(_accentGreen),
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 14),
 
               Text(
                 'Preparing your success journey...',
                 style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.grey.shade600,
+                  color: Colors.grey.shade500,
                   fontWeight: FontWeight.w500,
                 ),
               ),

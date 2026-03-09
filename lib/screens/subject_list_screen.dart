@@ -20,15 +20,47 @@ class SubjectListScreen extends StatefulWidget {
   State<SubjectListScreen> createState() => _SubjectListScreenState();
 }
 
-class _SubjectListScreenState extends State<SubjectListScreen> {
+class _SubjectListScreenState extends State<SubjectListScreen>
+    with SingleTickerProviderStateMixin {
   final PurchaseService _purchaseService = PurchaseService();
   final ConnectivityService _connectivityService = ConnectivityService();
   Set<String> _unlockedSubjectIds = {};
   bool _isLoadingAccess = true;
 
+  late AnimationController _animController;
+  late Animation<double> _fadeAnimation;
+
+  // Color palette
+  static const Color _bgColor = Color(0xFFF5FAF6);
+  static const Color _accentGreen = Color(0xFF4CAF7D);
+  static const Color _darkGreen = Color(0xFF1A2E1F);
+
+  // Scope-based gradient header colors
+  Map<String, List<Color>> get _scopeGradient => {
+        'JAMB': [const Color(0xFF4CAF7D), const Color(0xFF2E8B57)],
+        'WAEC': [const Color(0xFF3A86FF), const Color(0xFF1A5CCC)],
+      };
+
+  List<Color> get _headerGradient {
+    for (final key in _scopeGradient.keys) {
+      if (widget.scopeName.toUpperCase().contains(key)) {
+        return _scopeGradient[key]!;
+      }
+    }
+    return [_accentGreen, _darkGreen];
+  }
+
   @override
   void initState() {
     super.initState();
+    _animController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _refreshAccess();
@@ -37,66 +69,49 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
     });
   }
 
-  /// Silent background fetch to cache subjects for offline use
+  @override
+  void dispose() {
+    _animController.dispose();
+    super.dispose();
+  }
+
   Future<void> _preFetchSubjects() async {
     try {
       await FirebaseFirestore.instance
           .collection('subjects')
           .where('scopeId', isEqualTo: widget.scopeId)
           .get(const GetOptions(source: Source.serverAndCache));
-      debugPrint('Offline cache updated for ${widget.scopeName}');
     } catch (e) {
       debugPrint('Background pre-fetch failed: $e');
     }
   }
 
-  /// Refreshes the list of subjects the user has already paid for
   Future<void> _refreshAccess() async {
     final ids = await _purchaseService.getPurchasedSubjectIds();
-
     if (mounted) {
       setState(() {
         _unlockedSubjectIds = ids;
         _isLoadingAccess = false;
       });
+      _animController.forward();
     }
   }
 
-  /// Check if a subject is free based on Firestore data
-  bool _isFreeSubject(Map<String, dynamic> data) {
-    return data['isFree'] == true;
-  }
+  bool _isFreeSubject(Map<String, dynamic> data) => data['isFree'] == true;
 
-  /// Determine exam configuration based on scope name
   Map<String, dynamic> _getExamConfig() {
-    final scopeNameLower = widget.scopeName.toLowerCase();
-
-    if (scopeNameLower.contains('jamb') || scopeNameLower.contains('utme')) {
-      return {
-        'questionsPerQuiz': 40,
-        'timeLimit': 30 * 60,
-      };
-    } else if (scopeNameLower.contains('waec') || scopeNameLower.contains('wassce')) {
-      return {
-        'questionsPerQuiz': 60,
-        'timeLimit': 60 * 60,
-      };
-    } else if (scopeNameLower.contains('neco')) {
-      return {
-        'questionsPerQuiz': 60,
-        'timeLimit': 60 * 60,
-      };
-    } else {
-      return {
-        'questionsPerQuiz': 50,
-        'timeLimit': 45 * 60,
-      };
+    final s = widget.scopeName.toLowerCase();
+    if (s.contains('jamb') || s.contains('utme')) {
+      return {'questionsPerQuiz': 40, 'timeLimit': 30 * 60};
+    } else if (s.contains('waec') || s.contains('wassce') || s.contains('neco')) {
+      return {'questionsPerQuiz': 60, 'timeLimit': 60 * 60};
     }
+    return {'questionsPerQuiz': 50, 'timeLimit': 45 * 60};
   }
 
-  /// Show user-friendly error message based on payment error type
   void _showPaymentError(PaymentResult result) {
     if (!mounted) return;
+    if (result.errorType == PaymentErrorType.cancelled) return;
 
     String message;
     IconData icon;
@@ -104,79 +119,59 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
 
     switch (result.errorType) {
       case PaymentErrorType.network:
-        message = result.errorMessage ?? 'Network connection issue. Please check your internet and try again.';
+        message = result.errorMessage ?? 'Network issue. Please try again.';
         icon = Icons.wifi_off;
         color = Colors.orange;
         break;
-
-      case PaymentErrorType.cancelled:
-        message = 'Payment was cancelled';
-        icon = Icons.cancel_outlined;
-        color = Colors.grey;
-        break;
-
       case PaymentErrorType.timeout:
-        message = 'Payment request timed out. Please try again.';
+        message = 'Payment timed out. Please try again.';
         icon = Icons.timer_off;
         color = Colors.orange;
         break;
-
       case PaymentErrorType.server:
-        message = result.errorMessage ?? 'Payment service is temporarily unavailable. Please try again later.';
+        message = result.errorMessage ?? 'Service unavailable. Try again later.';
         icon = Icons.cloud_off;
         color = Colors.red;
         break;
-
       case PaymentErrorType.verification:
-        message = result.errorMessage ?? 'Payment verification failed. Please check your transaction history.';
+        message = result.errorMessage ?? 'Verification failed. Check your transaction history.';
         icon = Icons.error_outline;
         color = Colors.amber;
         break;
-
       default:
         message = result.errorMessage ?? 'An error occurred. Please try again.';
         icon = Icons.error_outline;
         color = Colors.red;
     }
 
-    if (result.errorType == PaymentErrorType.cancelled) return;
-
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Row(
           children: [
-            Icon(icon, color: Colors.white),
-            const SizedBox(width: 12),
+            Icon(icon, color: Colors.white, size: 20),
+            const SizedBox(width: 10),
             Expanded(
-              child: Text(
-                message,
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 14),
-              ),
+              child: Text(message,
+                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
             ),
           ],
         ),
         backgroundColor: color,
         duration: const Duration(seconds: 4),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: result.errorType == PaymentErrorType.network ||
-                result.errorType == PaymentErrorType.timeout
-            ? SnackBarAction(
-                label: 'RETRY',
-                textColor: Colors.white,
-                onPressed: () {},
-              )
+        margin: const EdgeInsets.all(16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        action: (result.errorType == PaymentErrorType.network ||
+                result.errorType == PaymentErrorType.timeout)
+            ? SnackBarAction(label: 'RETRY', textColor: Colors.white, onPressed: () {})
             : null,
       ),
     );
   }
 
-  /// Opens the payment dialog and triggers Paystack
   Future<void> _handlePurchaseTap(String subjectId, String subjectName) async {
     final hasInternet = await _connectivityService.hasInternetConnection();
-
     if (!mounted) return;
-
     if (!hasInternet) {
       SnackbarUtil.showNoInternetSnackbar(context);
       return;
@@ -184,100 +179,205 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-        title: Text('Unlock $subjectName',
-            style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-        content: Text(
-            'Get full access to all practice questions for $subjectName for ₦500.',
-            style: GoogleFonts.poppins()),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text('Cancel', style: GoogleFonts.poppins(color: Colors.grey)),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.of(dialogContext).pop();
-
-              final stillHasInternet = await _connectivityService.hasInternetConnection();
-
-              if (!mounted) return;
-
-              if (!stillHasInternet) {
-                SnackbarUtil.showNoInternetSnackbar(context);
-                return;
-              }
-
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) => PopScope(
-                  canPop: false,
-                  child: Center(
-                    child: Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const CircularProgressIndicator(color: Colors.green),
-                            const SizedBox(height: 16),
-                            Text('Processing payment...', style: GoogleFonts.poppins()),
-                          ],
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Icon
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: _accentGreen.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.lock_open_rounded,
+                    color: _accentGreen, size: 28),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Unlock $subjectName',
+                style: GoogleFonts.poppins(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: _darkGreen),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Get full access to all practice questions for $subjectName for a one-time fee.',
+                style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey.shade500,
+                    height: 1.5),
+              ),
+              const SizedBox(height: 20),
+              // Price tag
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _bgColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.payments_outlined,
+                        color: _accentGreen, size: 20),
+                    const SizedBox(width: 10),
+                    Text(
+                      'One-time payment',
+                      style: GoogleFonts.poppins(
+                          fontSize: 13, color: Colors.grey.shade600),
+                    ),
+                    const Spacer(),
+                    Text(
+                      '₦500',
+                      style: GoogleFonts.poppins(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w800,
+                          color: _darkGreen),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.of(dialogContext).pop(),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text('Cancel',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600)),
                         ),
                       ),
                     ),
                   ),
-                ),
-              );
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () async {
+                        Navigator.of(dialogContext).pop();
 
-              final result = await _purchaseService.payAndUnlock(
-                context,
-                subjectId: subjectId,
-                subjectName: subjectName,
-              );
+                        final stillHasInternet = await _connectivityService
+                            .hasInternetConnection();
+                        if (!mounted) return;
+                        if (!stillHasInternet) {
+                          SnackbarUtil.showNoInternetSnackbar(context);
+                          return;
+                        }
 
-              if (!mounted) return;
-              Navigator.of(context).pop();
-
-              if (result.success) {
-                await _refreshAccess();
-
-                if (!mounted) return;
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: [
-                        const Icon(Icons.check_circle, color: Colors.white),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Payment successful! $subjectName is now unlocked.',
-                            style: GoogleFonts.poppins(color: Colors.white),
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (context) => PopScope(
+                            canPop: false,
+                            child: Center(
+                              child: Container(
+                                margin: const EdgeInsets.all(40),
+                                padding: const EdgeInsets.all(28),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircularProgressIndicator(
+                                        color: _accentGreen,
+                                        strokeWidth: 2.5),
+                                    const SizedBox(height: 16),
+                                    Text('Processing payment...',
+                                        style: GoogleFonts.poppins(
+                                            fontSize: 14,
+                                            color: _darkGreen)),
+                                  ],
+                                ),
+                              ),
+                            ),
                           ),
+                        );
+
+                        final result = await _purchaseService.payAndUnlock(
+                          context,
+                          subjectId: subjectId,
+                          subjectName: subjectName,
+                        );
+
+                        if (!mounted) return;
+                        Navigator.of(context).pop();
+
+                        if (result.success) {
+                          await _refreshAccess();
+                          if (!mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(
+                                children: [
+                                  const Icon(Icons.check_circle_rounded,
+                                      color: Colors.white, size: 20),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      '$subjectName is now unlocked!',
+                                      style: GoogleFonts.poppins(
+                                          color: Colors.white, fontSize: 13),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              backgroundColor: _accentGreen,
+                              duration: const Duration(seconds: 3),
+                              behavior: SnackBarBehavior.floating,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12)),
+                            ),
+                          );
+                        } else {
+                          _showPaymentError(result);
+                        }
+                      },
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: _accentGreen,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: _accentGreen.withValues(alpha: 0.35),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
                         ),
-                      ],
+                        child: Center(
+                          child: Text('Pay ₦500',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
+                        ),
+                      ),
                     ),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 3),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
-                );
-              } else {
-                _showPaymentError(result);
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: Text('Pay ₦500', style: GoogleFonts.poppins()),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -285,150 +385,290 @@ class _SubjectListScreenState extends State<SubjectListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        title: Text(widget.scopeName,
-            style: GoogleFonts.poppins(fontWeight: FontWeight.w600, color: Colors.white)),
-        backgroundColor: const Color.fromARGB(255, 54, 127, 57),
-        elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
-      ),
-      body: _isLoadingAccess
-          ? const Center(child: CircularProgressIndicator(color: Colors.green))
-          : StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('subjects')
-                  .where('scopeId', isEqualTo: widget.scopeId)
-                  .orderBy('order')
-                  .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(
-                    child: Text('Error loading subjects!', style: GoogleFonts.poppins()),
-                  );
-                }
-
-                if (!snapshot.hasData) return const SizedBox();
-
-                final subjects = snapshot.data!.docs;
-
-                if (subjects.isEmpty) {
-                  return Center(
-                    child: Text('No subjects found for ${widget.scopeName}.',
-                        style: GoogleFonts.poppins()),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: subjects.length,
-                  itemBuilder: (context, index) {
-                    final data = subjects[index].data() as Map<String, dynamic>;
-                    final id = subjects[index].id;
-                    final isFree = _isFreeSubject(data);
-                    // Grant access if purchased OR if subject is free
-                    final hasAccess = _unlockedSubjectIds.contains(id) || isFree;
-
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: .03),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
+      backgroundColor: _bgColor,
+      body: Column(
+        children: [
+          // ── Gradient Header ──────────────────────────────────────
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: _headerGradient,
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(28),
+                bottomRight: Radius.circular(28),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: _headerGradient[0].withValues(alpha: 0.3),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(8, 8, 16, 24),
+                child: Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white, size: 20),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            widget.scopeName,
+                            style: GoogleFonts.poppins(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            'Select a subject to begin',
+                            style: GoogleFonts.poppins(
+                              fontSize: 13,
+                              color: Colors.white.withValues(alpha: 0.75),
+                            ),
                           ),
                         ],
                       ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        leading: CircleAvatar(
-                          backgroundColor:
-                              hasAccess ? Colors.green.shade50 : Colors.grey.shade100,
-                          child: Icon(
-                            Icons.menu_book_rounded,
-                            color: hasAccess
-                                ? Colors.green.shade700
-                                : Colors.grey.shade400,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          // ── Subject List ─────────────────────────────────────────
+          Expanded(
+            child: _isLoadingAccess
+                ? Center(
+                    child: CircularProgressIndicator(
+                        color: _accentGreen, strokeWidth: 2.5),
+                  )
+                : StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('subjects')
+                        .where('scopeId', isEqualTo: widget.scopeId)
+                        .orderBy('order')
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text('Error loading subjects!',
+                              style: GoogleFonts.poppins()),
+                        );
+                      }
+                      if (!snapshot.hasData) return const SizedBox();
+
+                      final subjects = snapshot.data!.docs;
+
+                      if (subjects.isEmpty) {
+                        return Center(
+                          child: Text(
+                            'No subjects found for ${widget.scopeName}.',
+                            style: GoogleFonts.poppins(),
                           ),
-                        ),
-                        title: Text(data['name'],
-                            style: GoogleFonts.poppins(
-                                fontWeight: FontWeight.w600, fontSize: 16)),
-                        subtitle: Text(
-                            data['description'] ?? 'Study pack available',
-                            style: GoogleFonts.poppins(
-                                fontSize: 12, color: Colors.grey.shade600)),
-                        trailing: hasAccess
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  // Show FREE badge only if subject is free (not just purchased)
-                                  if (isFree)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 10, vertical: 4),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.shade700,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        'FREE',
-                                        style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 11,
-                                        ),
+                        );
+                      }
+
+                      return FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: ListView.builder(
+                          padding:
+                              const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                          itemCount: subjects.length,
+                          itemBuilder: (context, index) {
+                            final data = subjects[index].data()
+                                as Map<String, dynamic>;
+                            final id = subjects[index].id;
+                            final isFree = _isFreeSubject(data);
+                            final hasAccess =
+                                _unlockedSubjectIds.contains(id) || isFree;
+
+                            return GestureDetector(
+                              onTap: () {
+                                if (hasAccess) {
+                                  final config = _getExamConfig();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          QuizLoadingScreen(
+                                        subjectId: id,
+                                        subjectName: data['name'],
+                                        scopeId: widget.scopeId,
+                                        scopeName: widget.scopeName,
+                                        questionsPerQuiz:
+                                            config['questionsPerQuiz'],
+                                        timeLimit: config['timeLimit'],
                                       ),
                                     ),
-                                  if (isFree) const SizedBox(width: 8),
-                                  const Icon(Icons.arrow_forward_ios_rounded,
-                                      color: Colors.green, size: 18),
-                                ],
-                              )
-                            : Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 6),
+                                  );
+                                } else {
+                                  _handlePurchaseTap(id, data['name']);
+                                }
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(bottom: 12),
+                                padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
-                                  color: Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(8),
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(18),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black
+                                          .withValues(alpha: 0.05),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],
                                 ),
-                                child: Text('₦500',
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.orange.shade900,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 13,
-                                    )),
-                              ),
-                        onTap: () {
-                          if (hasAccess) {
-                            final config = _getExamConfig();
+                                child: Row(
+                                  children: [
+                                    // Icon
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: hasAccess
+                                            ? _accentGreen
+                                                .withValues(alpha: 0.1)
+                                            : Colors.grey.shade100,
+                                        borderRadius:
+                                            BorderRadius.circular(14),
+                                      ),
+                                      child: Icon(
+                                        Icons.menu_book_rounded,
+                                        color: hasAccess
+                                            ? _accentGreen
+                                            : Colors.grey.shade400,
+                                        size: 22,
+                                      ),
+                                    ),
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => QuizLoadingScreen(
-                                  subjectId: id,
-                                  subjectName: data['name'],
-                                  scopeId: widget.scopeId,
-                                  scopeName: widget.scopeName,
-                                  questionsPerQuiz: config['questionsPerQuiz'],
-                                  timeLimit: config['timeLimit'],
+                                    const SizedBox(width: 14),
+
+                                    // Name + description
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            data['name'],
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
+                                              color: _darkGreen,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 3),
+                                          Text(
+                                            data['description'] ??
+                                                'Study pack available',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 12,
+                                              color: Colors.grey.shade500,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    const SizedBox(width: 10),
+
+                                    // Trailing badge
+                                    if (hasAccess) ...[
+                                      if (isFree)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 10, vertical: 5),
+                                          decoration: BoxDecoration(
+                                            color: _accentGreen,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            'FREE',
+                                            style: GoogleFonts.poppins(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 11,
+                                              letterSpacing: 0.5,
+                                            ),
+                                          ),
+                                        )
+                                      else
+                                        Container(
+                                          width: 32,
+                                          height: 32,
+                                          decoration: BoxDecoration(
+                                            color: _accentGreen
+                                                .withValues(alpha: 0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                          ),
+                                          child: Icon(
+                                              Icons.arrow_forward_rounded,
+                                              color: _accentGreen,
+                                              size: 16),
+                                        ),
+                                    ] else
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
+                                        decoration: BoxDecoration(
+                                          color: Colors.orange.shade50,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Colors.orange.shade200,
+                                              width: 1),
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.lock_rounded,
+                                                size: 12,
+                                                color: Colors
+                                                    .orange.shade700),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '₦500',
+                                              style: GoogleFonts.poppins(
+                                                color:
+                                                    Colors.orange.shade700,
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 12,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
                             );
-                          } else {
-                            _handlePurchaseTap(id, data['name']);
-                          }
-                        },
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

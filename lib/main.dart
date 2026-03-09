@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:prep_ng/screens/loading_sceen.dart';
+import 'package:prep_ng/screens/onboarding/onboarding_screen.dart';
 import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -37,8 +39,7 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
             seedColor: const Color.fromARGB(255, 1, 43, 2)),
-        textTheme:
-            GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
       home: const AppInitializer(),
     );
@@ -63,7 +64,6 @@ class _AppInitializerState extends State<AppInitializer> {
 
   Future<void> _initializeApp() async {
     try {
-      // Record when initialization starts
       final startTime = DateTime.now();
 
       // Initialize Firebase
@@ -77,28 +77,38 @@ class _AppInitializerState extends State<AppInitializer> {
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
 
-      // Wait for Firebase Auth to emit current user state
-      final user = await FirebaseAuth.instance
-          .authStateChanges()
-          .first
-          .timeout(
-            const Duration(seconds: 5),
-            onTimeout: () => null,
-          );
+      // Run auth check and onboarding check in parallel
+      final results = await Future.wait([
+        FirebaseAuth.instance
+            .authStateChanges()
+            .first
+            .timeout(
+              const Duration(seconds: 5),
+              onTimeout: () => null,
+            ),
+        SharedPreferences.getInstance(),
+      ]);
 
       if (!mounted) return;
 
-      // Determine next screen
-      final nextScreen = user == null
-          ? const LoginScreen()
-          : const ProfileCheckWrapper();
+      final user = results[0] as User?;
+      final prefs = results[1] as SharedPreferences;
+      final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
 
-      // Calculate how much time has passed since init started
+      // Determine next screen:
+      // - First time user → Onboarding
+      // - Returning user, not logged in → Login
+      // - Returning user, logged in → Home
+      final nextScreen = !onboardingComplete
+          ? const OnboardingScreen()
+          : user == null
+              ? const LoginScreen()
+              : const ProfileCheckWrapper();
+
+      // Guarantee loading screen shows for exactly 5 seconds
       final elapsed = DateTime.now().difference(startTime);
       const minimumDuration = Duration(seconds: 5);
 
-      // If init finished in less than 5 seconds, wait the remaining time
-      // This guarantees loading screen always shows for exactly 5 seconds
       if (elapsed < minimumDuration) {
         await Future.delayed(minimumDuration - elapsed);
       }
