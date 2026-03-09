@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'profile_check_wrapper.dart';
+import 'email_verification_screen.dart';
 import '../../services/connectivity_service.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -114,13 +114,18 @@ class _SignUpScreenState extends State<SignUpScreen>
         return;
       }
 
-      await _auth.createUserWithEmailAndPassword(
+      // ── CHANGE 1: capture credential ──────────────────────────
+      final userCredential = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
 
+      // ── CHANGE 2: send verification email ─────────────────────
+      await userCredential.user?.sendEmailVerification();
+
       if (mounted) {
+        // ── CHANGE 3: go to verification screen, not ProfileCheckWrapper
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => const ProfileCheckWrapper()),
+              builder: (context) => const EmailVerificationScreen()),
           (route) => false,
         );
       }

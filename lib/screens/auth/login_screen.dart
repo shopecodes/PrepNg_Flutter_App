@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'signup_screen.dart';
 import 'profile_check_wrapper.dart';
+import 'email_verification_screen.dart';
 import '../../services/connectivity_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -91,12 +92,26 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       if (mounted) {
+      // ── CHANGE 2: Check email verification status ──
+      final user = _auth.currentUser;
+      await user?.reload();
+      
+      if (!mounted) return; // Check again after reload
+      
+      if (user != null && !user.emailVerified) {
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-              builder: (context) => const ProfileCheckWrapper()),
+            builder: (context) => const EmailVerificationScreen(),
+          ),
+          (route) => false,
+        );
+      } else {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const ProfileCheckWrapper()),
           (route) => false,
         );
       }
+    }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       String message;

@@ -95,6 +95,11 @@ class _CompleteProfileScreenState extends State<CompleteProfileScreen>
       _showSnackBar('Name must be at least 3 characters', isError: true);
       return;
     }
+    // ── CHANGE: letters and spaces only ──────────────────────────
+    if (!RegExp(r"^[a-zA-Z\s]+$").hasMatch(_nameController.text.trim())) {
+      _showSnackBar('Name can only contain letters and spaces', isError: true);
+      return;
+    }
 
     setState(() => _isLoading = true);
 

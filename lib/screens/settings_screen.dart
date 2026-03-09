@@ -110,6 +110,11 @@ class _SettingsScreenState extends State<SettingsScreen>
       _showSnackBar('Name must be at least 3 characters', isError: true);
       return;
     }
+    // ── CHANGE: letters and spaces only ──────────────────────────
+    if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(_nameController.text.trim())) {
+      _showSnackBar('Name can only contain letters and spaces', isError: true);
+      return;
+    }
 
     setState(() => _isSaving = true);
 
@@ -383,8 +388,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     width: 64,
                                     height: 64,
                                     decoration: BoxDecoration(
-                                      color: _accentGreen
-                                          .withValues(alpha: 0.12),
+                                      color: _accentGreen.withValues(alpha: 0.12),
                                       shape: BoxShape.circle,
                                       border: Border.all(
                                           color: _accentGreen, width: 2.5),
@@ -426,8 +430,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                                 BorderRadius.circular(20),
                                           ),
                                           child: Text(
-                                            _userProfile?.department ??
-                                                'Science',
+                                            _userProfile?.department ?? 'Science',
                                             style: GoogleFonts.poppins(
                                               fontSize: 11,
                                               fontWeight: FontWeight.w600,
@@ -444,7 +447,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                             const SizedBox(height: 28),
 
-                            // ── Edit Profile label ─────────────────
                             Text(
                               'EDIT PROFILE',
                               style: GoogleFonts.poppins(
@@ -457,7 +459,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                             const SizedBox(height: 14),
 
-                            // ── Name input card ────────────────────
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
@@ -478,8 +479,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 decoration: InputDecoration(
                                   labelText: 'User Name',
                                   labelStyle: GoogleFonts.poppins(
-                                      color: Colors.grey.shade500,
-                                      fontSize: 14),
+                                      color: Colors.grey.shade500, fontSize: 14),
                                   prefixIcon: Icon(Icons.person_outline,
                                       color: _accentGreen, size: 20),
                                   filled: true,
@@ -490,8 +490,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide: BorderSide(
-                                        color: _accentGreen, width: 1.5),
+                                    borderSide:
+                                        BorderSide(color: _accentGreen, width: 1.5),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 16),
@@ -506,7 +506,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                             const SizedBox(height: 28),
 
-                            // ── Department label ───────────────────
                             Text(
                               'DEPARTMENT',
                               style: GoogleFonts.poppins(
@@ -519,10 +518,8 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                             const SizedBox(height: 14),
 
-                            // ── Department cards ───────────────────
                             ...(_departments.map((dept) {
-                              final isSelected =
-                                  _selectedDept == dept['name'];
+                              final isSelected = _selectedDept == dept['name'];
                               final color = dept['color'] as Color;
 
                               return GestureDetector(
@@ -550,8 +547,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     boxShadow: isSelected
                                         ? [
                                             BoxShadow(
-                                              color: color
-                                                  .withValues(alpha: 0.15),
+                                              color: color.withValues(alpha: 0.15),
                                               blurRadius: 12,
                                               offset: const Offset(0, 4),
                                             ),
@@ -571,13 +567,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                           color: color.withValues(alpha: 0.15),
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
-                                        child: Icon(
-                                            dept['icon'] as IconData,
-                                            color: color,
-                                            size: 24),
+                                        child: Icon(dept['icon'] as IconData,
+                                            color: color, size: 24),
                                       ),
                                       const SizedBox(width: 14),
                                       Expanded(
@@ -605,7 +598,6 @@ class _SettingsScreenState extends State<SettingsScreen>
 
                             const SizedBox(height: 28),
 
-                            // ── Save Button ────────────────────────
                             if (_isEditing)
                               GestureDetector(
                                 onTap: _isSaving ? null : _saveChanges,
@@ -620,8 +612,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: _accentGreen
-                                            .withValues(alpha: 0.35),
+                                        color:
+                                            _accentGreen.withValues(alpha: 0.35),
                                         blurRadius: 20,
                                         offset: const Offset(0, 8),
                                       ),
@@ -649,7 +641,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 ),
                               ),
 
-                            // ── Logout Button ──────────────────────
                             GestureDetector(
                               onTap: _confirmLogout,
                               child: Container(
@@ -662,7 +653,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                       color: Colors.red.shade300, width: 1.5),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
+                                      color:
+                                          Colors.black.withValues(alpha: 0.04),
                                       blurRadius: 10,
                                       offset: const Offset(0, 4),
                                     ),
