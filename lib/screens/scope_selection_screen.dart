@@ -452,7 +452,7 @@ class _ScopeSelectionScreenState extends State<ScopeSelectionScreen>
                                 opacity: 0.6,
                                 child: Image.asset(
                                   'assets/images/Student stress-bro.png',
-                                  height: 200,
+                                  height: 150,
                                   fit: BoxFit.contain,
                                 ),
                               ),
