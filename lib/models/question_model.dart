@@ -26,6 +26,7 @@ class Question {
     return Question(
       id: id,
       text: data['text'] ?? 'No Question Text',
+      imagePath: data['imagePath'],
       options: List<String>.from(data['options'] ?? []),
       // Handle both 'correctIndex' and 'correctAnswerIndex'
       correctAnswerIndex: data['correctAnswerIndex'] ?? data['correctIndex'] ?? 0,

@@ -103,7 +103,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     final s = widget.scopeName.toLowerCase();
     if (s.contains('jamb') || s.contains('utme')) {
       return {'questionsPerQuiz': 40, 'timeLimit': 30 * 60};
-    } else if (s.contains('waec') || s.contains('wassce') || s.contains('neco')) {
+    } else if (s.contains('waec') || s.contains('wassce')) {
       return {'questionsPerQuiz': 60, 'timeLimit': 60 * 60};
     }
     return {'questionsPerQuiz': 50, 'timeLimit': 45 * 60};

@@ -1,9 +1,11 @@
 // lib/screens/quiz/quiz_screen.dart
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prep_ng/provider/quiz_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../services/bookmark_service.dart';
 import 'result_screen.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -25,7 +27,13 @@ class _QuizScreenState extends State<QuizScreen>
   late Animation<double> _questionFadeAnimation;
   late Animation<Offset> _questionSlideAnimation;
 
-  // Color palette
+  final BookmarkService _bookmarkService = BookmarkService();
+  Set<String> _bookmarkedIds = {};
+  bool _isTogglingBookmark = false;
+
+  // ── Store subscription so it can be cancelled ─────────────────
+  StreamSubscription<Set<String>>? _bookmarkSubscription;
+
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
@@ -52,23 +60,29 @@ class _QuizScreenState extends State<QuizScreen>
       vsync: this,
     );
     _questionFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _questionAnimController, curve: Curves.easeOut),
-    );
-    _questionSlideAnimation =
-        Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero).animate(
       CurvedAnimation(
           parent: _questionAnimController, curve: Curves.easeOut),
     );
+    _questionSlideAnimation =
+        Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
+            .animate(CurvedAnimation(
+                parent: _questionAnimController, curve: Curves.easeOut));
     _questionAnimController.forward();
 
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
     quizProvider.onQuizFinished = () => _navigateToResults(quizProvider);
+
+    // ── Store subscription so we can cancel it in dispose ────────
+    _bookmarkSubscription = _bookmarkService.bookmarkedIdsStream().listen((ids) {
+      if (mounted) setState(() => _bookmarkedIds = ids);
+    });
   }
 
   @override
   void dispose() {
     Provider.of<QuizProvider>(context, listen: false).onQuizFinished = null;
     _questionAnimController.dispose();
+    _bookmarkSubscription?.cancel(); // ← properly cancel stream
     super.dispose();
   }
 
@@ -77,6 +91,16 @@ class _QuizScreenState extends State<QuizScreen>
       action();
       _questionAnimController.forward();
     });
+  }
+
+  Future<void> _toggleBookmark(QuizProvider provider) async {
+    if (_isTogglingBookmark) return;
+    setState(() => _isTogglingBookmark = true);
+
+    final question = provider.currentQuestion;
+    await _bookmarkService.toggleBookmark(question, widget.subjectName);
+
+    if (mounted) setState(() => _isTogglingBookmark = false);
   }
 
   Color _timerColor(int timeRemaining, int totalTime) {
@@ -98,7 +122,9 @@ class _QuizScreenState extends State<QuizScreen>
           });
           return const Scaffold(
             backgroundColor: Color(0xFFF5FAF6),
-            body: Center(child: CircularProgressIndicator(color: Color(0xFF4CAF7D))),
+            body: Center(
+                child: CircularProgressIndicator(
+                    color: Color(0xFF4CAF7D))),
           );
         }
 
@@ -108,7 +134,6 @@ class _QuizScreenState extends State<QuizScreen>
         final String timerText =
             '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-        // Estimate total time from questions count (JAMB=30min, WAEC=60min)
         final int totalTime = quizProvider.questions.length <= 40
             ? 30 * 60
             : 60 * 60;
@@ -118,6 +143,8 @@ class _QuizScreenState extends State<QuizScreen>
             (quizProvider.currentQuestionIndex + 1) /
                 quizProvider.questions.length;
 
+        final isBookmarked = _bookmarkedIds.contains(question.id);
+
         return PopScope(
           canPop: false,
           child: Scaffold(
@@ -125,13 +152,11 @@ class _QuizScreenState extends State<QuizScreen>
             body: SafeArea(
               child: Column(
                 children: [
-                  // ── Top Bar ──────────────────────────────────────
+                  // ── Top Bar ───────────────────────────────────
                   Padding(
-                    padding:
-                        const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                    padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                     child: Row(
                       children: [
-                        // Subject name
                         Expanded(
                           child: Text(
                             widget.subjectName,
@@ -143,6 +168,54 @@ class _QuizScreenState extends State<QuizScreen>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+
+                        // Bookmark button
+                        GestureDetector(
+                          onTap: () => _toggleBookmark(quizProvider),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            width: 40,
+                            height: 40,
+                            margin: const EdgeInsets.only(right: 10),
+                            decoration: BoxDecoration(
+                              color: isBookmarked
+                                  ? _accentGreen.withValues(alpha: 0.12)
+                                  : Colors.white,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color: isBookmarked
+                                    ? _accentGreen.withValues(alpha: 0.4)
+                                    : Colors.grey.shade200,
+                                width: 1.5,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 8,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: _isTogglingBookmark
+                                ? Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: _accentGreen,
+                                    ),
+                                  )
+                                : Icon(
+                                    isBookmarked
+                                        ? Icons.bookmark_rounded
+                                        : Icons.bookmark_border_rounded,
+                                    size: 20,
+                                    color: isBookmarked
+                                        ? _accentGreen
+                                        : Colors.grey.shade400,
+                                  ),
+                          ),
+                        ),
+
                         // Timer pill
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -176,7 +249,7 @@ class _QuizScreenState extends State<QuizScreen>
 
                   const SizedBox(height: 14),
 
-                  // ── Progress bar + counter ───────────────────────
+                  // ── Progress bar ──────────────────────────────
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
@@ -220,14 +293,15 @@ class _QuizScreenState extends State<QuizScreen>
 
                   const SizedBox(height: 20),
 
-                  // ── Question + Options ────────────────────────────
+                  // ── Question + Options ────────────────────────
                   Expanded(
                     child: FadeTransition(
                       opacity: _questionFadeAnimation,
                       child: SlideTransition(
                         position: _questionSlideAnimation,
                         child: SingleChildScrollView(
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -240,8 +314,8 @@ class _QuizScreenState extends State<QuizScreen>
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.06),
+                                      color: Colors.black
+                                          .withValues(alpha: 0.06),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),
@@ -265,7 +339,8 @@ class _QuizScreenState extends State<QuizScreen>
                                 Container(
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius:
+                                        BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.black
@@ -276,27 +351,31 @@ class _QuizScreenState extends State<QuizScreen>
                                     ],
                                   ),
                                   child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius:
+                                        BorderRadius.circular(16),
                                     child: Image.asset(
                                       question.imagePath!,
                                       fit: BoxFit.contain,
                                       errorBuilder:
                                           (context, error, stackTrace) {
                                         return Container(
-                                          padding: const EdgeInsets.all(16),
+                                          padding:
+                                              const EdgeInsets.all(16),
                                           color: Colors.grey.shade100,
                                           child: Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.center,
                                             children: [
                                               Icon(Icons.broken_image,
-                                                  color:
-                                                      Colors.grey.shade400),
+                                                  color: Colors
+                                                      .grey.shade400),
                                               const SizedBox(width: 8),
                                               Text('Image not found',
-                                                  style: GoogleFonts.poppins(
-                                                      color: Colors
-                                                          .grey.shade400)),
+                                                  style:
+                                                      GoogleFonts.poppins(
+                                                          color: Colors
+                                                              .grey
+                                                              .shade400)),
                                             ],
                                           ),
                                         );
@@ -309,11 +388,14 @@ class _QuizScreenState extends State<QuizScreen>
                               const SizedBox(height: 20),
 
                               // Options
-                              ...List.generate(question.options.length, (index) {
+                              ...List.generate(
+                                  question.options.length, (index) {
                                 final isSelected =
-                                    index == quizProvider.selectedAnswerIndex;
+                                    index ==
+                                        quizProvider.selectedAnswerIndex;
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 10),
+                                  padding:
+                                      const EdgeInsets.only(bottom: 10),
                                   child: _OptionTile(
                                     text: question.options[index],
                                     index: index,
@@ -332,13 +414,13 @@ class _QuizScreenState extends State<QuizScreen>
                     ),
                   ),
 
-                  // ── Navigation Bar ───────────────────────────────
+                  // ── Navigation Bar ────────────────────────────
                   _QuizNavigationBar(
                     quizProvider: quizProvider,
                     onPrevious: () => _animateQuestionChange(
                         quizProvider.previousQuestion),
-                    onNext: () =>
-                        _animateQuestionChange(quizProvider.nextQuestion),
+                    onNext: () => _animateQuestionChange(
+                        quizProvider.nextQuestion),
                   ),
                 ],
               ),
@@ -402,7 +484,6 @@ class _OptionTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            // Letter badge
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
               width: 32,
@@ -482,7 +563,6 @@ class _QuizNavigationBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Previous button
           GestureDetector(
             onTap: isFirstQuestion ? null : onPrevious,
             child: AnimatedContainer(
@@ -513,7 +593,6 @@ class _QuizNavigationBar extends StatelessWidget {
 
           const SizedBox(width: 14),
 
-          // Next / Submit button
           Expanded(
             child: GestureDetector(
               onTap: () {

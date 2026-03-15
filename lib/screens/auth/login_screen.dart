@@ -7,6 +7,7 @@ import 'signup_screen.dart';
 import 'profile_check_wrapper.dart';
 import 'email_verification_screen.dart';
 import '../../services/connectivity_service.dart';
+import '../../services/notification_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -92,26 +93,30 @@ class _LoginScreenState extends State<LoginScreen>
       );
 
       if (mounted) {
-      // ── CHANGE 2: Check email verification status ──
-      final user = _auth.currentUser;
-      await user?.reload();
-      
-      if (!mounted) return; // Check again after reload
-      
-      if (user != null && !user.emailVerified) {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const EmailVerificationScreen(),
-          ),
-          (route) => false,
-        );
-      } else {
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => const ProfileCheckWrapper()),
-          (route) => false,
-        );
+        // Save FCM token now that user is logged in
+        await NotificationService().onUserLogin();
+
+        // Check email verification status
+        final user = _auth.currentUser;
+        await user?.reload();
+
+        if (!mounted) return;
+
+        if (user != null && !user.emailVerified) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (context) => const EmailVerificationScreen(),
+            ),
+            (route) => false,
+          );
+        } else {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+                builder: (context) => const ProfileCheckWrapper()),
+            (route) => false,
+          );
+        }
       }
-    }
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       String message;
@@ -491,7 +496,8 @@ class _LoginScreenState extends State<LoginScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _accentGreen.withValues(alpha: 0.35),
+                                    color:
+                                        _accentGreen.withValues(alpha: 0.35),
                                     blurRadius: 20,
                                     offset: const Offset(0, 8),
                                   ),

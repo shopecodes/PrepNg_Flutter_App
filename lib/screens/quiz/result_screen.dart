@@ -1,8 +1,12 @@
 // lib/screens/quiz/result_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/question_model.dart';
 import '../../services/progress_service.dart';
+import '../../services/streak_service.dart';
+import '../../services/leaderboard_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ResultScreen extends StatefulWidget {
@@ -26,13 +30,14 @@ class ResultScreen extends StatefulWidget {
 class _ResultScreenState extends State<ResultScreen>
     with SingleTickerProviderStateMixin {
   final ProgressService _progressService = ProgressService();
+  final StreakService _streakService = StreakService();
+  final LeaderboardService _leaderboardService = LeaderboardService();
   bool _isSaved = false;
 
   late AnimationController _animController;
   late Animation<double> _scoreAnimation;
   late Animation<double> _fadeAnimation;
 
-  // Color palette
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
 
@@ -86,11 +91,36 @@ class _ResultScreenState extends State<ResultScreen>
 
   Future<void> _saveFinalResults() async {
     try {
+      // 1. Save quiz result to progress
       await _progressService.saveQuizResult(
         subjectName: widget.subjectName,
         score: widget.score,
         totalQuestions: widget.questions.length,
       );
+
+      // 2. Record daily streak activity
+      await _streakService.recordActivity();
+
+      // 3. Get user profile for leaderboard
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        final data = userDoc.data();
+        final displayName = data?['displayName'] ?? 'Anonymous';
+        final department = data?['department'] ?? 'Science';
+
+        // 4. Record score to weekly leaderboard
+        await _leaderboardService.recordScore(
+          score: widget.score,
+          totalQuestions: widget.questions.length,
+          displayName: displayName,
+          department: department,
+        );
+      }
+
       if (mounted) setState(() => _isSaved = true);
     } catch (e) {
       debugPrint("Error saving results: $e");
@@ -132,7 +162,6 @@ class _ResultScreenState extends State<ResultScreen>
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
                   child: Column(
                     children: [
-                      // Subject label
                       Text(
                         widget.subjectName,
                         style: GoogleFonts.poppins(
@@ -142,10 +171,7 @@ class _ResultScreenState extends State<ResultScreen>
                           letterSpacing: 0.5,
                         ),
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Animated score ring
                       AnimatedBuilder(
                         animation: _scoreAnimation,
                         builder: (context, child) {
@@ -161,8 +187,7 @@ class _ResultScreenState extends State<ResultScreen>
                                   width: 140,
                                   height: 140,
                                   child: CircularProgressIndicator(
-                                    value:
-                                        animatedScore / 100,
+                                    value: animatedScore / 100,
                                     backgroundColor:
                                         Colors.white.withValues(alpha: 0.25),
                                     valueColor:
@@ -173,8 +198,7 @@ class _ResultScreenState extends State<ResultScreen>
                                   ),
                                 ),
                                 Column(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Text(
                                       '${animatedScore.toInt()}%',
@@ -200,10 +224,7 @@ class _ResultScreenState extends State<ResultScreen>
                           );
                         },
                       ),
-
                       const SizedBox(height: 16),
-
-                      // Message + emoji
                       FadeTransition(
                         opacity: _fadeAnimation,
                         child: Column(
@@ -222,8 +243,7 @@ class _ResultScreenState extends State<ResultScreen>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color:
-                                      Colors.white.withValues(alpha: 0.2),
+                                  color: Colors.white.withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Row(
@@ -253,7 +273,7 @@ class _ResultScreenState extends State<ResultScreen>
               ),
             ),
 
-            // ── Review Label ─────────────────────────────────────
+            // ── Review Label ──────────────────────────────────────
             FadeTransition(
               opacity: _fadeAnimation,
               child: Padding(
@@ -270,7 +290,6 @@ class _ResultScreenState extends State<ResultScreen>
                         letterSpacing: 2,
                       ),
                     ),
-                    // Quick stats
                     Row(
                       children: [
                         _statPill(
@@ -297,8 +316,7 @@ class _ResultScreenState extends State<ResultScreen>
               child: FadeTransition(
                 opacity: _fadeAnimation,
                 child: ListView.builder(
-                  padding:
-                      const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
                   itemCount: widget.questions.length,
                   itemBuilder: (context, index) {
                     final question = widget.questions[index];
@@ -331,8 +349,8 @@ class _ResultScreenState extends State<ResultScreen>
                 ],
               ),
               child: GestureDetector(
-                onTap: () => Navigator.of(context)
-                    .popUntil((route) => route.isFirst),
+                onTap: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
                 child: Container(
                   width: double.infinity,
                   height: 56,
@@ -377,8 +395,7 @@ class _ResultScreenState extends State<ResultScreen>
       required String label,
       required Color color}) {
     return Container(
-      padding:
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
@@ -401,7 +418,7 @@ class _ResultScreenState extends State<ResultScreen>
   }
 }
 
-// ── Review Tile ────────────────────────────────────────────────────────────────
+// ── Review Tile ───────────────────────────────────────────────────────────────
 
 class _ReviewTile extends StatelessWidget {
   final Question question;
@@ -494,7 +511,6 @@ class _ReviewTile extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Your answer
                   _answerRow(
                     label: 'Your Answer',
                     answer: userAnswer != null
@@ -505,20 +521,15 @@ class _ReviewTile extends StatelessWidget {
                         ? Icons.check_circle_outline_rounded
                         : Icons.cancel_outlined,
                   ),
-
                   if (!isCorrect) ...[
                     const SizedBox(height: 10),
-                    // Correct answer
                     _answerRow(
                       label: 'Correct Answer',
-                      answer: question
-                          .options[question.correctAnswerIndex],
+                      answer: question.options[question.correctAnswerIndex],
                       color: _accentGreen,
                       icon: Icons.check_circle_rounded,
                     ),
                   ],
-
-                  // Explanation
                   if (question.explanation != null) ...[
                     const SizedBox(height: 12),
                     Container(
@@ -533,8 +544,7 @@ class _ReviewTile extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Icon(Icons.lightbulb_outline_rounded,
-                              size: 16,
-                              color: Colors.blue.shade700),
+                              size: 16, color: Colors.blue.shade700),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(

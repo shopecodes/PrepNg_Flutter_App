@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:prep_ng/screens/auth/login_screen.dart';
 import '../../services/user_service.dart';
 import '../../services/connectivity_service.dart';
+import '../../services/notification_service.dart';
 import '../../models/user_model.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -110,7 +111,6 @@ class _SettingsScreenState extends State<SettingsScreen>
       _showSnackBar('Name must be at least 3 characters', isError: true);
       return;
     }
-    // ── CHANGE: letters and spaces only ──────────────────────────
     if (!RegExp(r'^[a-zA-Z\s]+$').hasMatch(_nameController.text.trim())) {
       _showSnackBar('Name can only contain letters and spaces', isError: true);
       return;
@@ -262,6 +262,9 @@ class _SettingsScreenState extends State<SettingsScreen>
           ),
         ),
       );
+
+      // Clear FCM token before signing out
+      await NotificationService().onUserLogout();
 
       await FirebaseAuth.instance.signOut();
 

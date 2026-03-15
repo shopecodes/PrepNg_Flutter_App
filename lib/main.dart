@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,11 +11,24 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'provider/quiz_provider.dart';
 import 'services/auth_services.dart';
+import 'services/notification_service.dart';
+import 'services/connectivity_service.dart';
 import 'screens/auth/login_screen.dart';
 import 'screens/auth/profile_check_wrapper.dart';
+import 'screens/question_of_the_day_screen.dart';
 
-void main() {
+// ── Background message handler (must be top-level) ──────────────────────────
+@pragma('vm:entry-point')
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  debugPrint('Background message received: ${message.messageId}');
+}
+
+// ── Global navigator key for notification navigation ────────────────────────
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   runApp(
     MultiProvider(
@@ -35,12 +49,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'PrepNg',
       debugShowCheckedModeBanner: false,
+      navigatorKey: navigatorKey,
+      scaffoldMessengerKey: connectivityScaffoldKey, // ← global snackbar key
       theme: ThemeData(
         useMaterial3: true,
         colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 1, 43, 2)),
+            seedColor: const Color.fromARGB(255, 14, 16, 15)),
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
+      routes: {
+        '/qotd': (context) {
+          // Pass the date argument from the notification to the screen
+          final date = ModalRoute.of(context)?.settings.arguments as String?;
+          return QuestionOfTheDayScreen(notificationDate: date);
+        },
+      },
       home: const AppInitializer(),
     );
   }
@@ -66,70 +89,100 @@ class _AppInitializerState extends State<AppInitializer> {
     try {
       final startTime = DateTime.now();
 
-      // Initialize Firebase
+      // ── Step 1: Firebase core init — no internet needed, must always complete ──
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Enable offline persistence
+      // Enable offline persistence right after core init
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: true,
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
 
-      // Run auth check and onboarding check in parallel
-      final results = await Future.wait([
-        FirebaseAuth.instance
-            .authStateChanges()
-            .first
-            .timeout(
-              const Duration(seconds: 5),
-              onTimeout: () => null,
-            ),
-        SharedPreferences.getInstance(),
-      ]);
+      // ── Step 2: Network-dependent calls — capped at 20 seconds ──
+      await _runInit().timeout(
+        const Duration(seconds: 20),
+        onTimeout: () => _handleTimeout(),
+      );
 
-      if (!mounted) return;
-
-      final user = results[0] as User?;
-      final prefs = results[1] as SharedPreferences;
-      final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
-
-      // Determine next screen:
-      // - First time user → Onboarding
-      // - Returning user, not logged in → Login
-      // - Returning user, logged in → Home
-      final nextScreen = !onboardingComplete
-          ? const OnboardingScreen()
-          : user == null
-              ? const LoginScreen()
-              : const ProfileCheckWrapper();
-
-      // Guarantee loading screen shows for exactly 5 seconds
+      // Guarantee loading screen shows for at least 5 seconds
       final elapsed = DateTime.now().difference(startTime);
       const minimumDuration = Duration(seconds: 5);
-
       if (elapsed < minimumDuration) {
         await Future.delayed(minimumDuration - elapsed);
       }
 
       if (!mounted) return;
-
-      setState(() {
-        _nextScreen = nextScreen;
-      });
-
       _navigateToNextScreen();
     } catch (e) {
       debugPrint('Error initializing app: $e');
-
       if (mounted) {
-        setState(() {
-          _nextScreen = const LoginScreen();
-        });
+        setState(() => _nextScreen = const LoginScreen());
         _navigateToNextScreen();
       }
     }
+  }
+
+  Future<void> _runInit() async {
+    // Initialize notifications (needs Firebase to be ready)
+    NotificationService.navigatorKey = navigatorKey;
+    await NotificationService().initialize();
+
+    // Auth check + onboarding check in parallel
+    final results = await Future.wait([
+      FirebaseAuth.instance
+          .authStateChanges()
+          .first
+          .timeout(const Duration(seconds: 5), onTimeout: () => null),
+      SharedPreferences.getInstance(),
+    ]);
+
+    if (!mounted) return;
+
+    final user = results[0] as User?;
+    final prefs = results[1] as SharedPreferences;
+    final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
+
+    setState(() {
+      _nextScreen = !onboardingComplete
+          ? const OnboardingScreen()
+          : user == null
+              ? const LoginScreen()
+              : const ProfileCheckWrapper();
+    });
+  }
+
+  void _handleTimeout() {
+    // Fall through to login so app isn't stuck on loading screen
+    if (mounted) {
+      setState(() => _nextScreen = const LoginScreen());
+    }
+
+    // Show snackbar after navigation so it appears briefly then auto-dismisses
+    Future.delayed(const Duration(milliseconds: 600), () {
+      connectivityScaffoldKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'No internet connection. Please check your network.',
+                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: const Color(0xFF1A2E1F),
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    });
   }
 
   void _navigateToNextScreen() {

@@ -1,3 +1,5 @@
+// lib/screens/quiz/quiz_loading_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:provider/provider.dart';
@@ -36,12 +38,10 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
   late Animation<double> _pulseAnimation;
   late Animation<double> _fadeAnimation;
 
-  // Color palette
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
 
-  // Scope gradient matching the rest of the app
   List<Color> get _scopeGradient {
     final name = widget.scopeName.toUpperCase();
     if (name.contains('JAMB')) {
@@ -97,26 +97,25 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
     try {
       debugPrint('=== LOADING QUIZ ===');
       debugPrint('Subject: ${widget.subjectName}');
-      debugPrint('Scope: ${widget.scopeName}');
       debugPrint('Questions needed: ${widget.questionsPerQuiz}');
-      debugPrint('Time limit: ${widget.timeLimit} seconds');
 
       final snapshot = await FirebaseFirestore.instance
           .collection('questions')
           .where('subjectId', isEqualTo: widget.subjectId)
           .where('scopeId', isEqualTo: widget.scopeId)
-          .get(const GetOptions(source: Source.serverAndCache));
+          // ── FIXED: was Source.serverAndCache which returned stale cache ──
+          .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isEmpty) {
         _handleEmptyQuestions();
         return;
       }
 
-      debugPrint('Found ${snapshot.docs.length} questions in database');
+      debugPrint('Found ${snapshot.docs.length} questions from server');
 
-      List<Question> questions = snapshot.docs.map((doc) {
-        return Question.fromFirestore(doc.data(), doc.id);
-      }).toList();
+      final questions = snapshot.docs
+          .map((doc) => Question.fromFirestore(doc.data(), doc.id))
+          .toList();
 
       if (questions.length < widget.questionsPerQuiz) {
         _showInsufficientQuestionsDialog(questions.length, questions);
@@ -125,20 +124,23 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
       if (mounted) {
         final quizProvider = Provider.of<QuizProvider>(context, listen: false);
-        quizProvider.startQuiz(
+        await quizProvider.startQuiz(
           questions,
           widget.questionsPerQuiz,
           widget.timeLimit,
         );
 
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) => QuizScreen(subjectName: widget.subjectName),
-          ),
-        );
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) =>
+                  QuizScreen(subjectName: widget.subjectName),
+            ),
+          );
+        }
       }
     } catch (e) {
-      debugPrint("Error loading questions: $e");
+      debugPrint('Error loading questions: $e');
       _handleError();
     }
   }
@@ -155,8 +157,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
           backgroundColor: Colors.orange.shade700,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -230,18 +232,19 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                   const SizedBox(width: 12),
                   Expanded(
                     child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
+                      onTap: () async {
+                        final navigator = Navigator.of(context);
+                        navigator.pop();
                         if (mounted) {
                           final quizProvider = Provider.of<QuizProvider>(
                               context,
                               listen: false);
-                          quizProvider.startQuiz(
+                          await quizProvider.startQuiz(
                             questions,
                             availableQuestions,
                             widget.timeLimit,
                           );
-                          Navigator.of(context).pushReplacement(
+                          navigator.pushReplacement(
                             MaterialPageRoute(
                               builder: (context) => QuizScreen(
                                   subjectName: widget.subjectName),
@@ -292,8 +295,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
           backgroundColor: Colors.red.shade600,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -313,7 +316,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
               children: [
                 const Spacer(flex: 2),
 
-                // Pulsing gradient icon
                 ScaleTransition(
                   scale: _pulseAnimation,
                   child: Container(
@@ -337,7 +339,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        // Decorative circles
                         Positioned(
                           top: -10,
                           right: -10,
@@ -362,7 +363,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
                 const SizedBox(height: 36),
 
-                // Subject name
                 Text(
                   widget.subjectName,
                   style: GoogleFonts.poppins(
@@ -386,7 +386,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
                 const SizedBox(height: 32),
 
-                // Exam info chips
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -409,15 +408,14 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
                 const SizedBox(height: 48),
 
-                // Progress indicator
                 Column(
                   children: [
                     SizedBox(
                       width: 36,
                       height: 36,
                       child: CircularProgressIndicator(
-                        valueColor:
-                            AlwaysStoppedAnimation<Color>(_scopeGradient[0]),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            _scopeGradient[0]),
                         strokeWidth: 3,
                       ),
                     ),

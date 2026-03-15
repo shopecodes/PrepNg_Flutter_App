@@ -281,7 +281,58 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 20),
+
+                    // SPAM FOLDER REMINDER - NEW SECTION
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Colors.orange.shade200,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: Colors.orange.shade700,
+                            size: 22,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Can\'t find the email?',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.orange.shade900,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  'Check your spam or junk folder. Sometimes verification emails end up there.',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 12,
+                                    color: Colors.orange.shade800,
+                                    height: 1.5,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
 
                     GestureDetector(
                       onTap: _resendCooldown > 0 ? null : _resendVerification,

@@ -1,53 +1,73 @@
+// lib/services/progress_service.dart
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 
 class ProgressService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // This is the method your ResultScreen is looking for!
+  // Save quiz result — field is 'timestamp' everywhere
   Future<void> saveQuizResult({
     required String subjectName,
     required int score,
     required int totalQuestions,
   }) async {
     final user = _auth.currentUser;
-    
-    // Only save if the user is logged in
     if (user != null) {
       await _db.collection('results').add({
         'userId': user.uid,
         'subjectName': subjectName,
         'score': score,
         'totalQuestions': totalQuestions,
-        'timestamp': FieldValue.serverTimestamp(), // This sets the current time
+        'timestamp': FieldValue.serverTimestamp(), // ← was 'takenAt'
       });
     }
   }
 
-  // Used by the History screen to fetch data
+  // Get all user results ordered by 'timestamp'
   Stream<QuerySnapshot> getUserResults() {
     return _db
         .collection('results')
         .where('userId', isEqualTo: _auth.currentUser?.uid)
-        .orderBy('timestamp', descending: true)
+        .orderBy('timestamp', descending: true) // ← was 'takenAt'
         .snapshots();
   }
 
-// Add this inside your ProgressService class
-Future<void> clearUserHistory() async {
-  final user = _auth.currentUser;
-  if (user == null) return;
+  // Clear history from BOTH collections
+  Future<bool> clearUserHistory() async {
+    final user = _auth.currentUser;
+    if (user == null) return false;
 
-  // Get all documents belonging to this user
-  final snapshot = await _db
-      .collection('results')
-      .where('userId', isEqualTo: user.uid)
-      .get();
+    int deletedCount = 0;
 
-  // Delete each document
-  for (DocumentSnapshot doc in snapshot.docs) {
-    await doc.reference.delete();
+    try {
+      final resultsSnapshot = await _db
+          .collection('results')
+          .where('userId', isEqualTo: user.uid)
+          .get();
+
+      for (DocumentSnapshot doc in resultsSnapshot.docs) {
+        await doc.reference.delete();
+        deletedCount++;
+      }
+
+      final mockResultsSnapshot = await _db
+          .collection('users')
+          .doc(user.uid)
+          .collection('mock_results')
+          .get();
+
+      for (DocumentSnapshot doc in mockResultsSnapshot.docs) {
+        await doc.reference.delete();
+        deletedCount++;
+      }
+
+      return deletedCount > 0;
+    } catch (e) {
+      debugPrint('Error clearing history: $e');
+      return false;
+    }
   }
-}
 }
