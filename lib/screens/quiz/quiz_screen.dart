@@ -31,7 +31,6 @@ class _QuizScreenState extends State<QuizScreen>
   Set<String> _bookmarkedIds = {};
   bool _isTogglingBookmark = false;
 
-  // ── Store subscription so it can be cancelled ─────────────────
   StreamSubscription<Set<String>>? _bookmarkSubscription;
 
   static const Color _bgColor = Color(0xFFF5FAF6);
@@ -72,7 +71,6 @@ class _QuizScreenState extends State<QuizScreen>
     final quizProvider = Provider.of<QuizProvider>(context, listen: false);
     quizProvider.onQuizFinished = () => _navigateToResults(quizProvider);
 
-    // ── Store subscription so we can cancel it in dispose ────────
     _bookmarkSubscription = _bookmarkService.bookmarkedIdsStream().listen((ids) {
       if (mounted) setState(() => _bookmarkedIds = ids);
     });
@@ -82,7 +80,7 @@ class _QuizScreenState extends State<QuizScreen>
   void dispose() {
     Provider.of<QuizProvider>(context, listen: false).onQuizFinished = null;
     _questionAnimController.dispose();
-    _bookmarkSubscription?.cancel(); // ← properly cancel stream
+    _bookmarkSubscription?.cancel();
     super.dispose();
   }
 
@@ -108,6 +106,80 @@ class _QuizScreenState extends State<QuizScreen>
     if (ratio > 0.5) return _accentGreen;
     if (ratio > 0.25) return const Color(0xFFE89B4A);
     return Colors.red.shade500;
+  }
+
+  // ── Smart image widget: handles URL, asset path, or empty ────────────────
+  Widget _buildQuestionImage(String imagePath) {
+    final isUrl = imagePath.startsWith('http://') ||
+        imagePath.startsWith('https://');
+
+    Widget imageWidget;
+
+    if (isUrl) {
+      imageWidget = Image.network(
+        imagePath,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return SizedBox(
+            height: 120,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+                color: _accentGreen,
+                strokeWidth: 2.5,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => _imageFallback(),
+      );
+    } else {
+      imageWidget = Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _imageFallback(),
+      );
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: imageWidget,
+      ),
+    );
+  }
+
+  Widget _imageFallback() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.grey.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image, color: Colors.grey.shade400),
+          const SizedBox(width: 8),
+          Text(
+            'Image not available',
+            style: GoogleFonts.poppins(color: Colors.grey.shade400),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -332,57 +404,11 @@ class _QuizScreenState extends State<QuizScreen>
                                 ),
                               ),
 
-                              // Optional image
+                              // ── Smart image: URL or asset ─────
                               if (question.imagePath != null &&
                                   question.imagePath!.isNotEmpty) ...[
                                 const SizedBox(height: 12),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.circular(16),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.05),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      ),
-                                    ],
-                                  ),
-                                  child: ClipRRect(
-                                    borderRadius:
-                                        BorderRadius.circular(16),
-                                    child: Image.asset(
-                                      question.imagePath!,
-                                      fit: BoxFit.contain,
-                                      errorBuilder:
-                                          (context, error, stackTrace) {
-                                        return Container(
-                                          padding:
-                                              const EdgeInsets.all(16),
-                                          color: Colors.grey.shade100,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Icon(Icons.broken_image,
-                                                  color: Colors
-                                                      .grey.shade400),
-                                              const SizedBox(width: 8),
-                                              Text('Image not found',
-                                                  style:
-                                                      GoogleFonts.poppins(
-                                                          color: Colors
-                                                              .grey
-                                                              .shade400)),
-                                            ],
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
+                                _buildQuestionImage(question.imagePath!),
                               ],
 
                               const SizedBox(height: 20),

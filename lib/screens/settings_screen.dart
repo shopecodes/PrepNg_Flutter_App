@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:prep_ng/screens/auth/login_screen.dart';
+import 'package:prep_ng/screens/auth/welcome_screen.dart';
 import '../../services/user_service.dart';
 import '../../services/connectivity_service.dart';
 import '../../services/notification_service.dart';
@@ -200,7 +200,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width:8),
                   Expanded(
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context, true),
@@ -271,7 +271,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       if (!mounted) return;
       Navigator.of(context).pop();
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const LoginScreen()),
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
         (route) => false,
       );
     } catch (e) {
@@ -448,7 +448,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 20),
 
                             Text(
                               'EDIT PROFILE',
@@ -460,7 +460,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 10),
 
                             Container(
                               padding: const EdgeInsets.all(20),
@@ -507,7 +507,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 20),
 
                             Text(
                               'DEPARTMENT',
@@ -519,7 +519,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               ),
                             ),
 
-                            const SizedBox(height: 14),
+                            const SizedBox(height: 12),
 
                             ...(_departments.map((dept) {
                               final isSelected = _selectedDept == dept['name'];
@@ -599,7 +599,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                               );
                             }).toList()),
 
-                            const SizedBox(height: 28),
+                            const SizedBox(height: 24),
 
                             if (_isEditing)
                               GestureDetector(
@@ -667,8 +667,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     Icon(Icons.logout_rounded,
-                                        color: Colors.red.shade600, size: 20),
-                                    const SizedBox(width: 10),
+                                        color: Colors.red.shade600, size: 12),
+                                    const SizedBox(width: 6),
                                     Text(
                                       'Log Out',
                                       style: GoogleFonts.poppins(

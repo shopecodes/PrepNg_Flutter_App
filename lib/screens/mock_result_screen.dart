@@ -1,6 +1,8 @@
 // lib/screens/mock_exam/mock_result_screen.dart
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../provider/theme_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,9 +37,8 @@ class _MockResultScreenState extends State<MockResultScreen>
   // ── Added streak service ──────────────────────────────────────
   final StreakService _streakService = StreakService();
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF014104);
+  static const Color _darkGreenFixed = Color(0xFF014104); // used in gradient only
 
   int _totalScore = 0;
   int _totalQuestions = 0;
@@ -130,6 +131,11 @@ class _MockResultScreenState extends State<MockResultScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF014104);
+    final subtextColor = isDark ? Colors.white60 : Colors.grey.shade600;
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -141,7 +147,7 @@ class _MockResultScreenState extends State<MockResultScreen>
         );
       },
       child: Scaffold(
-        backgroundColor: _bgColor,
+        backgroundColor: bgColor,
         body: SafeArea(
           child: FadeTransition(
             opacity: _fadeAnimation,
@@ -155,7 +161,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [_accentGreen, _darkGreen],
+                        colors: [_accentGreen, _darkGreenFixed],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -218,11 +224,11 @@ class _MockResultScreenState extends State<MockResultScreen>
                             width: double.infinity,
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: cardColor,
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
+                                  color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -251,7 +257,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                                           style: GoogleFonts.poppins(
                                             fontSize: 28,
                                             fontWeight: FontWeight.w800,
-                                            color: _darkGreen,
+                                            color: textColor,
                                           ),
                                         ),
                                       ],
@@ -337,7 +343,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                                         style: GoogleFonts.poppins(
                                           fontSize: 15,
                                           fontWeight: FontWeight.w600,
-                                          color: _darkGreen,
+                                          color: textColor,
                                         ),
                                       ),
                                       Text(
@@ -374,7 +380,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.grey.shade600,
+                                          color: subtextColor,
                                         ),
                                       ),
                                     ],

@@ -6,6 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/question_model.dart';
+import 'package:provider/provider.dart';
+import '../../provider/theme_provider.dart';
 import '../../services/connectivity_service.dart';
 import 'mock_quiz_screen.dart';
 
@@ -37,9 +39,7 @@ class _MockSubjectSelectionScreenState
   String? _useOfEnglishSubjectId;
   String? _useOfEnglishName;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
   static const int _requiredAdditionalSubjects = 3;
   static const int _questionsPerSubject = 40;
 
@@ -383,8 +383,10 @@ class _MockSubjectSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+    final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: bgColor,
       body: Column(
         children: [
           _buildHeader(),
@@ -504,7 +506,7 @@ class _MockSubjectSelectionScreenState
     );
   }
 
-  Widget _buildError() {
+  Widget _buildError({bool isDark = false}) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -518,7 +520,7 @@ class _MockSubjectSelectionScreenState
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.grey.shade600,
+                  color: isDark ? Colors.white60 : Colors.grey.shade600,
                   height: 1.5),
             ),
             const SizedBox(height: 24),
@@ -543,7 +545,7 @@ class _MockSubjectSelectionScreenState
     );
   }
 
-  Widget _buildBody() {
+  Widget _buildBody({bool isDark = false, Color cardColor = Colors.white, Color textColor = const Color(0xFF1A2E1F)}) {
     if (_availableSubjects.isEmpty) {
       return Center(
         child: Padding(
@@ -559,7 +561,7 @@ class _MockSubjectSelectionScreenState
                   style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: _darkGreen)),
+                      color: textColor)),
               const SizedBox(height: 10),
               Text(
                 'Unlock at least $_requiredAdditionalSubjects JAMB subjects\nto take the mock exam.',
@@ -587,6 +589,9 @@ class _MockSubjectSelectionScreenState
             icon: '📖',
             isSelected: true,
             isLocked: true,
+            isDark: isDark,
+            cardColor: cardColor,
+            textColor: textColor,
           ),
           const SizedBox(height: 20),
           _sectionLabel('Choose $_requiredAdditionalSubjects subjects'),
@@ -601,9 +606,12 @@ class _MockSubjectSelectionScreenState
               name: subject['name'] as String,
               icon: subject['icon'] as String? ?? '📚',
               isSelected: isSelected,
-              isLocked: _isStarting, // prevents toggling during loading
+              isLocked: _isStarting,
               isDisabled: isDisabled,
               onTap: () => _toggleSubject(id),
+              isDark: isDark,
+              cardColor: cardColor,
+              textColor: textColor,
             );
           }),
         ],
@@ -630,6 +638,9 @@ class _MockSubjectSelectionScreenState
     required bool isLocked,
     bool isDisabled = false,
     VoidCallback? onTap,
+    bool isDark = false,
+    Color cardColor = Colors.white,
+    Color textColor = const Color(0xFF1A2E1F),
   }) {
     return GestureDetector(
       onTap: isLocked || isDisabled ? null : onTap,
@@ -640,12 +651,12 @@ class _MockSubjectSelectionScreenState
         decoration: BoxDecoration(
           color: isSelected
               ? _accentGreen.withValues(alpha: 0.08)
-              : Colors.white,
+              : cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? _accentGreen.withValues(alpha: 0.5)
-                : Colors.grey.shade200,
+                : (isDark ? Colors.white12 : Colors.grey.shade200),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: [
@@ -679,7 +690,7 @@ class _MockSubjectSelectionScreenState
                   fontSize: 14,
                   fontWeight:
                       isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isDisabled ? Colors.grey.shade400 : _darkGreen,
+                  color: isDisabled ? (isDark ? Colors.white30 : Colors.grey.shade400) : textColor,
                 ),
               ),
             ),
@@ -702,7 +713,7 @@ class _MockSubjectSelectionScreenState
                 height: 24,
                 decoration: BoxDecoration(
                   border:
-                      Border.all(color: Colors.grey.shade300, width: 2),
+                      Border.all(color: isDark ? Colors.white24 : Colors.grey.shade300, width: 2),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -712,14 +723,14 @@ class _MockSubjectSelectionScreenState
     );
   }
 
-  Widget _buildStartButton() {
+  Widget _buildStartButton({bool isDark = false, Color cardColor = Colors.white}) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),

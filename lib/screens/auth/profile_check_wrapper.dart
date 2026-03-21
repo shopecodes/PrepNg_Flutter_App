@@ -5,35 +5,47 @@ import '../../services/user_service.dart';
 import '../scope_selection_screen.dart';
 import 'complete_profile_screen.dart';
 
-class ProfileCheckWrapper extends StatelessWidget {
+class ProfileCheckWrapper extends StatefulWidget {
   const ProfileCheckWrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<ProfileCheckWrapper> createState() => _ProfileCheckWrapperState();
+}
+
+class _ProfileCheckWrapperState extends State<ProfileCheckWrapper> {
+  @override
+  void initState() {
+    super.initState();
+    _checkAndNavigate();
+  }
+
+  Future<void> _checkAndNavigate() async {
     final userService = UserService();
+    final isComplete = await userService.isProfileComplete();
 
-    return FutureBuilder<bool>(
-      future: userService.isProfileComplete(),
-      builder: (context, snapshot) {
-        // Show loading while checking profile status
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(color: Colors.green),
-            ),
-          );
-        }
+    if (!mounted) return;
 
-        // If profile is complete, go to Scope Selection
-        // Otherwise, show Complete Profile screen
-        final isComplete = snapshot.data ?? false;
+    // Navigate immediately — no waiting for next frame or app restart
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => isComplete
+            ? const ScopeSelectionScreen()
+            : const CompleteProfileScreen(),
+      ),
+    );
+  }
 
-        if (isComplete) {
-          return const ScopeSelectionScreen();
-        } else {
-          return const CompleteProfileScreen();
-        }
-      },
+  @override
+  Widget build(BuildContext context) {
+    // Show spinner while checking
+    return const Scaffold(
+      backgroundColor: Color(0xFFF5FAF6),
+      body: Center(
+        child: CircularProgressIndicator(
+          color: Color(0xFF4CAF7D),
+          strokeWidth: 2.5,
+        ),
+      ),
     );
   }
 }

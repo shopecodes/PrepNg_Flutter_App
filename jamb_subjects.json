@@ -1,0 +1,127 @@
+[
+  {
+    "id": "QUFTM5mQoplj1vjTgvd3",
+    "name": "Use-of-English",
+    "order": 1
+  },
+  {
+    "id": "WknFKzVCf6WmRYdE2EYS",
+    "name": "Agricultural Science",
+    "order": 2
+  },
+  {
+    "id": "yBp5Mw73Zv5leq24mq9n",
+    "name": "Arabic",
+    "order": 5
+  },
+  {
+    "id": "ZdCys8MKE5O0myYxB8GM",
+    "name": "Art(Fine Art)",
+    "order": 6
+  },
+  {
+    "id": "2J4XVFWR0VLf7Rn6X7zK",
+    "name": "Biology",
+    "order": 10
+  },
+  {
+    "id": "cJG4ck6bXXozzAiRRhML",
+    "name": "Chemistry",
+    "order": 14
+  },
+  {
+    "id": "embGGdRhyyiYpvM1OXpe",
+    "name": "Christian Religious Studies",
+    "order": 17
+  },
+  {
+    "id": "1v5H54wprlQdSfhuUEER",
+    "name": "Commerce",
+    "order": 19
+  },
+  {
+    "id": "vIjFSavtFENbLH0BKh3R",
+    "name": "Computer Studies",
+    "order": 22
+  },
+  {
+    "id": "vqP4GVFzakUeTcu4IiPs",
+    "name": "Economics",
+    "order": 25
+  },
+  {
+    "id": "lR9OdBmj47nNvbiTUmg5",
+    "name": "French",
+    "order": 31
+  },
+  {
+    "id": "9xS2FiDAAHCxbn0qgNaP",
+    "name": "Geography",
+    "order": 35
+  },
+  {
+    "id": "i8fW6ibGzXmtfyhSoXcz",
+    "name": "Government",
+    "order": 36
+  },
+  {
+    "id": "bDFrqpl2nautmKVKSi3B",
+    "name": "Hausa",
+    "order": 38
+  },
+  {
+    "id": "M1JM2xHErpDcwCYLBj9B",
+    "name": "History",
+    "order": 41
+  },
+  {
+    "id": "GrEMVJRbrdzTNmQK4fro",
+    "name": "Home Economics",
+    "order": 42
+  },
+  {
+    "id": "Z09N8qTfSQng0ICUmfHE",
+    "name": "Igbo",
+    "order": 43
+  },
+  {
+    "id": "SpZXX9A3UPIbF6FG3BX8",
+    "name": "Islamic Studies",
+    "order": 46
+  },
+  {
+    "id": "CYGLEVzq3YcDyBzK60SH",
+    "name": "Literature-In-English",
+    "order": 47
+  },
+  {
+    "id": "Srn4oyWHL2OMue5Psoyo",
+    "name": "Mathematics",
+    "order": 50
+  },
+  {
+    "id": "pG4fvDDDIgrqWu9dojxJ",
+    "name": "Music",
+    "order": 52
+  },
+  {
+    "id": "yKYibWSNDl2aYg9uSQ8l",
+    "name": "Physical and Health Education(PHE)",
+    "order": 53
+  },
+  {
+    "id": "lERBwR2pYDc13Sg3qrnD",
+    "name": "Physics",
+    "order": 55
+  },
+  {
+    "id": "sIgg5fAChHkuh49zxJD8",
+    "name": "Principles of Accounts",
+    "order": 56
+  },
+  {
+    "id": "QcQglROXERYSoJbmRXx4",
+    "name": "Yoruba",
+    "order": 61
+  }
+]

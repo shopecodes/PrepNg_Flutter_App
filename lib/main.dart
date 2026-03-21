@@ -10,10 +10,11 @@ import 'firebase_options.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'provider/quiz_provider.dart';
+import 'provider/theme_provider.dart';
 import 'services/auth_services.dart';
 import 'services/notification_service.dart';
 import 'services/connectivity_service.dart';
-import 'screens/auth/login_screen.dart';
+import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/profile_check_wrapper.dart';
 import 'screens/question_of_the_day_screen.dart';
 
@@ -35,6 +36,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => QuizProvider()),
         ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const MyApp(),
     ),
@@ -46,17 +48,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       title: 'PrepNg',
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
-      scaffoldMessengerKey: connectivityScaffoldKey, // ← global snackbar key
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color.fromARGB(255, 14, 16, 15)),
-        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+      scaffoldMessengerKey: connectivityScaffoldKey,
+      // Theme switches for logged-in screens; login/onboarding stay light
+      theme: ThemeProvider.lightTheme.copyWith(
+        textTheme: GoogleFonts.poppinsTextTheme(ThemeProvider.lightTheme.textTheme),
       ),
+      darkTheme: ThemeProvider.darkTheme.copyWith(
+        textTheme: GoogleFonts.poppinsTextTheme(ThemeProvider.darkTheme.textTheme),
+      ),
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       routes: {
         '/qotd': (context) {
           // Pass the date argument from the notification to the screen
@@ -118,7 +123,7 @@ class _AppInitializerState extends State<AppInitializer> {
     } catch (e) {
       debugPrint('Error initializing app: $e');
       if (mounted) {
-        setState(() => _nextScreen = const LoginScreen());
+        setState(() => _nextScreen = const WelcomeScreen());
         _navigateToNextScreen();
       }
     }
@@ -148,7 +153,7 @@ class _AppInitializerState extends State<AppInitializer> {
       _nextScreen = !onboardingComplete
           ? const OnboardingScreen()
           : user == null
-              ? const LoginScreen()
+              ? const WelcomeScreen()
               : const ProfileCheckWrapper();
     });
   }
@@ -156,7 +161,7 @@ class _AppInitializerState extends State<AppInitializer> {
   void _handleTimeout() {
     // Fall through to login so app isn't stuck on loading screen
     if (mounted) {
-      setState(() => _nextScreen = const LoginScreen());
+      setState(() => _nextScreen = const WelcomeScreen());
     }
 
     // Show snackbar after navigation so it appears briefly then auto-dismisses

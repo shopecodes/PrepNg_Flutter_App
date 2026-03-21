@@ -3,6 +3,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import '../../provider/theme_provider.dart';
 import '../../models/question_model.dart';
 import 'mock_result_screen.dart';
 
@@ -255,6 +257,78 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
     );
   }
 
+  // ── Smart image widget: handles URL, asset path, or empty ────────────────
+  Widget _buildQuestionImage(String imagePath) {
+    final isUrl = imagePath.startsWith('http://') ||
+        imagePath.startsWith('https://');
+
+    Widget imageWidget;
+    if (isUrl) {
+      imageWidget = Image.network(
+        imagePath,
+        fit: BoxFit.contain,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return SizedBox(
+            height: 120,
+            child: Center(
+              child: CircularProgressIndicator(
+                value: loadingProgress.expectedTotalBytes != null
+                    ? loadingProgress.cumulativeBytesLoaded /
+                        loadingProgress.expectedTotalBytes!
+                    : null,
+                color: _accentGreen,
+                strokeWidth: 2.5,
+              ),
+            ),
+          );
+        },
+        errorBuilder: (context, error, stackTrace) => _imageFallback(),
+      );
+    } else {
+      imageWidget = Image.asset(
+        imagePath,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => _imageFallback(),
+      );
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: imageWidget,
+      ),
+    );
+  }
+
+  Widget _imageFallback() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      color: Colors.grey.shade100,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.broken_image, color: Colors.grey.shade400),
+          const SizedBox(width: 8),
+          Text('Image not available',
+              style: GoogleFonts.poppins(color: Colors.grey.shade400)),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _timer.cancel();
@@ -306,8 +380,14 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
           Navigator.of(context).pop();
         }
       },
-      child: Scaffold(
-        backgroundColor: const Color(0xFFF5FAF6),
+      child: Builder(builder: (context) {
+        final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
+        final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+        final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
+        final textColor = isDark ? Colors.white : const Color(0xFF014104);
+        final subtextColor = isDark ? Colors.white60 : Colors.grey.shade600;
+        return Scaffold(
+        backgroundColor: bgColor,
         body: SafeArea(
           child: Column(
             children: [
@@ -315,10 +395,10 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -334,7 +414,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                           style: GoogleFonts.poppins(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: _darkGreen,
+                            color: textColor,
                           ),
                         ),
                         Container(
@@ -400,7 +480,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               // Subject tabs
               Container(
                 height: 60,
-                color: Colors.white,
+                color: cardColor,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -435,7 +515,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
                                 color:
-                                    isActive ? Colors.white : _darkGreen,
+                                    isActive ? Colors.white : textColor,
                               ),
                             ),
                             Text(
@@ -468,7 +548,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                         'Question ${_currentQuestionIndex + 1} of ${_currentQuestions.length}',
                         style: GoogleFonts.poppins(
                           fontSize: 12,
-                          color: Colors.grey.shade600,
+                          color: subtextColor,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -478,10 +558,18 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: _darkGreen,
+                          color: textColor,
                           height: 1.5,
                         ),
                       ),
+
+                      // ── Question image (if any) ──────────────
+                      if (_currentQuestion.imagePath != null &&
+                          _currentQuestion.imagePath!.isNotEmpty) ...[
+                        const SizedBox(height: 12),
+                        _buildQuestionImage(_currentQuestion.imagePath!),
+                      ],
+
                       const SizedBox(height: 24),
 
                       // FIX 2: was options.entries.map → now options.asMap().entries.map
@@ -502,12 +590,12 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                             decoration: BoxDecoration(
                               color: isSelected
                                   ? _accentGreen.withValues(alpha: 0.1)
-                                  : Colors.white,
+                                  : cardColor,
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(
                                 color: isSelected
                                     ? _accentGreen
-                                    : Colors.grey.shade200,
+                                    : (isDark ? Colors.white12 : Colors.grey.shade200),
                                 width: isSelected ? 2 : 1,
                               ),
                             ),
@@ -519,7 +607,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? _accentGreen
-                                        : Colors.grey.shade100,
+                                        : (isDark ? Colors.white10 : Colors.grey.shade100),
                                     shape: BoxShape.circle,
                                   ),
                                   child: Center(
@@ -533,7 +621,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                         fontWeight: FontWeight.w600,
                                         color: isSelected
                                             ? Colors.white
-                                            : _darkGreen,
+                                            : textColor,
                                       ),
                                     ),
                                   ),
@@ -544,7 +632,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                     optionText,
                                     style: GoogleFonts.poppins(
                                       fontSize: 14,
-                                      color: _darkGreen,
+                                      color: textColor,
                                       height: 1.4,
                                     ),
                                   ),
@@ -563,10 +651,10 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               Container(
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, -2),
                     ),
@@ -638,7 +726,8 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
             ],
           ),
         ),
-      ),
+      );
+      }),
     );
   }
 }

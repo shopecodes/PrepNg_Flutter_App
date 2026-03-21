@@ -1,7 +1,7 @@
 # PrepNG - JAMB & WAEC Exam Preparation App
 
 <p align="center">
-  <img src="assets/images/bookillustration1.png" width="120" alt="PrepNG Logo"/>
+  <img src="assets/images/bookillustration3.png" width="120" alt="PrepNG Logo"/>
 </p>
 
 <p align="center">
@@ -20,13 +20,13 @@
 
 PrepNG is a Flutter-based mobile application designed to help Nigerian secondary school students prepare effectively for their JAMB (UTME) and WAEC (SSCE) examinations. All questions are strictly based on the **official current syllabus** downloaded directly from the JAMB and WAEC websites — not recycled past questions.
 
-The app covers **51 subjects** across both exam scopes, with questions updated annually to match the latest syllabus.
+The app covers **57 subjects** across both exam scopes, with questions updated annually to match the latest syllabus.
 
 ---
 
 ## ✨ Features
 
-- 🎯 **JAMB & WAEC Coverage** — 51 subjects across both exam scopes
+- 🎯 **JAMB & WAEC Coverage** — 57 subjects across both exam scopes
 - 📚 **Syllabus-Based Questions** — 120+ questions per subject, based on official current syllabus
 - ⏱️ **Exam Simulation** — 40 questions in 30 mins (JAMB) / 60 questions in 60 mins (WAEC)
 - 🧪 **JAMB Mock Exam** — Full 4-subject mock exam simulation (Use of English + 3 chosen subjects)
@@ -112,7 +112,7 @@ lib/
 ├── models/          # Data models
 ├── provider/        # State management (Provider)
 ├── screens/         # UI screens
-│   ├── auth/        # Login, signup, profile
+│   ├── auth/        # Welcome, login, signup, profile
 │   ├── mock_exam/   # JAMB mock exam screens
 │   ├── progress/    # Quiz history and progress
 │   ├── quiz/        # Quiz screens

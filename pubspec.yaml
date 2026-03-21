@@ -2,7 +2,7 @@ name: prep_ng
 description: "JAMB & WAEC Exam Preparation App for Nigerian Students"
 publish_to: 'none'
 
-version: 1.0.0+7
+version: 1.0.0+10
 
 environment:
   sdk: ^3.10.0-142.0.dev
@@ -31,6 +31,7 @@ dependencies:
   firebase_messaging: 16.1.1
   flutter_local_notifications: ^17.0.0
   flutter_native_splash: ^2.4.1
+  google_sign_in: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -43,16 +44,19 @@ flutter:
 
   assets:
   - assets/images/prepnglogo.png
-  - assets/images/bookillustration1.1.png
-  - assets/images/bookillustration2.png
   - assets/images/bookillustration3.jpg
-  - assets/images/bookillustration4.jpg
   - assets/images/boy on graduation-bro.png
   - assets/images/disabled student-bro.png
   - assets/images/Exams-bro.png
   - assets/images/girl on graduation-bro.png
-  - assets/images/Raising hand-bro.png
   - assets/images/Student stress-bro.png
+  - assets/images/nigerian student.png
+  - assets/images/college project-bro.png
+  - assets/images/Graduation-cuate.png
+  - assets/images/Education-rafiki.png
+  - assets/images/college project-pana.png
+  - assets/images/beautiful-female-editor-works-book-review-writes-idea-notebook.jpg
+
 
 flutter_launcher_icons:
   image_path: "assets/images/prepnglogo.png"

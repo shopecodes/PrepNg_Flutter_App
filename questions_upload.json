@@ -1,0 +1,1922 @@
+[
+  {
+    "text": "Èdè Yorùbá ní àwọn fáwẹ̀lì mélòó?",
+    "options": [
+      "Ẹ̀wá (10)",
+      "Méjìlá (12)",
+      "Mẹ́rin (4)",
+      "Mẹ́fà (6)"
+    ],
+    "correctIndex": 0,
+    "explanation": "Èdè Yorùbá ní fáwẹ̀lì mẹ́wàá: a, e, ẹ, i, o, ọ, u, àti àwọn fáwẹ̀lì tí a máa ń pe ní ìpìlẹ̀ èdè. Àwọn wọ̀nyí ni: a, e, ẹ, i, o, ọ, u (àpéjọpọ̀ àti àpéjọpọ̀ ìgbẹ̀yìn).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Èwo nínú àwọn wọ̀nyí ni ohùn tóní (tonal)  Yorùbá tó ga jùlọ?",
+    "options": [
+      "Ohùn giga (Àmì ´)",
+      "Ohùn àárín (Àmì tí kò sí)",
+      "Ohùn ìsàlẹ̀ (Àmì `)",
+      "Ohùn abọ̀"
+    ],
+    "correctIndex": 0,
+    "explanation": "Èdè Yorùbá ní ohùn mẹ́ta: ohùn giga (àmì ´ – high tone), ohùn àárín (àìsí àmì – mid tone), àti ohùn ìsàlẹ̀ (àmì ` – low tone). Ohùn giga ni èyí tó ga jùlọ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Ìbagbépọ̀ ohùn (vowel harmony) nínú èdè Yorùbá túmọ̀ sí pé:",
+    "options": [
+      "Àwọn fáwẹ̀lì tó wà nínú ọ̀rọ̀ kan gbọdọ̀ jẹ́ ti ìdílé kannáà",
+      "Gbogbo ọ̀rọ̀ gbọdọ̀ ní fáwẹ̀lì kan ṣoṣo",
+      "Àwọn kọ́ńsónáǹtì gbọdọ̀ pọ̀ mọ́ fáwẹ̀lì",
+      "Ohùn gbọdọ̀ jẹ́ giga nínú gbogbo ọ̀rọ̀"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ìbagbépọ̀ ohùn (vowel harmony) nínú Yorùbá túmọ̀ sí pé àwọn fáwẹ̀lì tó wà nínú ọ̀rọ̀ kan gbọdọ̀ wá láti ìdílé fáwẹ̀lì kannáà — bóyá ìdílé {a, e, o, i, u} tàbí ìdílé {a, ẹ, ọ, i, u}.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Ìpàdánù ohùn (elision) nínú Yorùbá máa ń ṣẹlẹ̀ nígbà tí:",
+    "options": [
+      "Fáwẹ̀lì méjì bá pàdé ara wọn tí ọ̀kan sì ń pàdánù",
+      "Kọ́ńsónáǹtì méjì bá pàdé ara wọn",
+      "Àmì ohùn bá yí padà",
+      "Ọ̀rọ̀ tuntun bá jẹ́ àṣẹ"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ìpàdánù ohùn (elision) máa ń ṣẹlẹ̀ nígbà tí fáwẹ̀lì méjì bá pàdé ni àárín ọ̀rọ̀ méjì tí ọ̀kan (mọ́ sá kù) sì ń pàdánù — fún àpẹẹrẹ: 'mo ò' di 'mò', 'a ò' di 'ao' tàbí 'ò'.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Àpọ̀nísọ̀rọ̀ (pronoun) tí a máa ń lò fún ẹni kìíní aṣọfin (first person singular) nínú Yorùbá ni:",
+    "options": [
+      "Mo / Èmi",
+      "O / Ẹ",
+      "A / Àwa",
+      "Wọ́n"
+    ],
+    "correctIndex": 0,
+    "explanation": "Àpọ̀nísọ̀rọ̀ fún ẹni kìíní aṣọfin (ọ̀kan) nínú Yorùbá ni 'Mo' (ìpìlẹ̀) àti 'Èmi' (gbòòrò/emphatic). Fún àpẹẹrẹ: 'Mo lọ' (I went), 'Èmi ni ó lọ' (It is I that went).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni ìgbésọ̀rọ̀ (verb) nínú ọ̀rọ̀ 'Adé ra ìwé ní ọjà'?",
+    "options": [
+      "Adé",
+      "Ra",
+      "Ìwé",
+      "Ọjà"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ra' ni ìgbésọ̀rọ̀ (verb) nínú gbolóhùn yìí. 'Adé' ni ọ̀rọ̀orúkọ (noun/subject), 'ìwé' ni ohun tí a ṣe sí (object), àti 'ọjà' ni àyíká (adverbial of place).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Ìpele ọ̀rọ̀ (word class) wo ni 'kékeré', 'tóbi', 'rere' jẹ́ nínú Yorùbá?",
+    "options": [
+      "Ọ̀rọ̀orúkọ (Noun)",
+      "Ọ̀rọ̀àpọ̀nísọ̀rọ̀ (Adjective)",
+      "Ọ̀rọ̀àṣeyọrí (Adverb)",
+      "Ìgbésọ̀rọ̀ (Verb)"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Kékeré' (small), 'tóbi' (big/large), 'rere' (good) jẹ́ àwọn ọ̀rọ̀àpọ̀nísọ̀rọ̀ (adjectives) nínú Yorùbá — wọ́n ṣàpèjúwe ọ̀rọ̀orúkọ. Nínú Yorùbá, àwọn ọ̀rọ̀àpọ̀nísọ̀rọ̀ máa ń tọ̀ ọ̀rọ̀orúkọ lẹ́yìn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìlọ́po méjì (plural) máa ń ṣe pẹ̀lú:",
+    "options": [
+      "Fífi 's' kún ọ̀rọ̀ bí èdè Gẹ̀ẹ́sì",
+      "Lílò àpọ̀nísọ̀rọ̀ 'àwọn' ṣíwájú ọ̀rọ̀orúkọ",
+      "Yíyí padà ìpìlẹ̀ ọ̀rọ̀",
+      "Fífi '-ri' kún ìpari ọ̀rọ̀"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú Yorùbá, ìlọ́po méjì (plural) máa ń ṣe pẹ̀lú lílò 'àwọn' ṣíwájú ọ̀rọ̀orúkọ. Fún àpẹẹrẹ: 'ọmọ' (child) → 'àwọn ọmọ' (children); 'ìwé' (book) → 'àwọn ìwé' (books).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, iye (number) 'ogún' túmọ̀ sí:",
+    "options": [
+      "10",
+      "20",
+      "30",
+      "40"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ogún' nínú Yorùbá túmọ̀ sí 20 (twenty). Ìlànà ìkà nọ́mbà Yorùbá ń lo ẹsẹ mẹ́ta (vigesimal system): ogún (20), ọgbọ̀n (30), ogójì (40), àádọ́ta (50), ọgọ̀ta (60), àdórin (70), ọgọ̀rin (80), àádọ́sán (90), ọgọ́rùn-ún (100).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Àpẹẹrẹ wo nínú àwọn wọ̀nyí ni ìsọ̀rọ̀ àfikún (assimilation) nínú Yorùbá?",
+    "options": [
+      "'Mo ò lọ' di 'Mò lọ'",
+      "'Inú' + 'ilé' di 'inúlé' (nínú ilé)",
+      "'Adé' + 'ní' di 'Adéní'",
+      "'Ìwé' + 'rere' di 'ìwé rere'"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìsọ̀rọ̀ àfikún (assimilation) ṣẹlẹ̀ nígbà tí ohùn kan bá gba ìrísí ohùn mìíràn tó wà lẹ́gbẹ̀ẹ́ rẹ̀. 'Inú ilé' di 'nínú ilé' — 'n' ti 'inú' máa ń ní ipa lórí ohùn tó tẹ̀ lé e. Àpẹẹrẹ mìíràn: 'ní ibẹ̀' di 'níbẹ̀'.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Àwọn kọ́ńsónáǹtì (consonants) mélòó ni èdè Yorùbá ní?",
+    "options": [
+      "18",
+      "22",
+      "25",
+      "30"
+    ],
+    "correctIndex": 1,
+    "explanation": "Èdè Yorùbá ní kọ́ńsónáǹtì 22 ní ìpìlẹ̀. Àwọn wọ̀nyí pẹ̀lú: b, d, f, g, gb, h, j, k, kp, l, m, n, p, r, s, ṣ, t, w, y, àti àwọn mìíràn. Kọ́ńsónáǹtì àkànṣe bí 'gb' àti 'kp' jẹ́ àkànṣe Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni 'ìdílé ọ̀rọ̀' (syllable) nínú Yorùbá?",
+    "options": [
+      "Ẹyọ ohùn kan tàbí jù bẹ́ẹ̀ lọ tó jẹ́ ìpìlẹ̀ ọ̀rọ̀",
+      "Gbogbo ohùn fáwẹ̀lì nínú ọ̀rọ̀ kan",
+      "Àpapọ̀ kọ́ńsónáǹtì méjì",
+      "Ìpari ọ̀rọ̀ kan"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ìdílé ọ̀rọ̀ (syllable) jẹ́ ẹyọ ohùn tó kéré jùlọ tó ní kọ́ńsónáǹtì àti fáwẹ̀lì tàbí fáwẹ̀lì kan ṣoṣo. Nínú Yorùbá, ilana ìdílé ọ̀rọ̀ jẹ́ CV (kọ́ńsónáǹtì + fáwẹ̀lì) tàbí V (fáwẹ̀lì ṣoṣo). Nọ́mbà ìdílé ọ̀rọ̀ dọ́gba pẹ̀lú nọ́mbà ohùn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Ọ̀rọ̀orúkọ (noun) àkànṣe Yorùbá tó bẹ̀rẹ̀ pẹ̀lú 'i-' tàbí 'ì-' máa ń jẹ́ ọ̀rọ̀ tí ó ṣàpèjúwe:",
+    "options": [
+      "Ènìyàn",
+      "Ìṣe (action/state)",
+      "Ibi (place)",
+      "Ohun ọ̀gbìn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú Yorùbá, àwọn ọ̀rọ̀orúkọ tó bẹ̀rẹ̀ pẹ̀lú àpísọ̀ 'i-' tàbí 'ì-' máa ń jẹ́ àwọn orúkọ ìṣe (verbal nouns/gerunds). Fún àpẹẹrẹ: 'lọ' (to go) → 'ìlọ' (going); 'jẹ' (to eat) → 'ìjẹun' (eating); 'kọ́' (to learn) → 'ìkọ́' (learning).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú gbolóhùn Yorùbá, ètò rẹ̀ (sentence structure) yẹ̀ẹ́ ni:",
+    "options": [
+      "Ohun tí a ṣe sí (Object) - Ìgbésọ̀rọ̀ (Verb) - Kókó ọ̀rọ̀ (Subject)",
+      "Kókó ọ̀rọ̀ (Subject) - Ìgbésọ̀rọ̀ (Verb) - Ohun tí a ṣe sí (Object)",
+      "Ìgbésọ̀rọ̀ (Verb) - Kókó ọ̀rọ̀ (Subject) - Ohun tí a ṣe sí (Object)",
+      "Ohun tí a ṣe sí (Object) - Kókó ọ̀rọ̀ (Subject) - Ìgbésọ̀rọ̀ (Verb)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ètò gbolóhùn Yorùbá dájúdájú jẹ́ SVO — Kókó ọ̀rọ̀ (Subject) + Ìgbésọ̀rọ̀ (Verb) + Ohun tí a ṣe sí (Object). Fún àpẹẹrẹ: 'Adé (S) jẹ (V) ìyán (O)' — Adé ate pounded yam.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Iye 'ọgọ́rùn-ún' nínú Yorùbá dọ́gba pẹ̀lú:",
+    "options": [
+      "50",
+      "80",
+      "100",
+      "200"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ọgọ́rùn-ún' nínú Yorùbá túmọ̀ sí 100 (one hundred). Ó jẹ́ 'ọgọ́' (ìpìlẹ̀) pẹ̀lú 'òrùn' tàbí 'rùn' (5 × 20 = 100). Ìlànà ìsiro iye Yorùbá ń lò ọna ìpìlẹ̀ ogún.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni 'ìkúnlẹ̀ abiyamọ' túmọ̀ sí?",
+    "options": [
+      "Ìjókòó tí àwọn àgbàlagbà ń jókòó sí",
+      "Irú ìdúpẹ́ tàbí ìbùkún tí ìyá ń gbà fún ọmọ rẹ̀ ní àsà ìsọmọ lorúkọ",
+      "Ìdánilẹ́kọ̀ọ́ tí a máa ń fún àwọn ọmọbìnrin ní àkókò ìgbéyàwó",
+      "Àsè tó wáyé ní àsà ìsìnkú"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ìkúnlẹ̀ abiyamọ' jẹ́ apakan àṣà ìsọmọ lorúkọ (naming ceremony) nínú àwọn Yorùbá. Ìyá ọmọ tuntun ń kúnlẹ̀ láti gbà ìbùkún àti ìdúpẹ́ fún àwọn ìjàmbá tó já sí ní àkókò ìbímọ àti fún ẹ̀mí tuntun tó wá sí ayé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Ní àsà Yorùbá, ìdílé kan máa ń sọ ọmọ lorúkọ ní ojúọjó wo lẹ́yìn ìbí?",
+    "options": [
+      "Ojúọjó kìíní",
+      "Ojúọjó kẹ́fà (6th day) fún ọmọkùnrin, ojúọjó kẹjọ (8th) fún ọmọbìnrin",
+      "Ojúọjó kẹtàlá (13th)",
+      "Ojúọjó ogún (20th)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ní àṣà Yorùbá ìbílẹ̀, ọmọkùnrin ni a máa ń sọ orúkọ fún ní ojúọjó kẹfà (6th day) lẹ́yìn ìbí, àti ọmọbìnrin ní ojúọjó kẹjọ (8th day). Àsè yìí ni a ń pè ní 'ìsọmọ lorúkọ' tàbí 'ọjọ́ ìkosẹ̀'.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni 'Obaship' (ìjọba Ọba) túmọ̀ sí nínú àwọn Yorùbá?",
+    "options": [
+      "Ìjọba tí àwọn ọdọ ọmọ ìlú ń ṣe",
+      "Ìjọba ìbílẹ̀ tí Ọba jẹ́ orí rẹ̀, tó jẹ́ àkójọpọ̀ ìjọba àti ẹ̀sìn",
+      "Ìjọba àjèjì tí àwọn ara ìlú gbà",
+      "Ìpàdé àwọn agbọ̀nrín ìlú"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìjọba Ọba (Obaship) nínú àwọn Yorùbá jẹ́ ìlànà ìjọba ìbílẹ̀ tí Ọba (ọba ìlú) jẹ́ orí rẹ̀. Ọba kò jẹ́ ọba ìṣèlú nìkan ṣùgbọ́n ó tún jẹ́ aṣojú ìsìn àti àṣà. Àwọn ìgbìmọ̀ bíi Ìgbìmọ̀ Ilé Ifẹ̀ (Ife) ń ṣèrànlọ́wọ́ rẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Àwọn Yorùbá gbàgbọ́ pé Ọlọ́run (Olodumare) ni:",
+    "options": [
+      "Ọ̀kan nínú àwọn òrìṣà",
+      "Ọba àwọn ènìyàn nìkan",
+      "Ọlọ́run ẹlẹ̀dàá tó ga jùlọ tó ṣẹ̀dá ohun gbogbo",
+      "Ọlọ́run tó ń gbé ní ìṣàlẹ̀ ilẹ̀"
+    ],
+    "correctIndex": 2,
+    "explanation": "Ní ìgbàgbọ́ Yorùbá, Ọlọ́run tàbí Olódùmarè ni Ọlọ́run tó ga jùlọ — ẹlẹ̀dàá àgbàyé àti ohun gbogbo. Ó yàtọ̀ sí àwọn òrìṣà (deities/divinities) tó jẹ́ àwọn agbára àkànṣe bíi Ṣàngó (ìjà), Ògún (irin àti ogun), Ọ̀ṣun (omi àti ìfẹ́).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Ìgbéyàwó ìbílẹ̀ Yorùbá (traditional marriage) pẹ̀lú àwọn ìgbésẹ̀ wo?",
+    "options": [
+      "Ìfọ̀rọ̀wérọ̀ (introduction), ìdáná (bride price), ìgbéyàwó (wedding)",
+      "Ìkúnlẹ̀, àdúrà, àti ìkáwọ́",
+      "Ìjókòó, orin, àti jíjẹun nìkan",
+      "Ìkíni àti ìdánlẹ́kọ̀ọ́"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ìgbéyàwó ìbílẹ̀ Yorùbá ní àwọn ìgbésẹ̀ mẹ́ta pàtàkì: (1) Ìfọ̀rọ̀wérọ̀ — ìdáhùn ẹbí méjì; (2) Ìdáná — àná (bride price tàbí dowry) tí ẹbí ọkọ ń san; àti (3) Ìgbéyàwó àṣeyọrí — àyẹ̀yẹ ìgbéyàwó pẹ̀lú orin, ijó, àti oúnjẹ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'Egúngún' jẹ́ àṣà tó ní í ṣe pẹ̀lú:",
+    "options": [
+      "Ìjọba tuntun",
+      "Ìgbàgbọ́ nínú àwọn baba ìjímìjí (ancestral masquerade)",
+      "Àdárayé ti àwọn ọdọ",
+      "Ìdánilẹ́kọ̀ọ́ àkànṣe"
+    ],
+    "correctIndex": 1,
+    "explanation": "Egúngún jẹ́ àṣà masquerade tó ṣàtúnyẹ̀wò àwọn baba ìjímìjí (ancestors) nínú àwọn Yorùbá. Àwọn ará ẹgbẹ́ Egúngún ń wọ aṣọ àkànṣe tó bò gbogbo ara wọn, wọ́n sì ń ṣe àṣà pàtàkì — ìsìnkú, ìtọ́jú ìlú, àti ìdarí ẹ̀mí.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Àwọn oúnjẹ ìbílẹ̀ Yorùbá wo nínú àwọn wọ̀nyí?",
+    "options": [
+      "Pizza àti Pasta",
+      "Ìyán, ẹ̀bà, àmàlà, àti ẹ̀fọ́",
+      "Ìrẹsì àti Jollof Rice nìkan",
+      "Àgbàdo àti obi"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn oúnjẹ ìbílẹ̀ Yorùbá pẹ̀lú: ìyán (pounded yam), ẹ̀bà (garri cooked), àmàlà (yam flour), ẹ̀fọ́ (leafy vegetable soup), egúsí (melon soup), ògbọ̀nọ̀ (ogbono soup), ìlá alásèpọ̀ (okra soup), àti àwọn mìíràn. Àwọn wọ̀nyí ni oúnjẹ tó jẹ́ àkànṣe ilẹ̀ Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Ìsọpọ̀ ọ̀rọ̀ (conjunction) wo ni a máa ń lò láti sopọ̀ gbolóhùn méjì tó dọ́gba nínú Yorùbá?",
+    "options": [
+      "Bí",
+      "Tí",
+      "Àti / Pẹ̀lú",
+      "Nítorí"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Àti' àti 'pẹ̀lú' jẹ́ àwọn ìsọpọ̀ ọ̀rọ̀ (conjunctions) tó máa ń so ọ̀rọ̀ tàbí gbolóhùn méjì tó dọ́gba pọ̀. Fún àpẹẹrẹ: 'Adé àti Bísí lọ' (Ade and Bisi went). 'Bí' ń ṣàfihàn ìfiwéra, 'tí' ń ṣàpèjúwe, 'nítorí' ń fúnni ní ìdí.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni 'ìpàdánù ọmọ' (child inheritance) túmọ̀ sí?",
+    "options": [
+      "Àwọn nǹkan tó ń jẹ́ ti ọmọ nìkan",
+      "Ètò ìgbà àti níní dúkìá baba tàbí ìyá nígbà tí wọ́n bá ti kú",
+      "Ẹ̀bùn tí àwọn ọmọ ń fún ọmọ ẹ̀gbọ́n",
+      "Àsà tí àwọn ọmọ tuntun ń kọ́"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ogún (inheritance) nínú àwọn Yorùbá ń tọ́ka sí ìgbà àti níní àwọn ohun ìní (property, àgbègbè, tàbí ipò) baba tàbí ìyá nígbà tí wọ́n bá ti kú. Ìlànà ìbílẹ̀ ń pa àwọn ọmọkùnrin ní ibẹ̀ṣẹ̀ nínú ogún.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Owe Yorùbá (Yoruba proverb) kan ni: 'Ẹni tó bá fẹ́ jẹ oyin inú apáta, kò gbọdọ̀ bẹ̀rù ìkáni.' Èwo ni ìtumọ̀ rẹ̀?",
+    "options": [
+      "Ẹni tó bá fẹ́ gba àbájáde rere gbọdọ̀ ṣìdúróṣinṣin àti sùúrù",
+      "Oyin inú apáta kò dára jẹ",
+      "Àwọn oyin máa ń ní apáta",
+      "Ẹni tó bá bẹ̀rù ìkáni kì í jẹ oyin"
+    ],
+    "correctIndex": 0,
+    "explanation": "Owe yìí ń kọni pé: Ẹni tó bá fẹ́ gba ohun tó dára àti àbájáde rere gbọdọ̀ jẹ alárinàkù àti ṣìdúróṣinṣin (persevere) — ó kò gbọdọ̀ bẹ̀rù àwọn ìṣòro tó lè wáyé. 'Oyin' dúró fún àbájáde rere, 'ìkáni' dúró fún ìṣòro/ewu.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Ẹ̀kọ́ ìjìnlẹ̀ àkọwé (literary appreciation) pẹ̀lú àwọn ohun mélòó pàtàkì?",
+    "options": [
+      "Ọ̀kan nìkan (plot)",
+      "Ọ̀pọ̀lọpọ̀: ìtàn, ìhun ìkọ̀, ìpele, ohùn onkọ̀, àti àwọn mìíràn",
+      "Méjì: orin àti ewì",
+      "Mẹ́ta: èdè, ìtàn, àti orin"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ẹ̀kọ́ ìjìnlẹ̀ àkọwé (literary appreciation) ń kẹ́kọọ̀ àwọn ohun pàtàkì bíi: ìtàn (plot), ìhun ìkọ̀ (theme), ìpele (setting), àwọn ìwà àṣáyàn (characters), ohùn onkọ̀ (narrative voice), ọ̀nà èdè (style/diction), àti ìlànà àkọwé (literary devices).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Litireso àfọwọ́sọ (oral literature) nínú Yorùbá pẹ̀lú àwọn irú wo?",
+    "options": [
+      "Ìtàn, ewì, àti eré ìdárayá",
+      "Ìtàn àròsọ (prose), ewì (poetry), àti eré onísẹ̀ (drama)",
+      "Ìwé, ìwéwépèlé, àti ìmọ̀",
+      "Kíkà àti kíkọ nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Litireso àfọwọ́sọ (oral literature) Yorùbá ní àwọn irú mẹ́ta: (1) Ìtàn àròsọ (oral prose) — ìtàn ìjímìjí, àlọ́, àròsọ; (2) Ewì (oral poetry) — orin, ìjálá, ròpò, àpọ̀nímọ̀; àti (3) Eré onísẹ̀ (drama) — ìdálọ́rọ̀, Egúngún, Gẹ̀lẹ̀dẹ́.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Ìjálá jẹ́ irú ewì àfọwọ́sọ Yorùbá tó ní í ṣe pẹ̀lú:",
+    "options": [
+      "Àwọn apẹja (fishermen)",
+      "Àwọn ọdẹ (hunters) àti ìyìn Ògún (deity of iron)",
+      "Àwọn àgbẹ̀ (farmers) nìkan",
+      "Àwọn obìnrin tó ń gbádùn ìfẹ́"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìjálá jẹ́ ewì àfọwọ́sọ Yorùbá tó jẹ́ àkànṣe àwọn ọdẹ (hunters). Wọ́n máa ń kọ ìjálá láti yin Ògún (òrìṣà irin àti ọdẹ), láti sọ ìtàn ìṣẹ̀gun ọdẹ, àti láti ṣàpèjúwe ìgbé ayé nínú igbó. Ìjálá ní ilé ìwé pàtàkì tó jẹ́ àkànṣe rẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Onkọ̀ Yorùbá wo nínú àwọn wọ̀nyí tó kọ 'Awon Oju Odu Mereerindinlogun'?",
+    "options": [
+      "Ojo Olagoke",
+      "Wande Abimbola",
+      "L. Ogunniran",
+      "Debo Awe"
+    ],
+    "correctIndex": 1,
+    "explanation": "Wande Abimbola ni onkọ̀ 'Awon Oju Odu Mereerindinlogun' (University Press, 2004) — ìwé pàtàkì lórí Ifá divination poetry. Abimbola jẹ́ ọ̀jọ̀gbọ́n Ifá tí a mọ̀ jùlọ ní àgbáyé, ó sì jẹ́ Àṣojú Agbáyé fún Ifá (Awise Agbaye).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni ojúṣe 'Àgbàlagbà' (elders) nínú ìdílé?",
+    "options": [
+      "Wọ́n jẹ́ àwọn tó ń gba owó nìkan",
+      "Wọ́n jẹ́ àwọn tó ń darí, tó ń ṣe ìpinnu, àti tó ń ṣọ́ àṣà àti ìṣọ̀kan ìdílé",
+      "Wọ́n jẹ́ àwọn tó ń gba oúnjẹ ni àárọ̀",
+      "Wọ́n jẹ́ àwọn tó ń ṣiṣẹ́ nínú oko nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn àgbàlagbà (elders) jẹ́ orí àti itọ́sọ̀nà ìdílé àti ìlú nínú àṣà Yorùbá. Wọ́n ń ṣe ìpinnu, ń yanjú ìforígbárí (disputes), ń mọ́jú àṣà àti ìṣọ̀kan, àti ń ṣe àkọ́bẹ̀rẹ̀ àwọn ọmọ nípa ọlọ́wọ̀ àti ìgbé ayé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Ìṣẹ́ àgbẹ̀ (farming) jẹ́ iṣẹ́ ìbílẹ̀ pàtàkì nínú àwọn Yorùbá. Àwọn ohun wo ni wọ́n máa ń gbin?",
+    "options": [
+      "Egbògi àti àgbàdo nìkan",
+      "Ìlẹ̀sẹ, ọkà, àgbàdo, ẹ̀wà, ọgẹ̀dẹ̀, àti ọ̀pọ̀ ohun ọ̀gbìn mìíràn",
+      "Ìrẹsì àti kòkò nìkan",
+      "Ọjà àti ẹja nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn Yorùbá máa ń gbin ọ̀pọ̀lọpọ̀ ohun ọ̀gbìn: ìlẹ̀sẹ (yam), àgbàdo (corn/maize), ẹ̀wà (beans), ọgẹ̀dẹ̀ (plantain), kàṣẹ̀wẹ̀ (cassava), ọkà (sorghum), ẹpa (groundnut), ata (pepper), àti ọpọlọpọ mìíràn. Àgbẹ̀ jẹ́ ìpìlẹ̀ ọrọ̀-ajé ìbílẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú ọ̀rọ̀ 'Bísí ń jẹ ìyán ní ilé', kín ni kókó ọ̀rọ̀ (subject) rẹ̀?",
+    "options": [
+      "Ìyán",
+      "Ilé",
+      "Bísí",
+      "Ń jẹ"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Bísí' ni kókó ọ̀rọ̀ (subject) — ẹni tó ń ṣe ìgbésẹ̀ nínú gbolóhùn náà. 'Ń jẹ' ni ìgbésọ̀rọ̀ (verb), 'ìyán' ni ohun tí a ṣe sí (object), àti 'ní ilé' ni àpèjúwe ibùdó (adverbial of place).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Àwọn àmì ohùn Yorùbá mẹ́ta ni: àmì giga (´), àìsí àmì (àárín), àti:",
+    "options": [
+      "Àmì ìbéèrè (?)",
+      "Àmì ìsàlẹ̀ (`)",
+      "Àmì àkópọ̀ (^)",
+      "Àmì ìdúró (.)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn àmì ohùn Yorùbá mẹ́ta ni: (1) Àmì giga ´ — high tone; (2) Àìsí àmì — mid tone (tone àárín); àti (3) Àmì ìsàlẹ̀ ` — low tone. Àmì wọ̀nyí ni a fi ṣàfihàn ohùn lórí fáwẹ̀lì nínú ìkọwé Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Ìgbésọ̀rọ̀ (verb) 'lọ' nínú Yorùbá túmọ̀ sí:",
+    "options": [
+      "Wá (to come)",
+      "Lọ (to go)",
+      "Jẹ (to eat)",
+      "Sun (to sleep)"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Lọ' túmọ̀ sí 'to go' nínú Yorùbá. Àwọn ìgbésọ̀rọ̀ ìrísí tó jọra: 'wá' (to come), 'padà' (to return), 'dúró' (to stop/wait), 'jẹ' (to eat), 'mu' (to drink), 'sun' (to sleep).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni 'ìkíni' (greeting) tí a máa ń fi kí àgbàlagbà?",
+    "options": [
+      "A máa ń gbéjókòó ki wọn",
+      "A máa ń kúnlẹ̀ (fún ọkùnrin) tàbí dọ̀bàlẹ̀ (fún obìnrin) kí àwọn àgbàlagbà",
+      "A máa ń gbádùn pẹ̀lú wọn nìkan",
+      "A máa ń fi ọwọ́ kan ara wọn nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú àṣà Yorùbá, ọkùnrin máa ń kúnlẹ̀ (prostrate/kneel) láti kí àgbàlagbà, àbí ọmọkùnrin, àbí ẹni tó ga jùlọ ní ipò. Obìnrin máa ń dọ̀bàlẹ̀ (to lie flat/curtsey) tàbí tẹ̀ orúngun mọlẹ̀ (kneel). Ìkíni jẹ́ ìpìlẹ̀ ìmọ̀tara ẹni Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Iye 'àádọ́ta' nínú Yorùbá dọ́gba pẹ̀lú:",
+    "options": [
+      "40",
+      "50",
+      "60",
+      "70"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Àádọ́ta' túmọ̀ sí 50 nínú Yorùbá. Ó ń wá láti 'àá' (20 kò tó pé) + 'ọ́ta' (mẹ́ta × 20 = 60). Nítorí náà, àádọ́ta = 60 - 10 = 50. Ìlànà ìka iye Yorùbá ń lò ìyọkúrò (subtraction) pẹ̀lú ẹsẹ mẹ́ta (base 20).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Ìdájọ́ (sentence) wo nínú àwọn wọ̀nyí ni ìdájọ́ ìbéèrè (interrogative sentence)?",
+    "options": [
+      "Adé lọ sí ọjà.",
+      "Ṣé Adé lọ sí ọjà?",
+      "Adé, lọ sí ọjà!",
+      "Adé kò lọ sí ọjà."
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìdájọ́ ìbéèrè (interrogative sentence) máa ń bẹ̀rẹ̀ pẹ̀lú 'Ṣé' nínú Yorùbá, tàbí ó ní àmì ìbéèrè (?) ní ìpari. 'Ṣé Adé lọ sí ọjà?' jẹ́ ìbéèrè. Àwọn irú gbolóhùn mìíràn: ìdájọ́ àsọye (declarative), ìdájọ́ àṣẹ (imperative), àti ìdájọ́ ìyàlẹ́nu (exclamatory).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'ọjọ́ kejì' túmọ̀ sí:",
+    "options": [
+      "Ọjọ́ kìíní (1st day/Monday)",
+      "Ọjọ́ kejì (2nd day/Tuesday)",
+      "Ọjọ́ kẹta (3rd day)",
+      "Ọjọ́ kẹrin (4th day)"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ọjọ́ kejì' túmọ̀ sí ọjọ́ kejì nínú ìka ọjọ́ — Tuesday (Tiọ̀sdè). Àwọn ọjọ́ ọ̀sẹ̀: Àìkú (Sunday), Ajé (Monday), Ìṣẹ́gun (Tuesday), Ọjọ́rú (Wednesday), Ọjọ́bọ (Thursday), Ẹtì (Friday), Àbámẹ́ta (Saturday).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Onkọ̀ L. Ogunniran kọ ìwé wo tó jẹ́ iṣẹ́ eré onísẹ̀ àfọwọ́sọ (oral drama)?",
+    "options": [
+      "Ijapa Tiroko Oko Yannibo",
+      "Awon Oju Odu",
+      "Eegun Alare",
+      "Olorunsogo"
+    ],
+    "correctIndex": 2,
+    "explanation": "L. Ogunniran kọ 'Eegun Alare' (Macmillan, 2007) — ìwé eré onísẹ̀ àfọwọ́sọ tó jẹ́ nínú àwọn ìwé tí WAEC yàn fún ìkẹ́kọ̀ọ́ litireso Yorùbá. 'Ijapa Tiroko Oko Yannibo' jẹ́ ti Ojo Olagoke (prose), 'Awon Oju Odu' jẹ́ ti Wande Abimbola (poetry).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Irú ìkọ̀ (composition) wo ni onkọ̀ ń lo nígbà tó bá ń ṣàpèjúwe ibi kan, ènìyàn, tàbí nǹkan kan?",
+    "options": [
+      "Àpọ̀ṣọ̀ (Narrative)",
+      "Àpèjúwe (Descriptive)",
+      "Àríyànjiyàn (Argumentative)",
+      "Àlàyé (Expository)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àpèjúwe (descriptive writing) ni ìkọ̀ tí a ń lò nígbà tí onkọ̀ bá fẹ́ ṣàpèjúwe ibi, ènìyàn, tàbí nǹkan ní ọ̀nà tí kó mú kàwéwé rí i àti gbọ́ rẹ̀ pẹ̀lú ojú inú. Àpọ̀ṣọ̀ ń sọ ìtàn, àríyànjiyàn ń jiyan ojú ìwòye, àti àlàyé ń ṣàlàyé bí nǹkan ṣe ń ṣiṣẹ́.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìkọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni 'Ọya' tàbí 'Yemoja' dúró fún gẹ́gẹ́ bí òrìṣà?",
+    "options": [
+      "Ọya: òrìṣà ọjà; Yemoja: òrìṣà irin",
+      "Ọya: òrìṣà ẹ̀fúùfù àti ìjà; Yemoja: òrìṣà odò àti omi",
+      "Ọya: òrìṣà ìmọ̀lẹ̀; Yemoja: òrìṣà owó",
+      "Ọya: òrìṣà ogun; Yemoja: òrìṣà ẹ̀sìn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ọya jẹ́ òrìṣà ẹ̀fúùfù, ìjà, àti àwọn tó wà ní ààlà ẹ̀mí àti igbe ayé. Yemoja (Yemọja) jẹ́ òrìṣà odò àti omi — ó dúró fún ìjẹ́wọ́gbọ̀, ìbí, àti ìtọ́jú. Àwọn mìíràn: Ṣàngó (ìjì), Ògún (irin), Ọ̀ṣun (odò Ọ̀ṣun àti ìfẹ́).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni 'àpẹẹrẹ ìlò èdè' (figures of speech) tí onkọ̀ ń lò nígbà tó bá ń fiwéra nǹkan méjì pẹ̀lú 'bí'?",
+    "options": [
+      "Àfiwéra (metaphor)",
+      "Àfiwéra pẹ̀lú àpẹẹrẹ (simile)",
+      "Ìtunpọ̀ (personification)",
+      "Ìtọ́kasọ̀ (allusion)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àfiwéra pẹ̀lú àpẹẹrẹ (simile) ń fiwéra nǹkan méjì pẹ̀lú àwọn ọ̀rọ̀ 'bí', 'dà bí', tàbí 'gẹ́gẹ́ bí'. Fún àpẹẹrẹ: 'Ó yára bí ẹṣin' (He is fast like a horse). Àfiwéra taara (metaphor) ní ìfiwéra laisi 'bí', fún àpẹẹrẹ: 'Ó jẹ́ ẹṣin ní ìyára' (He is a horse in speed).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú ìtumọ̀ (translation) lára èdè Gẹ̀ẹ́sì sí Yorùbá, 'Good morning' jẹ́:",
+    "options": [
+      "E káàárọ̀",
+      "E káalẹ̀",
+      "E káàbọ̀",
+      "E kánjú"
+    ],
+    "correctIndex": 0,
+    "explanation": "'E káàárọ̀' túmọ̀ sí 'Good morning' nínú Yorùbá. Àwọn ìkíni mìíràn: 'E káàárọ̀' (Good morning), 'E káàánọ̀' (Good afternoon), 'E káalẹ̀' (Good evening), 'E káàbọ̀' (Welcome), 'O dàbọ̀' (Goodbye).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìtumọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Ìfẹ́kúfẹ̀ẹ́ onkọ̀ (theme of a literary work) túmọ̀ sí:",
+    "options": [
+      "Ìtàn tó wà nínú ìwé",
+      "Ìfọ̀kànsí ìkọ̀ tàbí ìpilẹ̀ èrò pàtàkì tó ń ṣiṣẹ́ nínú iṣẹ́ àkọwé",
+      "Àwọn ìwà tó wà nínú ìwé",
+      "Ibì tí ìtàn náà ṣẹlẹ̀"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìfẹ́kúfẹ̀ẹ́ onkọ̀ (theme) jẹ́ ìpilẹ̀ èrò tàbí ìfọ̀kànsí pàtàkì tí iṣẹ́ àkọwé ń ṣàfihàn. Fún àpẹẹrẹ: ìfẹ́, ìwà búburú àti rere, ìjà àti àlàáfíà, ìyànjú ìjọba. Ó yàtọ̀ sí ìtàn (plot) tó jẹ́ àwọn ìṣẹ̀lẹ̀ tó wáyé nínú ìwé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Owe Yorùbá tí ó sọ pé 'Ọmọ tí kò bọ bàbá rẹ̀, òun náà ni yóò tẹ́ bàbá àwọn ẹlòmíràn' ń kọni pé:",
+    "options": [
+      "Àwọn ọmọ gbọdọ̀ ṣiṣẹ́ fún ìdílé wọn",
+      "Ọmọ gbọdọ̀ bọ̀wọ̀ fún àwọn òbí rẹ̀, ẹni tó kò ṣe bẹ́ẹ̀ yóò ṣiṣẹ́ fún àwọn ẹlòmíràn",
+      "Àgbàlagbà gbọdọ̀ bọ̀wọ̀ fún ọmọ",
+      "Ìdílé ni ohun tó pọ̀ jùlọ"
+    ],
+    "correctIndex": 1,
+    "explanation": "Owe yìí ń kọni pé: ọmọ tó kò bọ̀wọ̀ fún àti ṣiṣẹ́ fún àwọn òbí rẹ̀ yóò pari ní ṣiṣẹ́ fún àwọn ènìyàn mìíràn nítorí pé ó kọ̀ ìwà rere ní ilé. Ó ń tẹ́niyọ̀ pàtàkì ìbọ̀wọ̀ fún àwọn òbí àti ìmọ̀ ìwà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'àpọ̀nísọ̀rọ̀' (pronoun) fún 'ẹni kejì aṣọfin ọ̀pọ̀' (2nd person plural) ni:",
+    "options": [
+      "Mo / Èmi",
+      "O / Ẹ",
+      "Ẹ / Yín",
+      "Wọ́n / Àwọn"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ẹ' (ìpìlẹ̀) àti 'Yín' (gbòòrò) jẹ́ àpọ̀nísọ̀rọ̀ fún ẹni kejì ọ̀pọ̀ (you - plural) nínú Yorùbá. Àkójọ àpọ̀nísọ̀rọ̀: Mo/Èmi (I), O/Ẹ (you singular), Ó/Òun (he/she/it), A/Àwa (we), Ẹ/Yín (you plural), Wọ́n/Àwọn (they).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, ìsìnkú (funeral) ìbílẹ̀ ń pẹ̀lú àwọn ìgbésẹ̀ wo?",
+    "options": [
+      "A máa ń sin oku ní ẹ̀gbọ̀ọ̀rọ̀",
+      "Ìgbọ̀, ìkokò, orin ìbànújẹ́, àti àsè ìsìnkú",
+      "A máa ń sun oku nìkan",
+      "A máa ń sin oku nínú omi"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìsìnkú ìbílẹ̀ Yorùbá ní àwọn ìgbésẹ̀ pàtàkì: ìgbọ̀ (laying in state), ìkẹgbe, orin àti ìjó ìrántí, àsè ìsìnkú pẹ̀lú oúnjẹ àti ẹmu, àti ìsìnkú gangan. Àwọn ọmọ ẹbí àti àwọn ọ̀rẹ́ máa ń wọ aṣọ àkànṣe (agọ̀-ẹwù ìsìnkú, màákò).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Orúkọ onkọ̀ tó kọ 'Ijapa Tiroko Oko Yannibo' ni:",
+    "options": [
+      "Wande Abimbola",
+      "Ojo Olagoke",
+      "L. Ogunniran",
+      "Sunday Eso-Oluborode"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ojo Olagoke ni onkọ̀ 'Ijapa Tiroko Oko Yannibo' (Longman, 2005) — iṣẹ́ ìtàn àròsọ àfọwọ́sọ (oral prose) tó jẹ́ ìwé tí WAEC yàn. Ìtàn náà jẹ́ nípa Ìjàpá (tortoise), ẹranko aṣọ̀bẹ̀rẹ̀ tó mọ̀ pé àkọọ́lẹ̀ àti ẹ̀tàn ni iṣẹ́ rẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'ìṣẹ̀lẹ̀ ọ̀rọ̀' (word formation) ń tọ́ka sí:",
+    "options": [
+      "Àwọn ọ̀rọ̀ tí a ya sí wẹ́wẹ́",
+      "Àwọn ọ̀nà tí a máa ń lo láti dá ọ̀rọ̀ tuntun sílẹ̀ — àfikún àpísọ̀, ìpọ̀pọ̀ ọ̀rọ̀, àti bẹ́ẹ̀ bẹ́ẹ̀ lọ",
+      "Ìka ìyé ọ̀rọ̀ nínú gbolóhùn",
+      "Bí a ṣe ń pè ọ̀rọ̀ gan-an"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìṣẹ̀lẹ̀ ọ̀rọ̀ (word formation) ń tọ́ka sí àwọn ọ̀nà dídá ọ̀rọ̀ tuntun: (1) Àfikún àpísọ̀ (prefixation) — fífi i-, à- kun ṣíwájú ọ̀rọ̀; (2) Ìpọ̀pọ̀ ọ̀rọ̀ (compounding) — dídapọ̀ ọ̀rọ̀ méjì; (3) Yíyí padà ìpilẹ̀ ọ̀rọ̀ (derivation).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Iye 'ọgbọ̀n' nínú Yorùbá dọ́gba pẹ̀lú iye wo nínú àwọn nọ́mbà Gẹ̀ẹ́sì?",
+    "options": [
+      "20",
+      "25",
+      "30",
+      "35"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ọgbọ̀n' túmọ̀ sí 30 (thirty) nínú Yorùbá. Ó ń wá láti ìṣiro: 20 + 10 = 30 (ogún + mẹ́wa = ọgbọ̀n). Àwọn iye mìíràn: ogún (20), ogójì (40), àádọ́ta (50), ọgọ̀ta (60).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Ìtumọ̀ 'Ìfá' gẹ́gẹ́ bí àṣà Yorùbá ni:",
+    "options": [
+      "Ọ̀kan nínú àwọn oúnjẹ Yorùbá",
+      "Ẹ̀kọ́ ìṣẹ̀gun àti ìsọtẹ́lẹ̀ àgbàyé tó jẹ́ ti àwọn Yorùbá",
+      "Orúkọ ọba Yorùbá tó gbajúmọ̀",
+      "Àṣà ìsìnkú àkànṣe"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìfá jẹ́ ẹ̀kọ́ ìṣẹ̀gun àti ìsọtẹ́lẹ̀ àgbàyé (divination system) tó jẹ́ àkànṣe àwọn Yorùbá. Babaláwo (Ìfá priest) ń wádìí ìfá láti fún ìmọ̀ nípa àwọn ìṣòro ìgbé ayé. UNESCO ti mọ Ìfá gẹ́gẹ́ bí Ohun Ìní Ìmọ̀ Àgbáyé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ẹgbẹ́ ọjọ́ orí' (age grade) jẹ́:",
+    "options": [
+      "Ẹgbẹ́ àwọn ènìyàn tó jẹ́ ẹgbẹ́ kan nìkan",
+      "Ìjọ àwọn ènìyàn tó jẹ́ ọjọ́ orí kannáà tó ń ṣiṣẹ́ papọ̀ fún anfààní ìlú",
+      "Àwọn tó ń kọ́ agbára ologun",
+      "Ẹgbẹ́ àwọn obìnrin nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ẹgbẹ́ ọjọ́ orí (age grade) jẹ́ ìpìnlẹ̀ àwùjọ tí a ń fi ọjọ́ orí ṣẹ̀dá — àwọn tó jẹ́ ọjọ́ orí kannáà máa ń ṣọ̀kan. Wọ́n ń ṣiṣẹ́ pọ̀ fún àwọn iṣẹ́ ìlú — ìmọ́tótó, àgbẹ̀, ìjọba. Ẹgbẹ́ ọjọ́ orí jẹ́ ọ̀nà tó ṣe pàtàkì fún ẹ̀kọ́ àwọn ọdọ àti àṣà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ọ̀rọ̀ àṣeyọrí (adverb) 'pàtàkì' ń ṣàlàyé:",
+    "options": [
+      "Orúkọ",
+      "Ìgbésọ̀rọ̀ tàbí ọ̀rọ̀àpọ̀nísọ̀rọ̀",
+      "Ọ̀rọ̀ àsopọ̀ nìkan",
+      "Ohun tí a ṣe sí nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ọ̀rọ̀àṣeyọrí (adverb) ń ṣàpèjúwe tàbí ṣàlàyé ìgbésọ̀rọ̀ (verb), ọ̀rọ̀àpọ̀nísọ̀rọ̀ (adjective), tàbí ọ̀rọ̀àṣeyọrí mìíràn. Fún àpẹẹrẹ: 'Adé ṣiṣẹ́ dáadáa' (Ade worked well) — 'dáadáa' ṣàpèjúwe ìgbésọ̀rọ̀ 'ṣiṣẹ́'. 'Pàtàkì' túmọ̀ sí 'importantly/significantly'.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Ohun tí onkọ̀ ìtàn Yorùbá ń pè ní 'ìwà àṣáyàn' (character) túmọ̀ sí:",
+    "options": [
+      "Ohùn tí onkọ̀ ń sọ nínú ìwé rẹ̀",
+      "Àwọn ènìyàn (tàbí ẹranko/agbára) tó wà nínú ìtàn àti tó ń ṣiṣẹ́ nípa ìtàn náà",
+      "Ìpele ibùdó ìtàn",
+      "Akọ̀ọlẹ̀ pàtàkì ìwé"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìwà àṣáyàn (character) nínú litireso jẹ́ àwọn ènìyàn, ẹranko, tàbí agbára tí onkọ̀ ṣẹ̀dá nínú ìtàn. Wọ́n jẹ́ àwọn tó ń ṣe ìgbésẹ̀ àti tó ń ní ìjàkadì. Àwọn irú: akọni (protagonist/hero), ọ̀tá (antagonist/villain), ìwà àṣáyàn àgbàyé (round character).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni 'ìlànà' fáwẹ̀lì (vowel) mẹ́wàá Yorùbá?",
+    "options": [
+      "a, b, c, d, e, f, g, h, i, j",
+      "a, e, ẹ, i, o, ọ, u àti àwọn dídapo (ìpọ̀pọ̀ fáwẹ̀lì)",
+      "a, e, i, o, u nìkan",
+      "a, à, á, e, è, é, i, o, u, ù"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn fáwẹ̀lì ìpìlẹ̀ Yorùbá mẹ́jẹ̀ẹ̀ta ni: a, e, ẹ, i, o, ọ, u — pẹ̀lú àwọn ìpọ̀pọ̀ fáwẹ̀lì (diphthongs) tó ṣẹ̀dá fáwẹ̀lì mìíràn. Àwọn àmì ohùn (high, mid, low) tó wà lórí fáwẹ̀lì kọ̀ọ̀kan ni a máa ń pè ní àmì ohùn, wọ́n kọ́ wà nínú ìka fáwẹ̀lì ìpìlẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'Gẹ̀lẹ̀dẹ́' jẹ́ àṣà masquerade tó jẹ́ àkànṣe:",
+    "options": [
+      "Àwọn ọkùnrin tó ń sọdẹ",
+      "Ìbọwọ̀ fún àwọn obìnrin agbalagba (àwọn ìyá àgbàdo)",
+      "Ìdánilẹ́kọ̀ọ́ àwọn ọdọkùnrin",
+      "Ìsìnkú àwọn ọba"
+    ],
+    "correctIndex": 1,
+    "explanation": "Gẹ̀lẹ̀dẹ́ jẹ́ àṣà masquerade Yorùbá tó ń bọ̀wọ̀ fún àwọn obìnrin agbalagba — àwọn tí a ń pè ní 'ìyá àgbàdo' (great mothers) tàbí 'àwọn àjẹ'. Àṣà yìí ń wáyé láàárín àwọn Yorùbá tó wà ní Bénin, Nigeria, àti Togo. UNESCO ti mọ Gẹ̀lẹ̀dẹ́ gẹ́gẹ́ bí Ohun Ìní Ìmọ̀ Àgbáyé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "'Good afternoon' nínú Yorùbá ni:",
+    "options": [
+      "E káàárọ̀",
+      "E káàánọ̀",
+      "E káalẹ̀",
+      "E káàbọ̀"
+    ],
+    "correctIndex": 1,
+    "explanation": "'E káàánọ̀' túmọ̀ sí 'Good afternoon' nínú Yorùbá. Àwọn ìkíni: E káàárọ̀ (Good morning — àárọ̀ = morning), E káàánọ̀ (Good afternoon — ọ̀sán = afternoon), E káalẹ̀ (Good evening — ìrọlẹ = evening), E káàbọ̀ (Welcome).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìtumọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Ìtúpalẹ̀ gbolóhùn 'Àwọn ọmọ ṣiṣẹ́ lórí ìwé wọn.' ṣàfihàn pé kókó ọ̀rọ̀ rẹ̀ ni:",
+    "options": [
+      "Ṣiṣẹ́",
+      "Ìwé",
+      "Àwọn ọmọ",
+      "Lórí"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Àwọn ọmọ' ni kókó ọ̀rọ̀ (subject) gbolóhùn náà. 'Ṣiṣẹ́' ni ìgbésọ̀rọ̀ (verb), 'ìwé wọn' ni ohun tí a ṣe sí (object), àti 'lórí' ni àfikún (preposition tàbí adverb ìpilẹ̀).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni ìmọ̀ àfọwọ́sọ (oral literature) ní lárugẹ lórí àwọn ọmọ Yorùbá?",
+    "options": [
+      "Kò ní ipa kankan — ó jẹ́ irọ́ nìkan",
+      "Ó ń fi àṣà, ìmọ̀ ìwà, ìtàn ìjímìjí, àti ìlàákọsọ̀ àwọn àgbàlagbà fún ìran tuntun",
+      "Ó ń mú ọ̀rọ̀ kúrú nìkan",
+      "Ó jẹ́ fún ìgbádùn nìkan, kò ní ọ̀nà mìíràn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Litireso àfọwọ́sọ ní lárugẹ pàtàkì nínú àwùjọ Yorùbá: ó ń fi àṣà, ìmọ̀ ìwà rere, ìtàn ìjímìjí, ìwé ìlò èdè, ìgbà àwọn baba, àti ìmọ̀ àyíká fún àwọn ọmọ ẹ̀yìn. Ó jẹ́ ọ̀nà ìkọ́nilẹ́kọ̀ọ́ tí kò nílò ìkọwé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, iye 'ẹ̀ẹ́dẹ́gbẹ̀ta' túmọ̀ sí:",
+    "options": [
+      "200",
+      "250",
+      "300",
+      "400"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ẹ̀ẹ́dẹ́gbẹ̀ta' túmọ̀ sí 300 nínú Yorùbá. Ó ń wá láti: ẹẹdẹgbẹ̀ (5 ti n yọ kuro) + ọgọ́rùn (100) × 4 = 400 - 100 = 300. Ìlànà ìsiro iye Yorùbá jẹ́ ọ̀nà kíkún àti iyọkúrò.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni àṣà 'ìpàdánù orúkọ' (name taboo) nínú àwọn Yorùbá?",
+    "options": [
+      "Ìpàdánù orúkọ tí a fi ọmọ lẹ̀",
+      "Orúkọ kan tí a kò gbọdọ̀ pè ní gbangba nítorí ìgbàgbọ́ tàbí ìbọwọ̀",
+      "Àwọn orúkọ àkànṣe fún àwọn ọba",
+      "Ìyípadà orúkọ ní ọjọ́ ìgbéyàwó"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú àṣà Yorùbá, àwọn orúkọ kan wà tí kò yẹ kí a pè ní gbangba — bíi orúkọ àwọn òrìṣà àkànṣe, orúkọ àwọn àgbàlagbà tó kú, tàbí àwọn orúkọ tó jẹ́ ẹ̀tọ́ àwọn ọba. Ìbọwọ̀ fún àwọn ọba pẹ̀lú ìmúlò orúkọ ìrọlẹ (praise names) dípò orúkọ ìdílé wọn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'àpèjọ ìdílé' (family meeting) wáyé fún ìdí àkọ́kọ́ wo?",
+    "options": [
+      "Fún ìgbádùn àti jíjẹun nìkan",
+      "Láti yanjú àwọn ìforígbárí, ṣe ìpinnu ìdílé, àti ṣọ́ ìṣọ̀kan ẹbí",
+      "Láti ṣe eré ìdárayá",
+      "Láti kọ́ àwọn ọmọ kọ̀ọ̀kan èdè"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àpèjọ ìdílé (family council) nínú àwọn Yorùbá jẹ́ ìpàdé pàtàkì àwọn ọmọ ẹbí láti yanjú àwọn ìṣòro ìdílé, ṣe ìpinnu nípa dúkìá, ìgbéyàwó, ogún, àti àwọn ìṣẹ̀lẹ̀ pàtàkì. Àwọn àgbàlagbà ẹbí ni wọ́n ń jẹ́ ìdárí.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú litireso Yorùbá, kín ni 'àkọwé' (author/narrator) ń ṣe?",
+    "options": [
+      "Ó máa ń jẹun nìkan nígbà ìkọ̀",
+      "Ó ni àti ṣe ìpinnu lórí ọ̀nà ìtàn ń ṣàfihàn, ohùn tí a ń gbọ́, àti ìtẹ̀síwájú ìtàn",
+      "Ó jẹ́ ọ̀kan nínú àwọn ìwà àṣáyàn nìkan",
+      "Ó pèsè àpèjúwe ìgbésẹ̀ nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àkọwé (author/narrator) ni ẹni tó ṣẹ̀dá ìtàn. Ó ní ipò pàtàkì: ó ń yan ìhun ìtàn (theme), ṣe ìpinnu lórí ìwà àṣáyàn, ìpele, ohùn ìsọ̀rọ̀ (narrative voice/point of view), àti bí ìtàn ń ṣàfihàn ara rẹ̀. Ó yàtọ̀ sí ìwà àṣáyàn nínú ìtàn náà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Àṣà Yorùbá wo ni a máa ń ṣe ní àsà 'ikú ọmọ kékeré' (child death)?",
+    "options": [
+      "Àsè ńlá pẹ̀lú orin àti ijó",
+      "Ìsìnkú tí kò ní ìgbádùn — a ń sin ọmọ kékeré ní ọ̀nà àkànṣe tí kò dọ́gba pẹ̀lú ìsìnkú àgbàlagbà",
+      "A máa ń ṣe ìjọba ìsìnkú tuntun",
+      "A máa ń ṣe àjọyọ̀ fún ikú ọmọ kékeré"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú àṣà Yorùbá, ikú ọmọ kékeré ní ìtọ́jú tó yàtọ̀ sí ikú àgbàlagbà. Ìsìnkú rẹ̀ ń ṣe ní ọ̀nà tí kò gbé irọ̀ rú àti kò ní ìgbádùn àjọyọ̀. Àwọn Yorùbá gbàgbọ́ pé ọmọ tó kú ṣáájú àkókò jẹ́ 'àbíkú' — ọmọ tó ṣẹ̀ẹ́ jáde sí ayé kí ó lọ padà sí ọ̀run.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'orúkọ àbísọ' (birth name given at naming ceremony) ni a máa ń yan nípa ìdí wo?",
+    "options": [
+      "Ìfẹ́ àwọn òbí nìkan, láìsí ìbẹ̀rẹ̀pẹ̀lẹ̀ mìíràn",
+      "Àwọn ìṣẹ̀lẹ̀ tó wáyé ní àkókò ìbí, ipò ìdílé, àṣà ìbílẹ̀, tàbí ìfẹ́ baba ìjímìjí",
+      "Orúkọ tó ẹlòmíràn ṣe gbajúgbajà nìkan",
+      "Orúkọ Bibeli tàbí Kuráánì nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Orúkọ Yorùbá (àbísọ) ní ìtumọ̀ pàtàkì. Wọ́n máa ń yan wọn nípa: àwọn ìṣẹ̀lẹ̀ ní àkókò ìbí (Ògún-bí-ọmọ = Ogunbiyi), ipò ìdílé (Táíwò/Kéhìndé fún ìbejì), àṣà (Adésọlá), baba ìjímìjí (Babatúndé = baba has returned), tàbí àwọn ìṣẹ̀lẹ̀ àkànṣe.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú gírámà Yorùbá, 'àpòdọ̀' (preposition) ni ọ̀rọ̀ wo nínú gbolóhùn 'Adé lọ sí ọjà'?",
+    "options": [
+      "Adé",
+      "Lọ",
+      "Sí",
+      "Ọjà"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Sí' ni àpòdọ̀ (preposition) nínú gbolóhùn náà — ó ń ṣàfihàn ìtọ́nà (direction). Nínú Yorùbá, àwọn àpòdọ̀ tó wọ́pọ̀ pẹ̀lú: ní (at/in), sí (to/towards), láti (from), pẹ̀lú (with), fún (for), nípa (about).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àwọn ìkọ̀ (composition) Yorùbá, 'ìwé ìfọwọ́sowọ́pọ̀' (formal letter) pẹ̀lú àwọn apá wo?",
+    "options": [
+      "Àdírẹ́sì (address), ọjọ́ (date), ìkíni (greeting), ara ìwé, ìparí",
+      "Àdírẹ́sì nìkan àti orúkọ olùkọ̀",
+      "Àpèjúwe ìṣẹ̀lẹ̀ nìkan",
+      "Orin àti ewì nìkan"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ìwé ìfọwọ́sowọ́pọ̀ (formal letter) nínú Yorùbá ní àwọn apá: (1) Àdírẹ́sì olùkọ̀; (2) Ọjọ́; (3) Àdírẹ́sì ẹni tí a kọ̀ fún; (4) Orí-ìwé (subject heading); (5) Ìkíni (salutation bí 'Olúwa/Iyèwù'); (6) Ara ìwé; (7) Ìparí ('Ọmọ rẹ tí ó bọ̀wọ̀ fún ẹ' tàbí bẹ́ẹ̀ bẹ́ẹ̀ lọ); (8) Orúkọ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìkọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àwọn Yorùbá, kín ni ojúṣe àwọn 'òrìṣà' nínú ìgbé ayé ènìyàn?",
+    "options": [
+      "Wọ́n jẹ́ àwọn ẹranko àkànṣe nìkan",
+      "Wọ́n jẹ́ àwọn agbára àáárẹ̀ àti alárùgẹ tó ń sọ̀rọ̀ fún Ọlọ́run àti ẹni tó bá wọ́n bẹ̀",
+      "Wọ́n jẹ́ àwọn ọba ìbílẹ̀ nìkan",
+      "Wọ́n jẹ́ ẹni tó ń kọ́ àwọn ọdọ ní ogún"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn òrìṣà nínú ìgbàgbọ́ Yorùbá jẹ́ àwọn agbára tàbí àwọn ìsàlẹ̀ Ọlọ́run tó ń ṣiṣẹ́ gẹ́gẹ́ bí àárín gbùngbùn láàárín Ọlọ́run àti ènìyàn. Ẹnì tó bá nílò ìrànlọ́wọ́ ní àpapọ̀ àkànṣe máa ń bẹ̀ òrìṣà tó tọ́. Fún àpẹẹrẹ, Ṣàngó fún ìjà, Ọ̀ṣun fún ìfẹ́ àti ọmọbìnrin.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Àpẹẹrẹ ìlò 'ìtúpalẹ̀ àfiwéra' (metaphor) nínú ewì Yorùbá ni:",
+    "options": [
+      "'Ó yára bí ẹṣin'",
+      "'Adé jẹ́ ẹṣin ìlú rẹ̀' (Ade is the horse of his town)",
+      "'Adé ń sare'",
+      "'Ó ní ẹṣin ńlá'"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Adé jẹ́ ẹṣin ìlú rẹ̀' jẹ́ àfiwéra (metaphor) — a ń fiwéra Adé pẹ̀lú 'ẹṣin' (horse) ní àfiwéra taara laisi 'bí'. Ìtumọ̀: Adé jẹ́ akọni/ìtọ́sọ̀nà ìlú rẹ̀. 'Ó yára bí ẹṣin' ni àfiwéra pẹ̀lú àpẹẹrẹ (simile) nítorí 'bí' wà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'sínsín' ọ̀rọ̀ (onomatopoeia) ni ìlò ohùn wo?",
+    "options": [
+      "Lílò ọ̀rọ̀ tó ń ṣàpèjúwe àwọ̀ ohun",
+      "Lílò ọ̀rọ̀ tó dára bí ohùn nǹkan tàbí ìṣẹ̀lẹ̀ tí a ṣàpèjúwe",
+      "Lílò ọ̀rọ̀ tó ní ìtumọ̀ méjì",
+      "Lílò ọ̀rọ̀ kúrú nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Sínsín ọ̀rọ̀ (onomatopoeia) jẹ́ ìlò ọ̀rọ̀ tó ohùn rẹ̀ dára bí tàbí ó dàbí ohùn nǹkan tí a ń ṣàpèjúwe. Fún àpẹẹrẹ nínú Yorùbá: 'Omi ń ṣàn tí gbọ̀rọ̀gbọ̀rọ̀' (water flowing with gurgling sound), 'Ìbọn dàgbàm!' (gun went bang!). Ọ̀nà èdè yìí ń jẹ́ kí ewì àti ìtàn wà láàyè.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú ìkọ̀ ìtàn (narrative composition), kín ni 'ìpadà ẹsẹ̀' (plot climax) túmọ̀ sí?",
+    "options": [
+      "Ìbẹ̀rẹ̀ ìtàn",
+      "Àkókò tó ga jùlọ nínú ìtàn tí ìjàkadì (conflict) bá pọ̀ tàbí yanjú",
+      "Ìparí ìtàn",
+      "Ìmọ̀ àwọn ìwà àṣáyàn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìpadà ẹsẹ̀ (climax) nínú ìtàn jẹ́ àkókò tó ga jùlọ — ibi tí ìjàkadì (tension/conflict) bá ga tàbí bá yanjú. Ètò ìtàn ìpilẹ̀: ìbẹ̀rẹ̀ (introduction) → ìjàkadì (rising action) → ìpadà ẹsẹ̀ (climax) → ìyọkúrò (falling action) → ìparí (resolution/denouement).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Fáwẹ̀lì tó ní àmì ìsàlẹ̀ (subscript dot) nínú Yorùbá bíi 'ẹ' àti 'ọ' jẹ́ àwọn ohùn:",
+    "options": [
+      "Tó gba tí a bá ṣ'àmì giga sí wọn",
+      "Tó jẹ́ ohùn ìgbè (open vowels) tí ẹnu ń sí jù",
+      "Tó kò ní ìtumọ̀ tí ó yàtọ̀ sí e àti o",
+      "Tó jẹ́ ohùn ìpìlẹ̀ Gẹ̀ẹ́sì nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ẹ' àti 'ọ' jẹ́ àwọn fáwẹ̀lì ohùn ìgbè (open/lax vowels) nínú Yorùbá — ẹnu ń sí jù nígbà tí a bá ń pè wọn. 'E' àti 'o' jẹ́ ohùn ìpín (close/tense vowels) — ẹnu ń dì mọ́ jù. Ìyàtọ̀ yìí jẹ́ pàtàkì nítorí ó máa ń yí ìtumọ̀ ọ̀rọ̀ padà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'iróyìn kékeré' (non-verbal communication) wo ni a máa ń lò?",
+    "options": [
+      "Pé ohùn nìkan ni ọ̀nà ìfọ̀rọ̀wérọ̀",
+      "Àwọn àmì ọwọ́, ojú, ara, aso, àti ohun ìlò tó ń gbé ìfọ̀rọ̀wérọ̀ laisi ọ̀rọ̀",
+      "Kíkọ ìwé nìkan",
+      "Ìjókòó pẹ̀lú ẹbí nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìfọ̀rọ̀wérọ̀ tí kò lò ọ̀rọ̀ (non-verbal communication) nínú àwọn Yorùbá pẹ̀lú: àmì ọwọ́ (hand gestures), ojú ìbọwọ̀ (respectful gaze), ìkúnlẹ̀ (kneeling), ìdọ̀bàlẹ̀ (prostrating), ìwọ̀ aṣọ (dress code), àwọ̀ aṣọ (colour of dress), àti àwọn ohun ìlò (beads, fans, crowns).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú ìkọ̀ àríyànjiyàn (argumentative essay) Yorùbá, kín ni onkọ̀ gbọdọ̀ ṣe?",
+    "options": [
+      "Ṣàpèjúwe ibi tàbí nǹkan nìkan",
+      "Fún àríyànjiyàn àti ìjẹ́rìísí láti gbẹ́yìn ojú ìwòye kan",
+      "Sọ ìtàn ìgbà àtijọ́ nìkan",
+      "Kọ orin tàbí ewì"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìkọ̀ àríyànjiyàn (argumentative writing) nílò: (1) Gbígbé ojú ìwòye kan kalẹ̀ pẹ̀lú gbígba tàbí kíkorò; (2) Fifun àwọn ìjẹ́rìísí àti ìmọ̀ láti ṣèranlọ́wọ́ ojú ìwòye náà; (3) Ìmọ̀ àwọn ojú ìwòye tó yàtọ̀ (counter-argument); (4) Ìparí tó ṣe kedere.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìkọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Kín ni 'ìpele' (setting) nínú litireso túmọ̀ sí?",
+    "options": [
+      "Àwọn ìwà àṣáyàn nínú ìtàn",
+      "Ibì àti àkókò tí ìtàn náà ṣẹlẹ̀",
+      "Ìhun ìkọ̀ pàtàkì ìtàn",
+      "Ìparí ìtàn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìpele (setting) nínú litireso túmọ̀ sí ibì (geographical location), àkókò (time period), àti àyíká àwùjọ (social environment) tí ìtàn tàbí eré ń ṣẹlẹ̀. Ìpele ń ṣe iranlọwọ fún kàwéwé láti mọ̀ àjọṣe ìtàn àti àwọn ìwà àṣáyàn nínú ìgbé ayé wọn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìdílé' (family) ní àwọn àpọ̀ wo?",
+    "options": [
+      "Àwọn tó gbé ilé kannáà nìkan",
+      "Bàbá, ìyá, àwọn ọmọ, àwọn bàbáàgbà, ìyáàgbà, àti gbogbo ẹbí tó ní ìsopọ̀ ẹ̀jẹ̀ tàbí ìgbéyàwó",
+      "Àwọn ọ̀rẹ́ olùgbé ìlú nìkan",
+      "Àwọn tó ṣiṣẹ́ papọ̀ nínú oko nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìdílé (family) nínú àwọn Yorùbá jẹ́ ẹgbẹ́ àwùjọ tó pọ̀ jùlọ tó pẹ̀lú: òbí (parents), àwọn ọmọ (children), àwọn bàbáàgbà àti ìyáàgbà (grandparents), àwọn ẹ̀gbọ́n àti àbúrò (siblings), àwọn ẹbí (extended family). Ìdílé gùgùú (extended family) jẹ́ ìpìlẹ̀ àwùjọ Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìdánilẹ́kọ̀ọ́ abẹ́ ilé' (home training) pẹ̀lú àwọn nǹkan wo?",
+    "options": [
+      "Ìkọ́ ẹ̀kọ́ ilé-ẹ̀kọ́ nìkan",
+      "Ìkíni, ìbọwọ̀ fún àgbàlagbà, ìmọ́tótó, sùúrù, òdodo, àti ìṣiṣẹ́ takuntakun",
+      "Ìmọ̀ iṣẹ́ ìjọba nìkan",
+      "Kíkọ́ orin àti ijó nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìdánilẹ́kọ̀ọ́ abẹ́ ilé (home training) nínú àṣà Yorùbá pẹ̀lú: ìkíni tó tọ́ (proper greetings), ìbọwọ̀ fún àgbàlagbà, ìmọ́tótó ara àti àyíká, sùúrù (patience), òdodo (honesty/integrity), ìjẹ́ alárinàkù (perseverance), àti ìṣiṣẹ́ takuntakun (hard work). Àwọn wọ̀nyí ni a kọ́ ní ilé ṣáájú ìgbà èrè.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìhun ìkọ̀ wo nínú ìwé ni 'ìfẹ́' jẹ́ àpẹẹrẹ rẹ̀?",
+    "options": [
+      "Ìpele",
+      "Ìhun ìkọ̀ (Theme)",
+      "Ìwà àṣáyàn",
+      "Àkọwé"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ìfẹ́' (love) jẹ́ àpẹẹrẹ ti ìhun ìkọ̀ (theme) — ìfọ̀kànsí pàtàkì tàbí ìtumọ̀ ọ̀rọ̀ tí iṣẹ́ àkọwé ń ṣàfihàn. Àwọn ìhun ìkọ̀ mìíràn tó wọ́pọ̀ nínú litireso Yorùbá: ìwà rere àti búburú, ìjà àti àlàáfíà, ìjọba tó tọ́ àti tí kò tọ́, ìyọjú àwọn àjàlú.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Ìsòro ìmọ̀ tó máa ń ṣẹlẹ̀ nígbà tí kọ́ńsónáǹtì 'n' bá wáyé gẹ́gẹ́ bí ìdílé ọ̀rọ̀ kankan nínú Yorùbá ni pé ó jẹ́:",
+    "options": [
+      "Ìpàdánù ohùn",
+      "Ohùn ahọn (syllabic nasal) — 'n' ṣiṣẹ́ bí ìdílé ọ̀rọ̀ kan ṣoṣo pẹ̀lú ohùn tirẹ̀",
+      "Ìsọ̀rọ̀ àfikún",
+      "Ìbagbépọ̀ ohùn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Nínú Yorùbá, 'n' lèè jẹ́ ìdílé ọ̀rọ̀ (syllable) kan ṣoṣo — a ń pè rẹ̀ ní 'syllabic nasal'. Àpẹẹrẹ: 'n ò lọ' (I am not going) — 'n' jẹ́ ìdílé ọ̀rọ̀ ọtọ̀ọ̀tọ̀ tó ní ohùn rẹ̀. Ohùn ahọn yìí jẹ́ àkànṣe Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Onkọ̀ Sunday Eso-Oluborode kọ iṣẹ́ àkọwé wo tó jẹ́ litireso àkọwé Yorùbá?",
+    "options": [
+      "Eegun Alare",
+      "Akowe ko wura",
+      "Olorunsogo",
+      "Apoti Alakara"
+    ],
+    "correctIndex": 2,
+    "explanation": "Sunday Eso-Oluborode ni onkọ̀ 'Olorunsogo' (Sumob Publishers, 1994) — ìwé ìtàn àkọwé (written prose) tí WAEC yàn fún ìkẹ́kọ̀ọ́. 'Akowe ko wura' jẹ́ ti Ademola Olayiwola (poetry); 'Apoti Alakara' jẹ́ ti Debo Awe (drama); 'Eegun Alare' jẹ́ ti L. Ogunniran (oral drama).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Iye Yorùbá 'mẹ́rìnlá' túmọ̀ sí:",
+    "options": [
+      "12",
+      "13",
+      "14",
+      "16"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Mẹ́rìnlá' túmọ̀ sí 14 (fourteen) nínú Yorùbá. Ó ń wá láti 'mẹ́rin' (4) + 'lá' (to add to) + 'mẹ́wàá' (10) = 10 + 4 = 14. Ìlànà: mọ́kànlá (11), èjìlá (12), mẹ́tàlá (13), mẹ́rìnlá (14), mẹ́ẹ̀ẹ́dógún (15), mẹ́rìndínlógún (16 = 20-4).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'Ìpàsẹ̀' (ancestry/lineage) ní ìtumọ̀ pàtàkì nítorí pé:",
+    "options": [
+      "Kò ní ipa kankan lórí ìgbé ayé ènìyàn",
+      "Ó ń ṣàlàyé ìpilẹ̀ ìdílé, ìpò àwùjọ, àti àwọn ẹtọ́ tí ènìyàn jogun",
+      "Ó jẹ́ àṣà Gẹ̀ẹ́sì nìkan tí àwọn Yorùbá gbà",
+      "Ó jẹ́ ìpinnu ìjọba nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìpàsẹ̀ (lineage/ancestry) jẹ́ pàtàkì nínú àwọn Yorùbá nítorí pé ó ń ṣàlàyé: (1) Ìpilẹ̀ ìdílé ènìyàn; (2) Àwọn ẹtọ́ ati ogún tó jẹ́ ti rẹ̀ (chieftaincy titles, land); (3) Ìpò àwùjọ; àti (4) Àwọn ìbánisọ̀rọ̀ tó tọ́ tàbí kò tọ́ (marriage restrictions). Ìdílé Yorùbá máa ń tẹ̀ ọkùnrin (patrilineal).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìyàtọ̀ wo ni wà láàárín 'ìgbésọ̀rọ̀ àárọ̀' (tense) àti 'ìgbésọ̀rọ̀ ìṣesí' (aspect)?",
+    "options": [
+      "Kò sí ìyàtọ̀ kankan — wọ́n jọra",
+      "Àárọ̀ ń tọ́ka sí àkókò; ìṣesí ń tọ́ka sí bí ìṣẹ̀lẹ̀ náà ṣe pé (pari, nlọ, tàbí máa ń ṣẹlẹ̀)",
+      "Àárọ̀ jẹ́ àkànṣe Gẹ̀ẹ́sì, ìṣesí jẹ́ àkànṣe Yorùbá nìkan",
+      "Wọ́n mú ìtumọ̀ ọ̀rọ̀ yípadà nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àárọ̀ (tense) ń tọ́ka sí àkókò ìṣẹ̀lẹ̀ (ọjọ́ àtijọ́, lọwọlọwọ, ọjọ́ iwájú). Ìṣesí (aspect) ń tọ́ka sí bí ìṣẹ̀lẹ̀ náà ṣe wà — pari tán (perfective), nlọ lọwọlọwọ (progressive), tàbí máa ń ṣẹlẹ̀ (habitual). Nínú Yorùbá, ìṣesí ṣe pàtàkì jùlọ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, Ṣàngó jẹ́ òrìṣà ìjì (thunder) àti:",
+    "options": [
+      "Odò àti omi",
+      "Ìjà àti agbára ògún",
+      "Imọ̀lẹ̀ (lightning) àti ìdájọ́",
+      "Àgbẹ̀ àti ohun ọ̀gbìn"
+    ],
+    "correctIndex": 2,
+    "explanation": "Ṣàngó jẹ́ òrìṣà ìjì (thunder), imọ̀lẹ̀ (lightning), àti ìdájọ́ ododo (justice) nínú àṣà Yorùbá. Ó tún jẹ́ ọba Yorùbá kẹta ní Ọ̀yọ́. Àwọ̀ rẹ̀ jẹ́ pupa àti funfun. Ẹ̀sìn Ṣàngó (Candomblé) gbajúmọ̀ ní Brazil àti Kárábíánì.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Iye 'ẹẹdẹgbẹ̀rin' nínú Yorùbá túmọ̀ sí:",
+    "options": [
+      "500",
+      "700",
+      "350",
+      "150"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ẹẹdẹgbẹ̀rin' túmọ̀ sí 700 nínú Yorùbá. Ó ń wá láti: ẹẹdẹ = àdajọ̀ (20 fún ìyọkúrò) + gbẹ̀rin (ọgọ́rùn-ún × 8 = 800). Nítorí náà, 800 - 100 = 700. Ìlànà ìsiro Yorùbá ń lò ìyọkúrò fún àwọn iye àgbàáárọ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Ewì Yorùbá (Yoruba poetry) yàtọ̀ sí àpọ̀ṣọ̀ (prose) nígbà tí:",
+    "options": [
+      "Ewì kúrú jùlọ nígbà gbogbo",
+      "Ewì ń lò ìpele, ohùn ìpín, ìtúnwí, àti ọ̀nà èdè àkànṣe tó jẹ́ tó ní ìpilẹ̀ ìdíyelé",
+      "Àpọ̀ṣọ̀ ní ìtumọ̀ jùlọ",
+      "Kò sí ìyàtọ̀ wọn jọra"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ewì (poetry) yàtọ̀ sí àpọ̀ṣọ̀ (prose) pẹ̀lú: (1) Lílò ìpele ọ̀rọ̀ (rhythm), (2) Ìgbohùnsáfẹ́fẹ́ (rhyme — tó kì í ṣe dandan), (3) Ìtúnwí (repetition), (4) Àwọn àwòrán ìlò èdè tó ga (figurative language), àti (5) Ìfọkànsí tó jẹ kúrú àti tó jinlẹ̀. Ewì Yorùbá pẹ̀lú: ìjálá, ọ̀rìkì, ẹ̀lẹ̀lẹ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'ọ̀rìkì' jẹ́ irú ewì àfọwọ́sọ wo?",
+    "options": [
+      "Ewì tó ń sọ ìtàn ogun nìkan",
+      "Ewì ìyìn àti ìgbéga tó ń yin ènìyàn, ìdílé, ibi, tàbí òrìṣà",
+      "Ewì ìbànújẹ́ nìkan",
+      "Ewì tó jẹ́ ti àwọn ọmọdé nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ọ̀rìkì jẹ́ irú ewì àfọwọ́sọ Yorùbá tó ń yin àti gbé ènìyàn, ìdílé (orílẹ̀), ibi, tàbí òrìṣà ga. Ó máa ń ṣàpèjúwe àwọn àṣeyọrí, ìpilẹ̀ ìdílé, àwọn ìwà àkànṣe, àti ìtàn. Ọ̀rìkì orílẹ̀ ń yin ìdílé gbogbo; ọ̀rìkì ènìyàn ń yin ẹni pàtàkì kan.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìdánilẹ́kọ̀ọ́ ìgbéyàwó' (marriage counselling) tó wáyé ṣáájú ìgbéyàwó ni:",
+    "options": [
+      "Ìdánilẹ́kọ̀ọ́ tí olùkọ̀ ní ilé-ẹ̀kọ́ máa ń fún",
+      "Ìgbà tí àwọn àgbàlagbà ìdílé ń gbé àwọn alábàárọ̀ lẹ́kọ̀ọ́ nípa ìgbé ayé ìgbéyàwó",
+      "Ìjókòó pẹ̀lú dókítà nìkan",
+      "Ìkẹ́kọ̀ọ́ ẹ̀sìn ìgbéyàwó nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ní ọpọlọpọ̀ ìdílé Yorùbá, àwọn àgbàlagbà ìdílé — bàbá, ìyá, àwọn àgbàlagbà ẹbí — máa ń gbé àwọn ọdọ tó fẹ́ ṣẹ̀ ìgbéyàwó lẹ́kọ̀ọ́ nípa ìdájúṣe, ìbọwọ̀, ìpín iṣẹ́, ìlò owó, bíbí ọmọ, àti bí ó ṣe yẹ kí ìgbéyàwó dára.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Gbolóhùn 'Ọmọ tó bá bọ̀wọ̀ fún àgbàlagbà yóò gùn.' jẹ́ irú gbolóhùn wo?",
+    "options": [
+      "Gbolóhùn àsọye tí kò ní ìsopọ̀ (Simple declarative)",
+      "Gbolóhùn àpọ̀pọ̀ (Compound sentence)",
+      "Gbolóhùn apọ̀ àpilẹ̀kọ̀ (Complex/conditional sentence)",
+      "Gbolóhùn ìbéèrè"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ọmọ tó bá bọ̀wọ̀ fún àgbàlagbà yóò gùn' jẹ́ gbolóhùn ìpọ̀pọ̀ (complex sentence) tó ní ẹ̀ka ìṣẹ̀lẹ̀ (subordinate clause: 'tó bá bọ̀wọ̀ fún àgbàlagbà') pẹ̀lú ẹ̀ka ìpìlẹ̀ (main clause: 'Ọmọ yóò gùn'). Ó tún jẹ́ gbolóhùn ìbídún (conditional).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìdín' (birth order) ní ìpele àkànṣe. Táíwò àti Kéhìndé jẹ́:",
+    "options": [
+      "Àwọn ọmọ tó ju méjì lọ nínú ìbímọ kannáà",
+      "Àwọn orúkọ fún ìbejì (twins) — Táíwò jẹ́ ọmọ àkọ́kọ́ tó jáde, Kéhìndé jẹ́ ẹlẹ́kejì",
+      "Àwọn orúkọ fún ọmọkùnrin nìkan",
+      "Àwọn orúkọ àfọwọ́ṣọ̀ tí kò ní ìtumọ̀ àkànṣe"
+    ],
+    "correctIndex": 1,
+    "explanation": "Táíwò àti Kéhìndé jẹ́ àwọn orúkọ àkànṣe fún ìbejì (twins) nínú àṣà Yorùbá. Táíwò (tó ní 'tasted the world first') jẹ́ ọmọ àkọ́kọ́ tó jáde, ṣùgbọ́n Kéhìndé (kẹ́yìn dé = 'the one who came last') ni atrùwé ẹlẹ́gbẹ́ rẹ̀. Àwọn Yorùbá mọ̀ pé Kéhìndé jẹ́ ẹlẹ́gba ìbejì.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, àwọn ìmúrasílẹ̀ (make-up and adornments) àtijọ́ pẹ̀lú:",
+    "options": [
+      "Lipstick àti powder nìkan",
+      "Lílò ẹlẹ̀ (indigo), osùn (camwood), àti àwọn ohun ọ̀ṣọ̀ bíi ìlẹ̀kẹ̀ àti idẹ",
+      "Wíwọ aṣọ Gẹ̀ẹ́sì nìkan",
+      "Lílò àwọ̀ ìmọ́lẹ̀ nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìmúrasílẹ̀ àtijọ́ Yorùbá pẹ̀lú: ẹlẹ̀ (indigo dye fún ara), osùn (camwood paste pupa fún obìnrin), ìlẹ̀kẹ̀ (beads), idẹ (brass bangles/rings), iyùn (coral beads — àkànṣe ọba àti ìjọba), ìrù ẹṣin (feathers), àti ogiri (facial/body markings). Àwọn wọ̀nyí ní ìtumọ̀ àṣà pàtàkì.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àwọn Yorùbá, iṣẹ́ ìbílẹ̀ wo ni 'Aláàgbẹ̀' (blacksmith) ń ṣe?",
+    "options": [
+      "Ṣíṣe aṣọ àti àṣọ",
+      "Fífi irin ṣe irinṣẹ́ bíi àdá, ọbẹ, ìdáako, àti àwọn ohun mìíràn",
+      "Kíkọ ilé àti àkọ́",
+      "Pípín ẹja àti ẹran"
+    ],
+    "correctIndex": 1,
+    "explanation": "Aláàgbẹ̀ (blacksmith) jẹ́ ọ̀kan nínú iṣẹ́ ìbílẹ̀ pàtàkì Yorùbá — wọ́n ń fi irin ṣe irinṣẹ́ àgbẹ̀ (àdá, ọbẹ, ìdáako, ilẹ̀kẹ̀ irin), irinṣẹ́ ogun (ìdà, ọfà), àti ohun ìlò ilé. Aláàgbẹ̀ jẹ́ àkànṣe Ògún àti ni ẹbùn pàtàkì nínú àwùjọ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú gírámà Yorùbá, 'ẹ̀ka ọ̀rọ̀' (clause) yàtọ̀ sí 'ìgbà ọ̀rọ̀' (phrase) nítorí pé:",
+    "options": [
+      "Ẹ̀ka ọ̀rọ̀ kúrú jùlọ nígbà gbogbo",
+      "Ẹ̀ka ọ̀rọ̀ ní ìgbésọ̀rọ̀ (verb) àti kókó ọ̀rọ̀ nínú rẹ̀, ìgbà ọ̀rọ̀ kò ní ìgbésọ̀rọ̀",
+      "Ìgbà ọ̀rọ̀ jẹ́ gbolóhùn pípé",
+      "Kò sí ìyàtọ̀ láàárín wọn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ẹ̀ka ọ̀rọ̀ (clause) ní kókó ọ̀rọ̀ (subject) àti ìgbésọ̀rọ̀ (verb) — lèè jẹ́ ẹ̀ka ìpìlẹ̀ (independent) tàbí ẹ̀ka ìṣẹ̀lẹ̀ (subordinate). Ìgbà ọ̀rọ̀ (phrase) jẹ́ àpapọ̀ ọ̀rọ̀ méjì tàbí jù bẹ́ẹ̀ lọ tí kò ní ìgbésọ̀rọ̀ pípé — fún àpẹẹrẹ: 'ní ilé' (prepositional phrase), 'ọmọ rere' (noun phrase).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'Oòni' tàbí 'Ooni of Ife' jẹ́ títí wa sí:",
+    "options": [
+      "Ọba ìjọba Ọ̀yọ́",
+      "Ọba ìlú Ifẹ̀ (Ile-Ife), ìlú mímọ́ àwọn Yorùbá",
+      "Ọba ìlú Èkó (Lagos)",
+      "Ọba ìlú Ìbàdàn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Oòni (Ooni) ni Ọba ìlú Ilé-Ifẹ̀ (Ile-Ife) — ìlú tí a kà sí ìlú ìpilẹ̀ àti mímọ́ fún gbogbo àwọn Yorùbá. Oòni ni a kà sí ìtọ́sọ̀nà ẹ̀mí àwọn Yorùbá. Ìlú Ifẹ̀ jẹ́ ibùdó àwọn ohun ìní ìbílẹ̀ pàtàkì bíi àwọn orí Ifẹ̀ (Ife bronze heads).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Àpẹẹrẹ 'eré àgbàlá' (outdoor games) tó jẹ́ àkànṣe àwọn ọmọde Yorùbá pẹ̀lú:",
+    "options": [
+      "Chess àti draft nìkan",
+      "Alọ́ (riddles), sọ̀rò (stories at night), ìdánwò àti tí ẹ̀gbọ́n-àbúrò máa ń ṣe",
+      "Ere ìdárayá Gẹ̀ẹ́sì nìkan",
+      "Ìtumọ̀ ìwé nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àwọn eré ìbílẹ̀ Yorùbá pẹ̀lú: alọ́ (riddles tó máa ń ṣe òru), sọ̀rò (storytelling), ìṣeré ìbùsọ̀ (games of strength), tíré ẹsẹ̀ (leg wrestling), àpọ̀ṣọ̀ (moonlight plays), irinṣẹ́ lílò — bíi ayò (ayo game). Àwọn eré wọ̀nyí ń kọ́ àwọn ọmọde ìwà rere àti ìṣọ̀kan.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'ọ̀rọ̀orúkọ àpapọ̀' (compound noun) jẹ́ àpẹẹrẹ wo nínú àwọn wọ̀nyí?",
+    "options": [
+      "Ilé",
+      "Ọmọ",
+      "Ilé-ẹ̀kọ́ (school — house of learning)",
+      "Ọjà"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ilé-ẹ̀kọ́' jẹ́ ọ̀rọ̀orúkọ àpapọ̀ (compound noun) — ó dapọ̀ 'ilé' (house) + 'ẹ̀kọ́' (learning/lesson) = house of learning (school). Àwọn àpẹẹrẹ mìíràn: ilé-iwòsàn (hospital = house of healing), ilé-ẹjọ́ (court = house of judgment), ilé-ìṣọ (police station).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Iye 'ẹgbẹ̀rún' nínú Yorùbá túmọ̀ sí:",
+    "options": [
+      "100",
+      "500",
+      "1,000",
+      "2,000"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Ẹgbẹ̀rún' túmọ̀ sí 1,000 (one thousand) nínú Yorùbá. Àwọn iye ńlá mìíràn: ẹgbẹ̀jì (2,000), ọkẹ̀ (20,000). Ìlànà ìsiro Yorùbá jẹ́ ìkan nínú àwọn ìlànà ìsiro tó jinlẹ̀ jùlọ ní àgbáyé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, Ògún jẹ́ òrìṣà irin àti:",
+    "options": [
+      "Omi àti odò",
+      "Ìjì àti ìmọ̀lẹ̀",
+      "Ogun, ìṣẹ́gun, àti àwọn tó ń ṣiṣẹ́ pẹ̀lú irin",
+      "Ìfẹ́ àti ìbí"
+    ],
+    "correctIndex": 2,
+    "explanation": "Ògún jẹ́ òrìṣà irin, ogun (war), ìṣẹ́gun (victory), àti gbogbo àwọn tó ń ṣiṣẹ́ pẹ̀lú irin — ọ̀dẹ, àgbẹ̀, ògbólógbòló, aláàgbẹ̀, agbẹ̀rọ̀. Àwọ̀ rẹ̀ jẹ́ àwọ̀ tó dúdú (dark green/black). Ògún ni a ń bẹ̀ pẹ̀lú ewé igbó àti ọtí.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú litireso, 'ìpele ibùdó' (physical setting) àti 'ìpele àkókò' (temporal setting) jẹ́ apakan:",
+    "options": [
+      "Ìhun ìkọ̀ (theme)",
+      "Ìpele (setting)",
+      "Ìtàn (plot)",
+      "Ohùn onkọ̀ (narrative voice)"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìpele ibùdó (ibi tí ìtàn ṣẹlẹ̀) àti ìpele àkókò (àkókò tí ìtàn ṣẹlẹ̀ — àtijọ́, lọwọlọwọ, ọjọ́ iwájú) jẹ́ apakan ìpele (setting) nínú litireso. Ìpele tún pẹ̀lú àyíká àwùjọ (social environment) ìtàn. Ó ń ṣe iranlọwọ fún kàwéwé láti mọ̀ àjọṣe àwọn ìwà àṣáyàn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, ojúṣe 'babaláwo' (Ifa priest) nínú àwùjọ ni:",
+    "options": [
+      "Ṣíṣe oúnjẹ fún àsè nìkan",
+      "Wídìí ìfá fún àwọn tó ń wádìí pẹ̀lú àwọn ìṣòro ìgbé ayé àti fífún ìmọ̀ tàbí ìdáhùn ìfá",
+      "Kíkọni àwọn ọmọdé ní ilé-ẹ̀kọ́ nìkan",
+      "Ṣiṣe ohun ìjọba nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Babaláwo jẹ́ ọlọ̀gbọ́n ìfá (Ifa divination priest) tó máa ń bọ àwọn ènìyàn tó wádìí nípasẹ̀ ìfá láti fún ìmọ̀ àti ìdáhùn nípa àrùn, ìgbéyàwó, ìlọ, ìṣẹ́gun nínú ìṣòro, àti ọjọ́ iwájú. Babaláwo ń kọ ẹ̀kọ́ ìfá fún ọdún pípẹ́ sáájú tó di babaláwo gangan.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Owe Yorùbá tí ó sọ pé 'Àgbàdo tó jóná kì í padà sí inú àpótí' ń kọni pé:",
+    "options": [
+      "Ìhòhò ni àgbàdo ń ṣẹlẹ̀",
+      "Ìṣẹ̀lẹ̀ tó ṣẹlẹ̀ tán kò lè yípadà — a kò gbọdọ̀ fẹ́ yí ìgbà àtijọ́ padà",
+      "Inú àpótí ní àgbàdo wà",
+      "Ìhun oúnjẹ ni a máa ń kọ̀"
+    ],
+    "correctIndex": 1,
+    "explanation": "Owe yìí ń kọni pé: nǹkan tó ṣẹlẹ̀ tán kò lè padà sẹ́yìn. Nígbà tí àgbàdo bá ti jóná tán, a kò le fi padà sí àpótí mọ́. Bẹ́ẹ̀ náà ni ìgbà àtijọ́ kò lè yípadà. Owe yìí ń kọ́ni sùúrù àti ìwọ̀ntúnwọ̀nsì.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'Aláwọ̀' (dyer) jẹ́ ọ̀kan nínú iṣẹ́ ìbílẹ̀ àkànṣe wo?",
+    "options": [
+      "Ṣíṣe oúnjẹ",
+      "Kíkọ ilé",
+      "Fífi ẹlẹ̀ àti àwọ̀ àkànṣe ṣe aṣọ bí aso-oke, adìrẹ́, àti bẹ́ẹ̀ bẹ́ẹ̀ lọ",
+      "Pípa ẹja"
+    ],
+    "correctIndex": 2,
+    "explanation": "Aláwọ̀ (dyer/weaver-dyer) ń ṣiṣẹ́ pẹ̀lú ẹlẹ̀ (indigo) àti àwọ̀ ẹ̀dá àkànṣe láti ṣe àwọ̀ aṣọ. Ìlú Ìbàdàn àti Ẹ̀gbádò jẹ́ olókìkí fún aṣọ ẹlẹ̀. Ìṣiṣẹ́ yìí jẹ́ apakan ìbílẹ̀ àwọn Yorùbá tí ó ń bẹ̀ lọ titi dé òní.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìpín àwọn kọ́ńsónáǹtì 'gb' àti 'kp' jẹ́ àkànṣe nítorí:",
+    "options": [
+      "Wọ́n máa ń lo nínú àwọn ìdílé ọ̀rọ̀ nìkan",
+      "Wọ́n jẹ́ kọ́ńsónáǹtì ìpọ̀pọ̀ (labial-velar) tó kò wáyé nínú èdè Gẹ̀ẹ́sì",
+      "Wọ́n kò ní ohùn tirẹ̀ gan-an",
+      "Wọ́n máa ń yí àmì ohùn padà nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Gb' àti 'kp' jẹ́ kọ́ńsónáǹtì ìpọ̀pọ̀ (labial-velar consonants) — a máa ń gbé àkọ̀n (bilabial position) àti ẹ̀yìn ẹnu (velar position) pọ̀ ní àkókò kannáà. Àwọn kọ́ńsónáǹtì wọ̀nyí jẹ́ àkànṣe àwọn èdè Áfíríkà Ìwọ̀ Oòrùn, pẹ̀lú Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Iye Yorùbá fún 'sixteen' (16) ni:",
+    "options": [
+      "Mẹ́rìnlá",
+      "Mẹ́ẹ̀ẹ́dógún",
+      "Mẹ́rìndínlógún",
+      "Mẹ́ẹ̀ẹ́dọ́gbọ̀n"
+    ],
+    "correctIndex": 2,
+    "explanation": "'Mẹ́rìndínlógún' túmọ̀ sí 16 — ó ń wá láti 'mẹ́rin' (4) + 'dín' (minus) + 'lógún' (from 20) = 20 - 4 = 16. Àwọn iye tó yípo: mẹ́ẹ̀ẹ́dógún (15 = 20-5), mẹ́rìndínlógún (16 = 20-4), mẹ́tàdínlógún (17 = 20-3), ejìdínlógún (18 = 20-2), mọ́kàndínlógún (19 = 20-1).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú litireso àkọwé Yorùbá, onkọ̀ 'Debo Awe' kọ iṣẹ́ eré onísẹ̀ wo?",
+    "options": [
+      "Olorunsogo",
+      "Akowe ko wura",
+      "Apoti Alakara",
+      "Eegun Alare"
+    ],
+    "correctIndex": 2,
+    "explanation": "Debo Awe ni onkọ̀ 'Apoti Alakara' (Elyon Publishers, 2004) — iṣẹ́ eré onísẹ̀ àkọwé (written drama) tí WAEC yàn. 'Olorunsogo' jẹ́ ti Sunday Eso-Oluborode (prose); 'Akowe ko wura' jẹ́ ti Ademola Olayiwola (poetry); 'Eegun Alare' jẹ́ ti L. Ogunniran (oral drama).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìdílé tó pọ̀ sí i' (extended family system) ń ṣe pàtàkì nítorí:",
+    "options": [
+      "Ó máa ń ṣẹ̀dá ìforígbárí nìkan",
+      "Ó pèsè ìtọ́jú, ìbọ̀wọ̀, iranlọwọ ọrọ̀-ajé, àti ìwà àjọṣe láàárín gbogbo ọmọ ẹbí",
+      "Kò ní anfààní kankan nínú àwọn ìjọba lọwọlọwọ",
+      "Ó jẹ́ àṣà Gẹ̀ẹ́sì tí àwọn Yorùbá gbà nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìdílé tó pọ̀ sí i (extended family) jẹ́ ìpìlẹ̀ àwùjọ Yorùbá. Anfààní rẹ̀: ìtọ́jú àwọn àgbàlagbà àti àwọn ọmọ, ìpín iṣẹ́ ìdílé, iranlọwọ ọrọ̀-ajé, ìdánilẹ́kọ̀ọ́ àwọn ọmọde nípasẹ̀ ọ̀pọ̀lọpọ̀ àgbàlagbà, àti ìtọ́jú àṣà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú ìkọ̀ ìfọwọ́sowọ́pọ̀ (dialogue writing) Yorùbá, kín ni a gbọdọ̀ ṣe?",
+    "options": [
+      "Kọ ọ̀rọ̀ ẹni kọ̀ọ̀kan ní ọ̀nà ìdúró (monologue)",
+      "Ṣàfihàn ìfọ̀rọ̀wérọ̀ láàárín ẹni méjì tàbí jù bẹ́ẹ̀ lọ pẹ̀lú àmì ìkíni àti ìpín ọ̀rọ̀ tó mọ́",
+      "Kọ ìwé nìkan",
+      "Lo ọ̀rọ̀ àpọ̀ṣọ̀ nìkan laisi ìfọ̀rọ̀wérọ̀"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìkọ̀ ìfọwọ́sowọ́pọ̀ (dialogue) ń ṣàfihàn ìfọ̀rọ̀wérọ̀ tó wáyé láàárín ènìyàn méjì tàbí jù bẹ́ẹ̀ lọ. A gbọdọ̀ lo: orúkọ ẹni kọ̀ọ̀kan ṣíwájú ọ̀rọ̀ rẹ̀, àmì ìfọ̀rọ̀wérọ̀, ìpín tó mọ́, àti ọ̀rọ̀ tó dára fún àjọṣe ìfọ̀rọ̀wérọ̀.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìkọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìyàtọ̀ ohùn nínú ọ̀rọ̀ 'igbó' (forest) àti 'ìgbọ̀' (hearing) ń ṣàfihàn pé:",
+    "options": [
+      "Kò sí ìyàtọ̀ — wọ́n túmọ̀ sí ohun kannáà",
+      "Ohùn (tone) ló ń ṣàlàyé ìtumọ̀ ọ̀rọ̀ nínú Yorùbá — iyipada ohùn yípa ìtumọ̀",
+      "Fáwẹ̀lì ló ń yí ìtumọ̀ padà nìkan",
+      "Ìtumọ̀ wọn yàtọ̀ nítorí àmì ìsàlẹ̀ lórí ọ̀rọ̀ náà"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìyàtọ̀ láàárín 'igbó' (forest — ohùn: low-high) àti 'ìgbọ̀' (hearing — ohùn yàtọ̀) ṣàfihàn pé Yorùbá jẹ́ èdè ohùn (tonal language) — ohùn ló ń yí ìtumọ̀ ọ̀rọ̀ padà. Àpẹẹrẹ mìíràn: 'owo' (hand) vs 'owó' (money) vs 'ọwọ́' (hand/respect context).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ẹ̀rọ Ohùn",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìsọpọ̀ ọrọ̀-ajé àpapọ̀' (cooperative economics) ń ṣẹlẹ̀ nígbà tí:",
+    "options": [
+      "Ẹnì kan ṣoṣo ṣe gbogbo iṣẹ́",
+      "Àwọn ènìyàn bá papọ̀ wọ 'àjọ' (savings pool) tàbí 'esusu' láti ṣèrànlọ́wọ́ ara wọn",
+      "Ìjọba náà ń san owó fún àwọn ara ìlú",
+      "Àwọn tó ní owó pọ̀ ń fi fún àwọn tó kò ní"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àjọ tàbí Esusu jẹ́ ìlànà ìfowópamọ́ àpapọ̀ (cooperative savings) ìbílẹ̀ àwọn Yorùbá. Àwọn ọmọ ẹgbẹ́ ń yan iye owó tí a máa ń san lóòótọ̀ọ̀tọ̀, tí ẹnì kan máa ń gbà ní ẹ̀ẹ̀kan. Ìlànà yìí ń ṣèrànlọ́wọ́ ìgbasókè ìṣòwò àti ìbáṣepọ̀ àwùjọ.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, ìtumọ̀ 'Goodbye' ni:",
+    "options": [
+      "E káàárọ̀",
+      "E káàbọ̀",
+      "O dàbọ̀",
+      "E káalẹ̀"
+    ],
+    "correctIndex": 2,
+    "explanation": "'O dàbọ̀' túmọ̀ sí 'Goodbye' nínú Yorùbá. Ó máa ń lo nígbà tí a bá ń kúrò nínú ibi tàbí nígbà tí a bá ń pín pẹ̀lú ẹnì kan. 'E káàbọ̀' túmọ̀ sí 'Welcome'. Ó tún wà 'Ó dàbọ̀' (fún ẹni kan) àti 'E dàbọ̀' (fún ọ̀pọ̀).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Ìtumọ̀",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, kín ni pàtàkì 'Ìjọba Ọba' (Obaship) ní lórí àwùjọ?",
+    "options": [
+      "Kò sí ipa mọ́ ní àwùjọ lọwọlọwọ",
+      "Ó ń pèsè ìdásílẹ̀ àṣà, ìdánilẹ́kọ̀ọ́ ìbílẹ̀, àti àṣẹ ìjọba ìbílẹ̀ tó ń ṣiṣẹ́ pẹ̀lú ìjọba ìgbalódé",
+      "Ó jẹ́ irọ́ àwọn ará ìlú nìkan",
+      "Ó jẹ́ àṣà àjèjì tó wá sí Yorùbá"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìjọba Ọba (Obaship) ṣe pàtàkì nítorí: (1) Ìtọ́jú àṣà àti ìbílẹ̀ ìlú; (2) Ìdáhùn sí àwọn ìṣòro àwùjọ; (3) Àṣẹ ìjọba ìbílẹ̀ (Local Government); (4) Ìdásílẹ̀ ìbánisọ̀rọ̀ láàárín ìjọba ìgbalódé àti àwọn ara ìlú; (5) Ìtọ́jú ìlú àti ìbùdó àṣà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, àwọn ọ̀rọ̀ 'Ìtàkùrọsọ' (communication) jẹ́ àpẹẹrẹ ti ìpele ọ̀rọ̀ wo?",
+    "options": [
+      "Ọ̀rọ̀orúkọ (Noun)",
+      "Ìgbésọ̀rọ̀ (Verb)",
+      "Ọ̀rọ̀àpọ̀nísọ̀rọ̀ (Adjective)",
+      "Ọ̀rọ̀àṣeyọrí (Adverb)"
+    ],
+    "correctIndex": 0,
+    "explanation": "'Ìtàkùrọsọ' jẹ́ ọ̀rọ̀orúkọ (noun) nínú Yorùbá — ó ń ṣàfihàn ìgbésẹ̀ bíi nǹkan (verbalized noun). Ó bẹ̀rẹ̀ pẹ̀lú 'ì-' àpísọ̀ — ìlànà dídá ọ̀rọ̀orúkọ ìṣe nínú Yorùbá. Àpẹẹrẹ: ìtàkùrọsọ (communication), ìfọwọ́sowọ́pọ̀ (dialogue), ìbádọ̀rẹ̀ẹ́ (friendship).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìtọ́jú aboyún' (pregnancy care) pẹ̀lú àwọn ìgbésẹ̀ wo ní ìbílẹ̀?",
+    "options": [
+      "A máa ń fi aboyún sílẹ̀ kó ṣiṣẹ́ nìkan",
+      "Ìtọ́jú aboyún, ìsọ̀rọ̀ àgbàlagbà, àwọn oúnjẹ àkànṣe, àti ìdánwò àwọn ìgbésẹ̀ àkànṣe tó ṣe pàtàkì",
+      "Dídádúró nínú ilé nìkan àìsí ìbáwí kankan",
+      "Gbigba ìsọ̀rọ̀ dókítà nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Ìtọ́jú aboyún (prenatal care) ìbílẹ̀ Yorùbá pẹ̀lú: ìsọ̀rọ̀ àwọn obìnrin àgbàlagbà (màmá agba), àwọn oúnjẹ àkànṣe tó dára fún aboyún, àwọn iṣẹ́ àkànṣe tàbí ìdánwò tí a gbọdọ̀ yẹra fún, àṣà ìtọ́jú àti àdúrà, àti ìbọwọ̀ fún aboyún gẹ́gẹ́ bí ẹni pàtàkì nínú ìdílé.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àṣà Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú gírámà Yorùbá, 'àpòyẹ̀' (noun phrase) jẹ́ àpẹẹrẹ wo?",
+    "options": [
+      "Ó lọ (He went)",
+      "Ọmọ rere náà (That good child)",
+      "Ní ilé (At home)",
+      "Àti Adé"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ọmọ rere náà' jẹ́ àpòyẹ̀ (noun phrase) — ó ní orúkọ ìpìlẹ̀ ('ọmọ') pẹ̀lú àwọn ọ̀rọ̀ àfikún (modifiers: 'rere', 'náà'). Àpòyẹ̀ ń ṣiṣẹ́ gẹ́gẹ́ bí kókó ọ̀rọ̀ tàbí ohun tí a ṣe sí nínú gbolóhùn. 'Ó lọ' jẹ́ ẹ̀ka ọ̀rọ̀ (clause).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú litireso, 'onkọ̀ àkẹ́kọ̀ọ́' (protagonist) jẹ́ ìwà àṣáyàn tó:",
+    "options": [
+      "Máa ń ṣe búburú nígbà gbogbo",
+      "Jẹ́ akọni ìtàn — ẹni tó jẹ́ àárín gbùngbùn ìtàn àti tó ní ìjàkadì pàtàkì",
+      "Kò ní ipa kankan nínú ìtàn",
+      "Máa ń pẹ̀yìndà ní ìparí ìtàn"
+    ],
+    "correctIndex": 1,
+    "explanation": "Onkọ̀ àkẹ́kọ̀ọ́ (protagonist) jẹ́ akọni — ìwà àṣáyàn àkọ́kọ́ tó jẹ́ àárín gbùngbùn ìtàn. Ó ní ìjàkadì pàtàkì tó ń darí ìtàn. Ìwà àṣáyàn tó ń tako rẹ̀ ni antagonist. Ìwà àṣáyàn tó gbòòrò (round character) ń yí padà láàárín ìtàn; ìwà àṣáyàn tó wọ́n (flat character) kò yí padà.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Litireso",
+    "year": "2026"
+  },
+  {
+    "text": "Iye Yorùbá 'ogójì' túmọ̀ sí:",
+    "options": [
+      "30",
+      "40",
+      "50",
+      "60"
+    ],
+    "correctIndex": 1,
+    "explanation": "'Ogójì' túmọ̀ sí 40 (forty) nínú Yorùbá. Ó ń wá láti 'ọgọ' (prefix) + 'èjì' (2) = 2 × 20 = 40. Ìlànà yìí (ẹsẹ mẹ́ta / vigesimal) ń ṣiṣẹ́ gẹ́gẹ́ bíi: ogún (1×20=20), ọgbọ̀n (20+10=30), ogójì (2×20=40), àádọ́ta (3×20-10=50), ọgọ̀ta (3×20=60).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, 'àdúrà' (prayer) jẹ́ ìpìlẹ̀ àṣà Yorùbá nítorí:",
+    "options": [
+      "A máa ń lò gẹ́gẹ́ bí eré nìkan",
+      "Ó jẹ́ ìpínpọ̀ àwọn ènìyàn pẹ̀lú Ọlọ́run àti àwọn òrìṣà fún ìbùkún, ìgbàlà, àti ìtọ́sọ̀nà",
+      "Kò ní ipa kankan nínú ìgbé ayé àwọn Yorùbá",
+      "Ó jẹ́ àṣà Islamu nìkan tí àwọn Yorùbá gbà"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àdúrà (prayer) jẹ́ ìpìlẹ̀ ìgbàgbọ́ àwọn Yorùbá — ó jẹ́ ìpínpọ̀ ẹ̀mí ènìyàn pẹ̀lú Ọlọ́run (Olódùmarè), àwọn bàbá ìjímìjí (ancestors), àti àwọn òrìṣà. Àwọn àdúrà Yorùbá ń wáyé: ní ìbẹ̀rẹ̀ àsè, sáájú oúnjẹ, ní ìsọmọ lorúkọ, ní ìgbéyàwó, àti ní àwọn ìṣẹ̀lẹ̀ pàtàkì mìíràn.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú gírámà Yorùbá, kín ni 'àsọ̀fun' (complement) nínú gbolóhùn túmọ̀ sí?",
+    "options": [
+      "Ọ̀rọ̀ tó ń ṣàpèjúwe ìpele nìkan",
+      "Ọ̀rọ̀ tàbí ẹ̀ka ọ̀rọ̀ tó ń pari kókó ọ̀rọ̀ tàbí ohun tí a ṣe sí nípasẹ̀ àpọpọ̀ sí ìgbésọ̀rọ̀ àfikún bíi 'jẹ́'",
+      "Kókó ọ̀rọ̀ ìpìlẹ̀ gbolóhùn",
+      "Ìgbésọ̀rọ̀ nìkan"
+    ],
+    "correctIndex": 1,
+    "explanation": "Àsọ̀fun (complement) jẹ́ ọ̀rọ̀ tó ń pari ìtumọ̀ gbolóhùn nípasẹ̀ ìgbésọ̀rọ̀ àfikún (copular verb) bíi 'jẹ́', 'di'. Fún àpẹẹrẹ: 'Adé jẹ́ onísègùn' (Ade is a doctor) — 'onísègùn' ni àsọ̀fun tó ń ṣàlàyé 'Adé' (subject complement).",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú àṣà Yorùbá, 'ìtọ́jú ọmọ' (child care) pẹ̀lú àwọn ẹni tó jẹ́ ojúṣe rẹ̀:",
+    "options": [
+      "Bàbá nìkan",
+      "Ìyá nìkan",
+      "Bàbá, ìyá, àwọn àgbàlagbà ẹbí, àti àwùjọ ìdílé tó gbòòrò",
+      "Àwọn tó ń ṣiṣẹ́ nínú ilé-ìwòsàn nìkan"
+    ],
+    "correctIndex": 2,
+    "explanation": "Ìtọ́jú ọmọ nínú àṣà Yorùbá jẹ́ ojúṣe gbogbo ìdílé — kìí ṣe ti bàbá àti ìyá nìkan. Àwọn bàbáàgbà, ìyáàgbà, àbúrò, àti àwọn àgbàlagbà ẹbí gbogbo ní ipa nínú ìbímọ àti dídàgbà ọmọ. Ilú gbogbo (it takes a village) ń ṣiṣẹ́ papọ̀ láti jẹ́kí ọmọ dàgbà dára.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Àwọn Ilé-Iṣẹ̀ Yorùbá",
+    "year": "2026"
+  },
+  {
+    "text": "Nínú Yorùbá, àwọn ọjọ́ ọ̀sẹ̀ (days of the week) mélòó ni wà?",
+    "options": [
+      "5",
+      "6",
+      "7",
+      "8"
+    ],
+    "correctIndex": 2,
+    "explanation": "Àwọn ọjọ́ ọ̀sẹ̀ (days of the week) mẹ́jẹ̀ẹ̀ta (7) ni wà nínú Yorùbá: Àìkú (Sunday), Ajé (Monday), Ìṣẹ́gun (Tuesday), Ọjọ́rú (Wednesday), Ọjọ́bọ (Thursday), Ẹtì (Friday), àti Àbámẹ́ta (Saturday). Àwọn orúkọ wọ̀nyí ní ìtumọ̀ àkànṣe nínú àṣà Yorùbá.",
+    "imagePath": "",
+    "scopeId": "gJP9J1i3KQQTXyuEahCp",
+    "subjectId": "44NB13ACkAvsKf2wYBW5",
+    "topic": "Gírámà",
+    "year": "2026"
+  }
+]

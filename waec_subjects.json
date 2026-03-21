@@ -1,0 +1,172 @@
+[
+  {
+    "id": "k6LC9iWo3QNfXxrTgRmV",
+    "name": "Agricultural Science",
+    "order": 3
+  },
+  {
+    "id": "i3lTrxKSZ6hwZ9vA1Rm4",
+    "name": "Animal Husbandry",
+    "order": 4
+  },
+  {
+    "id": "TPQuF6ZE7w3qO1WJLW7r",
+    "name": "Auto Body Repairs and Spray Painting",
+    "order": 7
+  },
+  {
+    "id": "Cb5Zo34dJvR8oxW79gGA",
+    "name": "Basic Electricity",
+    "order": 8
+  },
+  {
+    "id": "0wH7JBzIsy9LDqCcoCF5",
+    "name": "Biology",
+    "order": 9
+  },
+  {
+    "id": "RhDZhafTXfIBQVfJ0VqH",
+    "name": "Book Keeping",
+    "order": 12
+  },
+  {
+    "id": "yJzaX6at8oaQfNGzyqz2",
+    "name": "Catering Craft Practice",
+    "order": 13
+  },
+  {
+    "id": "osV7ywtFlKCl5t4hUYws",
+    "name": "Chemistry",
+    "order": 15
+  },
+  {
+    "id": "AlWGZc1skpjjcxIMYyd6",
+    "name": "Christian Religious Studies",
+    "order": 16
+  },
+  {
+    "id": "gWQ0vl07RcBJVn6JdE9w",
+    "name": "Civic Education",
+    "order": 18
+  },
+  {
+    "id": "zjGLaf9VMLBG4ruxAy5N",
+    "name": "Commerce",
+    "order": 20
+  },
+  {
+    "id": "tFHfhiOmI3K95mDCbK2K",
+    "name": "Computer Studies",
+    "order": 21
+  },
+  {
+    "id": "7V5YGLzicLN7947f5xKg",
+    "name": "Data Processing",
+    "order": 23
+  },
+  {
+    "id": "G7iPyuHYRG43xTjLCpHV",
+    "name": "Economics",
+    "order": 24
+  },
+  {
+    "id": "VMWCdsndB9N0Z80MJ7xQ",
+    "name": "English Language",
+    "order": 26
+  },
+  {
+    "id": "b5FEJpWkEWH7UUdYPEsQ",
+    "name": "Financial Accounting",
+    "order": 27
+  },
+  {
+    "id": "cPjE7pEb67NNcw3AFFDB",
+    "name": "Food and Nutrition",
+    "order": 29
+  },
+  {
+    "id": "PSBTWpnkdJksavVwnwva",
+    "name": "French",
+    "order": 30
+  },
+  {
+    "id": "UXc5kqRH39Rii4rfsCsp",
+    "name": "Further Mathematics",
+    "order": 32
+  },
+  {
+    "id": "4TwWLZbiayAecMGJB30p",
+    "name": "General Mathematics",
+    "order": 33
+  },
+  {
+    "id": "4UyZFXhj5zUoFndO2EBc",
+    "name": "Geography",
+    "order": 34
+  },
+  {
+    "id": "pwhPBv13ZUBf7OWA5TZ3",
+    "name": "Government",
+    "order": 37
+  },
+  {
+    "id": "zV4btTVTFPJtJp5ofOGO",
+    "name": "Health Education",
+    "order": 39
+  },
+  {
+    "id": "6LH1E4C8tiVqI0qPM9gv",
+    "name": "History",
+    "order": 40
+  },
+  {
+    "id": "eoM9nNUvSG51NTgWe5iP",
+    "name": "Information and Communication Technology",
+    "order": 44
+  },
+  {
+    "id": "0eBJkJ6D2I4i2exDYYUq",
+    "name": "Islamic Religious Studies",
+    "order": 45
+  },
+  {
+    "id": "yGdUh1G77fBdZfZRwCxZ",
+    "name": "Literature-In-English",
+    "order": 48
+  },
+  {
+    "id": "FHpLSAHfAuto666mNZkV",
+    "name": "Marketing",
+    "order": 49
+  },
+  {
+    "id": "jGkuBUqQgOXnUIF3WE7s",
+    "name": "Music",
+    "order": 51
+  },
+  {
+    "id": "NSca8Mu7Gp3kCddMJnLO",
+    "name": "Physics",
+    "order": 54
+  },
+  {
+    "id": "kiSns5ZNTC7BRqaIHn35",
+    "name": "Shorthand",
+    "order": 57
+  },
+  {
+    "id": "4cf7suZHSYVa7POK53kX",
+    "name": "Type Writing",
+    "order": 58
+  },
+  {
+    "id": "AA7d91RdX2lFiROI4PVN",
+    "name": "Visual Art",
+    "order": 59
+  },
+  {
+    "id": "44NB13ACkAvsKf2wYBW5",
+    "name": "Yoruba",
+    "order": 60
+  }
+]

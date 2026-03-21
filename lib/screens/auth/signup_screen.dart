@@ -25,7 +25,6 @@ class _SignUpScreenState extends State<SignUpScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Color palette matching onboarding
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
@@ -42,36 +41,27 @@ class _SignUpScreenState extends State<SignUpScreen>
   void initState() {
     super.initState();
     _animController = AnimationController(
-      duration: const Duration(milliseconds: 700),
-      vsync: this,
-    );
+        duration: const Duration(milliseconds: 700), vsync: this);
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+        CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _slideAnimation =
         Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+            CurvedAnimation(parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
   void _showErrorSnackBar(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          message,
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(message,
           style: GoogleFonts.poppins(
-              color: Colors.white, fontWeight: FontWeight.w500),
-        ),
-        backgroundColor: Colors.red.shade700,
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(20),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: const Duration(seconds: 4),
-      ),
-    );
+              color: Colors.white, fontWeight: FontWeight.w500)),
+      backgroundColor: Colors.red.shade700,
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      duration: const Duration(seconds: 4),
+    ));
   }
 
   bool _isValidEmailDomain(String email) {
@@ -114,15 +104,11 @@ class _SignUpScreenState extends State<SignUpScreen>
         return;
       }
 
-      // ── CHANGE 1: capture credential ──────────────────────────
       final userCredential = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
-
-      // ── CHANGE 2: send verification email ─────────────────────
       await userCredential.user?.sendEmailVerification();
 
       if (mounted) {
-        // ── CHANGE 3: go to verification screen, not ProfileCheckWrapper
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
               builder: (context) => const EmailVerificationScreen()),
@@ -180,20 +166,18 @@ class _SignUpScreenState extends State<SignUpScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Back button
+                    // Back button — top spacing reduced from 34 to 4
                     GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: _isLoading ? null : () => Navigator.of(context).pop(),
                       child: Container(
-                        width: 42,
-                        height: 42,
+                        width: 42, height: 42,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.black.withValues(alpha: 0.06),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
+                              blurRadius: 10, offset: const Offset(0, 4),
                             ),
                           ],
                         ),
@@ -202,59 +186,49 @@ class _SignUpScreenState extends State<SignUpScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 32),
+                    // Reduced top spacing
+                    const SizedBox(height: 16),
 
-                    // Illustration with soft edge fade
                     Center(
                       child: ShaderMask(
                         shaderCallback: (Rect bounds) {
                           return RadialGradient(
                             center: Alignment.center,
-                            radius: 0.55,
+                            radius: 2,
                             colors: const [
-                              Colors.white,
-                              Colors.white,
-                              Colors.transparent,
+                              Colors.white, Colors.white, Colors.transparent,
                             ],
                             stops: const [0.0, 0.6, 1.0],
                           ).createShader(bounds);
                         },
                         blendMode: BlendMode.dstIn,
                         child: Image.asset(
-                          'assets/images/bookillustration2.png',
-                          height: 200,
+                          'assets/images/college project-pana.png',
+                          height: 180,
                           fit: BoxFit.contain,
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 28),
+                    const SizedBox(height: 20),
 
-                    // Heading
-                    Text(
-                      'Join PrepNG\nToday 🎓',
-                      style: GoogleFonts.poppins(
-                        fontSize: 30,
-                        fontWeight: FontWeight.w800,
-                        color: _darkGreen,
-                        height: 1.2,
-                      ),
-                    ),
+                    Text('Join PrepNG\nToday 🎓',
+                        style: GoogleFonts.poppins(
+                            fontSize: 30,
+                            fontWeight: FontWeight.w800,
+                            color: _darkGreen,
+                            height: 1.2)),
 
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 10),
 
-                    Text(
-                      'Start your journey to exam success',
-                      style: GoogleFonts.poppins(
-                        fontSize: 14,
-                        color: Colors.grey.shade500,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
+                    Text('Start your journey to exam success',
+                        style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.grey.shade500,
+                            fontWeight: FontWeight.w400)),
 
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
 
-                    // Card with form fields
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
@@ -263,18 +237,18 @@ class _SignUpScreenState extends State<SignUpScreen>
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 20,
-                            offset: const Offset(0, 8),
+                            blurRadius: 20, offset: const Offset(0, 8),
                           ),
                         ],
                       ),
                       child: Column(
                         children: [
-                          // Email field
+                          // Email — disabled when loading
                           TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
                             style: GoogleFonts.poppins(fontSize: 14),
+                            enabled: !_isLoading,
                             decoration: InputDecoration(
                               labelText: 'Email',
                               labelStyle: GoogleFonts.poppins(
@@ -285,28 +259,31 @@ class _SignUpScreenState extends State<SignUpScreen>
                               prefixIcon: Icon(Icons.email_outlined,
                                   color: _accentGreen, size: 20),
                               filled: true,
-                              fillColor: _bgColor,
+                              fillColor: _isLoading
+                                  ? Colors.grey.shade100
+                                  : _bgColor,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide(
-                                    color: _accentGreen, width: 1.5),
+                                borderSide:
+                                    BorderSide(color: _accentGreen, width: 1.5),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 16),
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 18),
 
-                          // Password field
+                          // Password — disabled when loading
                           TextField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,
                             style: GoogleFonts.poppins(fontSize: 14),
+                            enabled: !_isLoading,
                             decoration: InputDecoration(
                               labelText: 'Password',
                               labelStyle: GoogleFonts.poppins(
@@ -317,40 +294,41 @@ class _SignUpScreenState extends State<SignUpScreen>
                               prefixIcon: Icon(Icons.lock_outline,
                                   color: _accentGreen, size: 20),
                               suffixIcon: GestureDetector(
-                                onTap: () => setState(
-                                    () => _obscurePassword = !_obscurePassword),
+                                onTap: _isLoading
+                                    ? null
+                                    : () => setState(() =>
+                                        _obscurePassword = !_obscurePassword),
                                 child: Icon(
                                   _obscurePassword
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: Colors.grey.shade400,
-                                  size: 20,
+                                  color: Colors.grey.shade400, size: 20,
                                 ),
                               ),
                               filled: true,
-                              fillColor: _bgColor,
+                              fillColor: _isLoading
+                                  ? Colors.grey.shade100
+                                  : _bgColor,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
                                 borderSide: BorderSide.none,
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(14),
-                                borderSide: BorderSide(
-                                    color: _accentGreen, width: 1.5),
+                                borderSide:
+                                    BorderSide(color: _accentGreen, width: 1.5),
                               ),
                               contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 16),
                             ),
                           ),
 
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 26),
 
-                          // Create Account button
                           GestureDetector(
                             onTap: _isLoading ? null : _signUp,
                             child: Container(
-                              width: double.infinity,
-                              height: 56,
+                              width: double.infinity, height: 56,
                               decoration: BoxDecoration(
                                 color: _isLoading
                                     ? _accentGreen.withValues(alpha: 0.6)
@@ -358,31 +336,23 @@ class _SignUpScreenState extends State<SignUpScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        _accentGreen.withValues(alpha: 0.35),
-                                    blurRadius: 20,
-                                    offset: const Offset(0, 8),
+                                    color: _accentGreen.withValues(alpha: 0.35),
+                                    blurRadius: 20, offset: const Offset(0, 8),
                                   ),
                                 ],
                               ),
                               child: Center(
                                 child: _isLoading
                                     ? const SizedBox(
-                                        height: 22,
-                                        width: 22,
+                                        height: 22, width: 22,
                                         child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2.5,
-                                        ),
-                                      )
-                                    : Text(
-                                        'Create Account',
+                                            color: Colors.white,
+                                            strokeWidth: 2.5))
+                                    : Text('Create Account',
                                         style: GoogleFonts.poppins(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.white,
-                                        ),
-                                      ),
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
                               ),
                             ),
                           ),
@@ -390,34 +360,28 @@ class _SignUpScreenState extends State<SignUpScreen>
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 26),
 
-                    // Login link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          "Already have an account? ",
-                          style: GoogleFonts.poppins(
-                            color: Colors.grey.shade500,
-                            fontSize: 14,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.of(context).pop(),
-                          child: Text(
-                            "Log In",
+                        Text("Already have an account? ",
                             style: GoogleFonts.poppins(
-                              color: _accentGreen,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 14,
-                            ),
-                          ),
+                                color: Colors.grey.shade500, fontSize: 14)),
+                        GestureDetector(
+                          onTap: _isLoading ? null : () => Navigator.of(context).pop(),
+                          child: Text("Log In",
+                              style: GoogleFonts.poppins(
+                                  color: _isLoading
+                                      ? Colors.grey.shade400
+                                      : _accentGreen,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14)),
                         ),
                       ],
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 26),
                   ],
                 ),
               ),
