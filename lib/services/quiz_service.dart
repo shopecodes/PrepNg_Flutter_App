@@ -7,7 +7,7 @@ import 'package:flutter/foundation.dart';
 class QuizService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Added scopeId to ensure we get the right exam type (JAMB vs WAEC)
+  // Added scopeId to ensure getting the right exam type (JAMB vs WAEC)
   Future<List<Question>> loadQuestions(String subjectId, String scopeId) async {
     try {
       final QuerySnapshot snapshot = await _firestore

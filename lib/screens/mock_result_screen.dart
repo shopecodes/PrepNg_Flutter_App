@@ -34,11 +34,10 @@ class _MockResultScreenState extends State<MockResultScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // ── Added streak service ──────────────────────────────────────
   final StreakService _streakService = StreakService();
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreenFixed = Color(0xFF014104); // used in gradient only
+  static const Color _darkGreenFixed = Color(0xFF014104);
 
   int _totalScore = 0;
   int _totalQuestions = 0;
@@ -83,12 +82,12 @@ class _MockResultScreenState extends State<MockResultScreen>
           .doc(user.uid)
           .collection('mock_results')
           .add({
-        'timestamp': FieldValue.serverTimestamp(), // ← consistent field name
+        'timestamp': FieldValue.serverTimestamp(),
         'totalScore': _totalScore,
         'totalQuestions': _totalQuestions,
         'percentage': double.parse(_percentage.toStringAsFixed(1)),
-        'scores': widget.scores,   // keep for progress_history_screen
-        'totals': widget.totals,   // keep for progress_history_screen
+        'scores': widget.scores,
+        'totals': widget.totals,
       });
 
       // ── Record streak — mock exam counts as studying ──────────

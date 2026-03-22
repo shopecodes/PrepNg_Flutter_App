@@ -1,12 +1,8 @@
 // functions/index.js
-// 
-// ADD THIS TO YOUR EXISTING index.js in your Firebase Cloud Functions folder
-// Run: npm install firebase-admin firebase-functions (if not already installed)
 
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 
-// Only initialize if not already initialized (important if you have existing functions)
 if (!admin.apps.length) {
   admin.initializeApp();
 }

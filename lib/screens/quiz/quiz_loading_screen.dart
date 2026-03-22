@@ -103,7 +103,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
           .collection('questions')
           .where('subjectId', isEqualTo: widget.subjectId)
           .where('scopeId', isEqualTo: widget.scopeId)
-          // ── FIXED: was Source.serverAndCache which returned stale cache ──
           .get(const GetOptions(source: Source.server));
 
       if (snapshot.docs.isEmpty) {

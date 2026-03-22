@@ -28,7 +28,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Exact same palette as complete_profile_screen
   static const Color _bgColor = Color(0xFFF0F9F4);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
@@ -283,7 +282,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen>
 
                     const SizedBox(height: 20),
 
-                    // SPAM FOLDER REMINDER - NEW SECTION
+                    // SPAM FOLDER REMINDER
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.all(18),

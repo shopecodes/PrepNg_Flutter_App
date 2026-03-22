@@ -6,11 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-/// A single global key registered in main.dart on MaterialApp.scaffoldMessengerKey.
-/// This lets ConnectivityService show snackbars without needing a BuildContext.
-///
-/// In main.dart add:
-///   scaffoldMessengerKey: connectivityScaffoldKey,
 final GlobalKey<ScaffoldMessengerState> connectivityScaffoldKey =
     GlobalKey<ScaffoldMessengerState>();
 

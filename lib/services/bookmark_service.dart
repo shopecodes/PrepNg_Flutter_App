@@ -21,7 +21,7 @@ class BookmarkService {
       if (_uid == null) return false;
       await _bookmarksRef!.doc(question.id).set({
         'questionId': question.id,
-        'bookmarkedAt': FieldValue.serverTimestamp(), // ← was 'savedAt'
+        'bookmarkedAt': FieldValue.serverTimestamp(),
         'text': question.text,
         'options': question.options,
         'correctAnswerIndex': question.correctAnswerIndex,

@@ -75,7 +75,7 @@ class LeaderboardService {
         final newCount = (data['quizzesTaken'] ?? 0) + 1;
 
         await docRef.update({
-          'displayName': displayName, // keep name fresh
+          'displayName': displayName,
           'department': department,
           'totalScore': newTotal,
           'quizzesTaken': newCount,

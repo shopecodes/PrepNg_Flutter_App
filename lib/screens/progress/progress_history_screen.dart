@@ -443,8 +443,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
-          .collection('mock_results')
-          // ── No orderBy here — we sort in Dart to avoid index requirement
+          .collection('mock_results') // ── No orderBy here — sort in Dart to avoid index requirement
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

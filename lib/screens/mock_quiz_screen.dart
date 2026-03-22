@@ -28,13 +28,12 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
   int _secondsRemaining = 9000; // 2.5 hours (150 minutes)
   int _currentSubjectIndex = 0;
   int _currentQuestionIndex = 0;
-  // Now stores selected answer INDEX (int) instead of a string letter
+  
   final Map<String, Map<int, int>> _selectedAnswers = {};
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF014104);
 
-  // Option labels A, B, C, D
   static const List<String> _optionLabels = ['A', 'B', 'C', 'D'];
 
   @override
@@ -552,7 +551,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      // FIX 1: was _currentQuestion.questionText → now .text
+
                       Text(
                         _currentQuestion.text,
                         style: GoogleFonts.poppins(
@@ -572,8 +571,6 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
 
                       const SizedBox(height: 24),
 
-                      // FIX 2: was options.entries.map → now options.asMap().entries.map
-                      // FIX 3: comparison now uses index vs correctAnswerIndex
                       ..._currentQuestion.options.asMap().entries.map((entry) {
                         final optionIndex = entry.key;
                         final optionText = entry.value;
@@ -612,7 +609,6 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                   ),
                                   child: Center(
                                     child: Text(
-                                      // Show A, B, C, D label
                                       optionIndex < _optionLabels.length
                                           ? _optionLabels[optionIndex]
                                           : '${optionIndex + 1}',

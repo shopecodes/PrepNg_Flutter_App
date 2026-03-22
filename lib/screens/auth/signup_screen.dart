@@ -166,7 +166,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Back button — top spacing reduced from 34 to 4
+                    // Back button
                     GestureDetector(
                       onTap: _isLoading ? null : () => Navigator.of(context).pop(),
                       child: Container(
@@ -186,7 +186,6 @@ class _SignUpScreenState extends State<SignUpScreen>
                       ),
                     ),
 
-                    // Reduced top spacing
                     const SizedBox(height: 16),
 
                     Center(
@@ -243,7 +242,7 @@ class _SignUpScreenState extends State<SignUpScreen>
                       ),
                       child: Column(
                         children: [
-                          // Email — disabled when loading
+                          // Email — disable when loading
                           TextField(
                             controller: _emailController,
                             keyboardType: TextInputType.emailAddress,
@@ -278,7 +277,7 @@ class _SignUpScreenState extends State<SignUpScreen>
 
                           const SizedBox(height: 18),
 
-                          // Password — disabled when loading
+                          // Password — disable when loading
                           TextField(
                             controller: _passwordController,
                             obscureText: _obscurePassword,

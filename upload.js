@@ -23,7 +23,7 @@ async function uploadQuestions(filename) {
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
       
-      // FIXED LOGIC: Specifically check if the field is undefined or null 
+      // Specifically check if the field is undefined or null 
       // This prevents '0' from being flagged as missing
       const missing = requiredFields.filter(field => q[field] === undefined || q[field] === null || q[field] === '');
       

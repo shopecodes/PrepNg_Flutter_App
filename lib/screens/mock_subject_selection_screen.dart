@@ -68,7 +68,7 @@ class _MockSubjectSelectionScreenState
     });
 
     try {
-      // ── Step 1: Find Use-of-English via isFree:true ───────────
+      // ── Find Use-of-English via isFree:true ───────────
       final freeSnap = await _connectivity.runWithTimeout(
         operation: () => _firestore
             .collection('subjects')
@@ -80,7 +80,6 @@ class _MockSubjectSelectionScreenState
       );
 
       if (freeSnap == null) {
-        // snackbar already shown by runWithTimeout
         setState(() => _isLoading = false);
         return;
       }
@@ -111,7 +110,7 @@ class _MockSubjectSelectionScreenState
         return;
       }
 
-      // ── Step 2: Fetch all subjects with same scopeId ──────────
+      // ── Fetch all subjects with same scopeId ──────────
       final subjectsSnap = await _connectivity.runWithTimeout(
         operation: () => _firestore
             .collection('subjects')
@@ -126,7 +125,7 @@ class _MockSubjectSelectionScreenState
         return;
       }
 
-      // ── Step 3: Get user's unlocked subject IDs ───────────────
+      // ── Get user's unlocked subject IDs ───────────────
       final uid = _auth.currentUser?.uid;
       Set<String> unlockedIds = {};
       if (uid != null) {
@@ -149,7 +148,7 @@ class _MockSubjectSelectionScreenState
             .toSet();
       }
 
-      // ── Step 4: Build selectable list (exclude Use-of-English) ─
+      // ── Build selectable list (exclude Use-of-English) ─
       final available = subjectsSnap.docs
           .where((doc) => doc.id != _useOfEnglishSubjectId)
           .where((doc) => unlockedIds.contains(doc.id))
@@ -237,7 +236,7 @@ class _MockSubjectSelectionScreenState
       final uoeQuestions =
           await _fetchQuestions(_useOfEnglishSubjectId!, uid);
       if (uoeQuestions == null) {
-        return; // timeout — snackbar already shown
+        return;
       }
       if (uoeQuestions.isEmpty) {
         _showError('No questions found for $_useOfEnglishName.');
@@ -295,7 +294,7 @@ class _MockSubjectSelectionScreenState
     }
   }
 
-  /// Returns null if a timeout/network error occurred (snackbar already shown).
+  /// Returns null if a timeout/network error occurred.
   /// Returns empty list if no questions exist for the subject.
   Future<List<Question>?> _fetchQuestions(
       String subjectId, String uid) async {

@@ -25,7 +25,7 @@ class _ProfileCheckWrapperState extends State<ProfileCheckWrapper> {
 
     if (!mounted) return;
 
-    // Navigate immediately — no waiting for next frame or app restart
+    // Navigate immediately — don't wait for next frame or app restart
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => isComplete

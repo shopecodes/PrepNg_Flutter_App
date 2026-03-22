@@ -1,7 +1,4 @@
 // bulk_upload_qotd.js
-// Run: node bulk_upload_qotd.js
-// Make sure you have firebase-admin installed: npm install firebase-admin
-// Place your Firebase service account key as serviceAccountKey.json in the same folder
 
 const admin = require("firebase-admin");
 const serviceAccount = require("./serviceAccountKey.json");
@@ -12,7 +9,7 @@ admin.initializeApp({
 
 const db = admin.firestore();
 
-// ─── 61 QOTD Questions, one per subject, SS3 hard level ───────────────────────
+// ─── 61 QOTD Questions, one per subject ───────────────────────
 // Starting from March 27, 2026 — one question per day
 const questions = [
   {

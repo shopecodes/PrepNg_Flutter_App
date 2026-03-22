@@ -61,7 +61,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       _isOffline = false;
     });
 
-    // Check connectivity first so we can show cached data banner if offline
+    // Check connectivity first before showing cached data banner if offline
     final hasInternet = await _connectivityService.hasInternetConnection();
     if (mounted) setState(() => _isOffline = !hasInternet);
 

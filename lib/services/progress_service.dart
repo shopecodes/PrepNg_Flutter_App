@@ -21,7 +21,7 @@ class ProgressService {
         'subjectName': subjectName,
         'score': score,
         'totalQuestions': totalQuestions,
-        'timestamp': FieldValue.serverTimestamp(), // ← was 'takenAt'
+        'timestamp': FieldValue.serverTimestamp(),
       });
     }
   }
@@ -31,7 +31,7 @@ class ProgressService {
     return _db
         .collection('results')
         .where('userId', isEqualTo: _auth.currentUser?.uid)
-        .orderBy('timestamp', descending: true) // ← was 'takenAt'
+        .orderBy('timestamp', descending: true)
         .snapshots();
   }
 

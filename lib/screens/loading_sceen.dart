@@ -28,7 +28,7 @@ class _LoadingScreenState extends State<LoadingScreen>
   Timer? _tipTimer;
   final _random = Random();
 
-  // Color palette matching onboarding
+  // Color palette
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
