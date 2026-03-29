@@ -2,7 +2,7 @@ name: prep_ng
 description: "JAMB & WAEC Exam Preparation App for Nigerian Students"
 publish_to: 'none'
 
-version: 1.0.0+10
+version: 1.0.0+12
 
 environment:
   sdk: ^3.10.0-142.0.dev

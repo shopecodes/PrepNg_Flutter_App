@@ -54,18 +54,20 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
       scaffoldMessengerKey: connectivityScaffoldKey,
-      // Theme switches for logged-in screens; login/onboarding stay light
       theme: ThemeProvider.lightTheme.copyWith(
-        textTheme: GoogleFonts.poppinsTextTheme(ThemeProvider.lightTheme.textTheme),
+        textTheme:
+            GoogleFonts.poppinsTextTheme(ThemeProvider.lightTheme.textTheme),
       ),
       darkTheme: ThemeProvider.darkTheme.copyWith(
-        textTheme: GoogleFonts.poppinsTextTheme(ThemeProvider.darkTheme.textTheme),
+        textTheme:
+            GoogleFonts.poppinsTextTheme(ThemeProvider.darkTheme.textTheme),
       ),
-      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode:
+          themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       routes: {
         '/qotd': (context) {
-          // Pass the date argument from the notification to the screen
-          final date = ModalRoute.of(context)?.settings.arguments as String?;
+          final date =
+              ModalRoute.of(context)?.settings.arguments as String?;
           return QuestionOfTheDayScreen(notificationDate: date);
         },
       },
@@ -82,8 +84,6 @@ class AppInitializer extends StatefulWidget {
 }
 
 class _AppInitializerState extends State<AppInitializer> {
-  Widget? _nextScreen;
-
   @override
   void initState() {
     super.initState();
@@ -94,7 +94,7 @@ class _AppInitializerState extends State<AppInitializer> {
     try {
       final startTime = DateTime.now();
 
-      // ── Step 1: Firebase core init — no internet needed, must always complete ──
+      // ── Step 1: Firebase core init — no internet needed ─────────────────
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
@@ -105,10 +105,10 @@ class _AppInitializerState extends State<AppInitializer> {
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
 
-      // ── Step 2: Network-dependent calls — capped at 20 seconds ──
-      await _runInit().timeout(
+      // ── Step 2: Network-dependent calls — capped at 20 seconds ──────────
+      Widget nextScreen = await _runInit().timeout(
         const Duration(seconds: 20),
-        onTimeout: () => _handleTimeout(),
+        onTimeout: () => _onTimeout(),
       );
 
       // Guarantee loading screen shows for at least 5 seconds
@@ -119,63 +119,48 @@ class _AppInitializerState extends State<AppInitializer> {
       }
 
       if (!mounted) return;
-      _navigateToNextScreen();
+      _navigateTo(nextScreen);
     } catch (e) {
       debugPrint('Error initializing app: $e');
-      if (mounted) {
-        setState(() => _nextScreen = const WelcomeScreen());
-        _navigateToNextScreen();
-      }
+      if (mounted) _navigateTo(const WelcomeScreen());
     }
   }
 
-  Future<void> _runInit() async {
-    // Initialize notifications (needs Firebase to be ready)
+  Future<Widget> _runInit() async {
     NotificationService.navigatorKey = navigatorKey;
     await NotificationService().initialize();
 
-    // Auth check + onboarding check in parallel
-    final results = await Future.wait([
-      FirebaseAuth.instance
-          .authStateChanges()
-          .first
-          .timeout(const Duration(seconds: 5), onTimeout: () => null),
-      SharedPreferences.getInstance(),
-    ]);
+    // ── Use currentUser first (synchronous, reads from local Firebase cache)
+    // Falls back to authStateChanges() only if currentUser is null.
+    final User? user = FirebaseAuth.instance.currentUser ??
+        await FirebaseAuth.instance
+            .authStateChanges()
+            .first
+            .timeout(const Duration(seconds: 15), onTimeout: () => null);
 
-    if (!mounted) return;
+    final prefs = await SharedPreferences.getInstance();
+    final onboardingComplete =
+        prefs.getBool('onboarding_complete') ?? false;
 
-    final user = results[0] as User?;
-    final prefs = results[1] as SharedPreferences;
-    final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
-
-    setState(() {
-      _nextScreen = !onboardingComplete
-          ? const OnboardingScreen()
-          : user == null
-              ? const WelcomeScreen()
-              : const ProfileCheckWrapper();
-    });
+    if (!onboardingComplete) return const OnboardingScreen();
+    if (user == null) return const WelcomeScreen();
+    return const ProfileCheckWrapper();
   }
 
-  void _handleTimeout() {
-    // Fall through to login so app isn't stuck on loading screen
-    if (mounted) {
-      setState(() => _nextScreen = const WelcomeScreen());
-    }
-
-    // Show snackbar after navigation so it appears briefly then auto-dismisses
+  Widget _onTimeout() {
     Future.delayed(const Duration(milliseconds: 600), () {
       connectivityScaffoldKey.currentState?.showSnackBar(
         SnackBar(
           content: Row(
             children: [
-              const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
+              const Icon(Icons.wifi_off_rounded,
+                  color: Colors.white, size: 18),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'No internet connection. Please check your network.',
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontSize: 13),
                 ),
               ),
             ],
@@ -184,24 +169,25 @@ class _AppInitializerState extends State<AppInitializer> {
           duration: const Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
         ),
       );
     });
+    return const WelcomeScreen();
   }
 
-  void _navigateToNextScreen() {
-    if (_nextScreen != null && mounted) {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => _nextScreen!),
-      );
-    }
+  void _navigateTo(Widget screen) {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (context) => screen),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return LoadingScreen(
-      onLoadingComplete: _navigateToNextScreen,
+      onLoadingComplete: () {},
     );
   }
 }

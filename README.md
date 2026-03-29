@@ -37,7 +37,6 @@ The app covers **57 subjects** across both exam scopes, with questions updated a
 - 📊 **Progress Tracking** — View full quiz history and mock exam results
 - 🆓 **Free English Language** — JAMB Use of English is free for all users
 - 💳 **Secure Payments** — Subject unlocking via Paystack (₦500 per subject)
-- 🌐 **Offline Support** — Firebase offline persistence for studying without internet
 - 🔔 **Push Notifications** — Daily QOTD alerts via Firebase Cloud Messaging
 - 🔐 **User Authentication** — Secure login and account management via Firebase Auth
 
@@ -173,7 +172,6 @@ purchases/{id}                       # Payment records
 
 PrepNG is designed to work gracefully without internet:
 
-- Firebase offline persistence caches previously loaded questions and data
 - All screens that require network calls enforce a **10-second timeout**
 - A snackbar notifies users when a connection attempt times out
 - The leaderboard shows a **"Showing cached data"** banner when offline
