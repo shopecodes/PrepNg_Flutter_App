@@ -184,7 +184,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
           errorStr.contains('sign_in_canceled')) {
         return;
       }
-      _showError('Something went wrong. Please try again.');
+       _showError('Something went wrong. Please try again.');
     } finally {
       if (mounted) setState(() => _isGoogleLoading = false);
     }

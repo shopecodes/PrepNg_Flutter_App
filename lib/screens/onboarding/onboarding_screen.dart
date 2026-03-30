@@ -33,7 +33,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       image: 'assets/images/disabled student-bro.png',
       title: 'Learn Anywhere.\nAnytime.',
       subtitle:
-          'Offline support means you can practice even without internet. Your progress is always saved.',
+          'Stay connected and practice anytime, anywhere. Your progress is always saved.',
       bgColor: const Color(0xFFF0F9F4),
       accentColor: const Color(0xFF388E5E),
     ),
