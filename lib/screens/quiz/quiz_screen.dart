@@ -201,14 +201,19 @@ class _QuizScreenState extends State<QuizScreen>
         }
 
         final question = quizProvider.currentQuestion;
+
+        // ✅ Fixed: was ~/ 90 (wrong), now ~/ 60 (correct)
         final int minutes = quizProvider.timeRemaining ~/ 60;
         final int seconds = quizProvider.timeRemaining % 60;
         final String timerText =
             '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
 
-        final int totalTime = quizProvider.questions.length <= 40
-            ? 30 * 60
-            : 60 * 60;
+        // ✅ Fixed: totalTime derived from actual quiz time set at start,
+        // not guessed from question count.
+        // Use of English = 60 questions = 30 min (1800s)
+        // Other JAMB subjects = 40 questions = 20 min (1200s)
+        // quizProvider.totalTime holds the value passed into startQuiz()
+        final int totalTime = quizProvider.totalTime;
         final timerColor =
             _timerColor(quizProvider.timeRemaining, totalTime);
         final double progressValue =

@@ -88,6 +88,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
     super.dispose();
   }
 
+  // ✅ Fixed: was ~/ 90 (wrong), now ~/ 60 (correct)
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     return '$minutes min';
@@ -122,7 +123,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
       }
 
       if (mounted) {
-        final quizProvider = Provider.of<QuizProvider>(context, listen: false);
+        final quizProvider =
+            Provider.of<QuizProvider>(context, listen: false);
         await quizProvider.startQuiz(
           questions,
           widget.questionsPerQuiz,
@@ -170,8 +172,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
     showDialog(
       context: context,
       builder: (context) => Dialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24)),
         backgroundColor: Colors.white,
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -329,7 +331,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                       borderRadius: BorderRadius.circular(32),
                       boxShadow: [
                         BoxShadow(
-                          color: _scopeGradient[0].withValues(alpha: 0.35),
+                          color:
+                              _scopeGradient[0].withValues(alpha: 0.35),
                           blurRadius: 30,
                           offset: const Offset(0, 12),
                         ),
@@ -440,7 +443,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
   Widget _infoChip({required IconData icon, required String label}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding:
+          const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),

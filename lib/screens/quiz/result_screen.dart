@@ -329,6 +329,7 @@ class _ResultScreenState extends State<ResultScreen>
                       userAnswer: userAnswer,
                       isCorrect: isCorrect,
                       index: index,
+                      subjectName: widget.subjectName,
                     );
                   },
                 ),
@@ -420,27 +421,243 @@ class _ResultScreenState extends State<ResultScreen>
 
 // ── Review Tile ───────────────────────────────────────────────────────────────
 
-class _ReviewTile extends StatelessWidget {
+class _ReviewTile extends StatefulWidget {
   final Question question;
   final int? userAnswer;
   final bool isCorrect;
   final int index;
+  final String subjectName;
 
   const _ReviewTile({
     required this.question,
     required this.userAnswer,
     required this.isCorrect,
     required this.index,
+    required this.subjectName,
   });
 
+  @override
+  State<_ReviewTile> createState() => _ReviewTileState();
+}
+
+class _ReviewTileState extends State<_ReviewTile> {
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
   static const Color _bgColor = Color(0xFFF5FAF6);
 
+  bool _isFlagged = false;
+  bool _isSubmittingFlag = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfAlreadyFlagged();
+  }
+
+  Future<void> _checkIfAlreadyFlagged() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      final existingFlag = await FirebaseFirestore.instance
+          .collection('flagged_questions')
+          .where('questionId', isEqualTo: widget.question.id)
+          .where('userId', isEqualTo: user.uid)
+          .limit(1)
+          .get();
+
+      if (mounted) {
+        setState(() {
+          _isFlagged = existingFlag.docs.isNotEmpty;
+        });
+      }
+    } catch (e) {
+      debugPrint('Error checking flag status: $e');
+    }
+  }
+
+  Future<void> _showFlagDialog() async {
+    final TextEditingController reasonController = TextEditingController();
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please log in to flag questions')),
+      );
+      return;
+    }
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: Row(
+          children: [
+            const Icon(Icons.flag_outlined, color: Colors.orange),
+            const SizedBox(width: 8),
+            Text(
+              'Report Problem',
+              style: GoogleFonts.poppins(
+                fontSize: 18,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'What\'s the issue with this question?',
+              style: GoogleFonts.poppins(
+                fontSize: 13,
+                color: Colors.grey.shade700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              maxLines: 4,
+              decoration: InputDecoration(
+                hintText: 'Example:\n- Wrong answer marked as correct\n- Correct answer not in options\n- Question is unclear',
+                hintStyle: GoogleFonts.poppins(
+                  fontSize: 12,
+                  color: Colors.grey.shade400,
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: _accentGreen, width: 2),
+                ),
+              ),
+              style: GoogleFonts.poppins(fontSize: 13),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                color: Colors.grey.shade600,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (reasonController.text.trim().isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Please describe the issue')),
+                );
+                return;
+              }
+              Navigator.pop(context, true);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.orange,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              'Submit Report',
+              style: GoogleFonts.poppins(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (result == true && reasonController.text.trim().isNotEmpty) {
+      await _submitFlag(reasonController.text.trim());
+    }
+  }
+
+  Future<void> _submitFlag(String reason) async {
+    setState(() => _isSubmittingFlag = true);
+
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+
+      // Get user email
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+      final userEmail = userDoc.data()?['email'] ?? user.email ?? 'unknown';
+
+      // Save flag to Firebase
+      await FirebaseFirestore.instance.collection('flagged_questions').add({
+        'questionId': widget.question.id,
+        'questionText': widget.question.text,
+        'options': widget.question.options,
+        'userAnswer': widget.userAnswer != null
+            ? widget.question.options[widget.userAnswer!]
+            : 'No answer',
+        'correctAnswer': widget.question.options[widget.question.correctAnswerIndex],
+        'userAnswerIndex': widget.userAnswer,
+        'correctAnswerIndex': widget.question.correctAnswerIndex,
+        'userExplanation': reason,
+        'subjectName': widget.subjectName,
+        'userId': user.uid,
+        'userEmail': userEmail,
+        'flaggedAt': FieldValue.serverTimestamp(),
+        'status': 'pending',
+      });
+
+      if (mounted) {
+        setState(() {
+          _isFlagged = true;
+          _isSubmittingFlag = false;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Question reported! We\'ll review it soon.',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error submitting flag: $e');
+      if (mounted) {
+        setState(() => _isSubmittingFlag = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Failed to submit report. Please try again.',
+              style: GoogleFonts.poppins(),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Color tileColor =
-        isCorrect ? _accentGreen : Colors.red.shade400;
+        widget.isCorrect ? _accentGreen : Colors.red.shade400;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -473,13 +690,13 @@ class _ReviewTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              isCorrect ? Icons.check_rounded : Icons.close_rounded,
+              widget.isCorrect ? Icons.check_rounded : Icons.close_rounded,
               color: tileColor,
               size: 20,
             ),
           ),
           title: Text(
-            question.text,
+            widget.question.text,
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -492,7 +709,7 @@ class _ReviewTile extends StatelessWidget {
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 3),
             child: Text(
-              isCorrect ? 'Correct' : 'Incorrect',
+              widget.isCorrect ? 'Correct' : 'Incorrect',
               style: GoogleFonts.poppins(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -513,24 +730,24 @@ class _ReviewTile extends StatelessWidget {
                 children: [
                   _answerRow(
                     label: 'Your Answer',
-                    answer: userAnswer != null
-                        ? question.options[userAnswer!]
+                    answer: widget.userAnswer != null
+                        ? widget.question.options[widget.userAnswer!]
                         : 'No answer',
-                    color: isCorrect ? _accentGreen : Colors.red.shade400,
-                    icon: isCorrect
+                    color: widget.isCorrect ? _accentGreen : Colors.red.shade400,
+                    icon: widget.isCorrect
                         ? Icons.check_circle_outline_rounded
                         : Icons.cancel_outlined,
                   ),
-                  if (!isCorrect) ...[
+                  if (!widget.isCorrect) ...[
                     const SizedBox(height: 10),
                     _answerRow(
                       label: 'Correct Answer',
-                      answer: question.options[question.correctAnswerIndex],
+                      answer: widget.question.options[widget.question.correctAnswerIndex],
                       color: _accentGreen,
                       icon: Icons.check_circle_rounded,
                     ),
                   ],
-                  if (question.explanation != null) ...[
+                  if (widget.question.explanation != null) ...[
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.all(12),
@@ -548,7 +765,7 @@ class _ReviewTile extends StatelessWidget {
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
-                              question.explanation!,
+                              widget.question.explanation!,
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
                                 color: Colors.blue.shade800,
@@ -560,6 +777,81 @@ class _ReviewTile extends StatelessWidget {
                         ],
                       ),
                     ),
+                  ],
+                  
+                  // ── FLAG BUTTON (Only for wrong answers) ──
+                  if (!widget.isCorrect) ...[
+                    const SizedBox(height: 14),
+                    if (_isFlagged)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: Colors.orange.shade50,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(
+                              color: Colors.orange.shade200, width: 1),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(Icons.flag, size: 14, color: Colors.orange.shade700),
+                            const SizedBox(width: 6),
+                            Expanded(
+                              child: Text(
+                                'You\'ve reported this question',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.orange.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                    else
+                      GestureDetector(
+                        onTap: _isSubmittingFlag ? null : _showFlagDialog,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                                color: Colors.orange.shade300, width: 1.5),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (_isSubmittingFlag)
+                                SizedBox(
+                                  width: 14,
+                                  height: 14,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.orange.shade600),
+                                  ),
+                                )
+                              else
+                                Icon(Icons.flag_outlined,
+                                    size: 15, color: Colors.orange.shade600),
+                              const SizedBox(width: 6),
+                              Text(
+                                _isSubmittingFlag
+                                    ? 'Submitting...'
+                                    : 'Report Problem',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.orange.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                   ],
                 ],
               ),

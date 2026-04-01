@@ -25,7 +25,7 @@ class MockQuizScreen extends StatefulWidget {
 
 class _MockQuizScreenState extends State<MockQuizScreen> {
   late Timer _timer;
-  int _secondsRemaining = 9000; // 2.5 hours (150 minutes)
+  int _secondsRemaining = 7200; // 2 hours (120 minutes)
   int _currentSubjectIndex = 0;
   int _currentQuestionIndex = 0;
   

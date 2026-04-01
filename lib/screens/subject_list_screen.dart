@@ -32,7 +32,6 @@ class _SubjectListScreenState extends State<SubjectListScreen>
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
 
-  // Only accent is static — bg/text/card computed from theme in build()
   static const Color _accentGreen = Color(0xFF4CAF7D);
 
   Map<String, List<Color>> get _scopeGradient => {
@@ -61,6 +60,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        _recoverPaymentIfNeeded(); // ← check for interrupted bank transfers
         _refreshAccess();
         _preFetchSubjects();
       }
@@ -71,6 +71,43 @@ class _SubjectListScreenState extends State<SubjectListScreen>
   void dispose() {
     _animController.dispose();
     super.dispose();
+  }
+
+  /// Runs silently on every launch of this screen.
+  /// If the app was killed while a bank transfer was in progress,
+  /// this verifies the reference saved in SharedPreferences and unlocks
+  /// the subject automatically if Paystack confirms payment was successful.
+  Future<void> _recoverPaymentIfNeeded() async {
+    final result = await _purchaseService.recoverPendingPayment();
+    if (!mounted) return;
+    if (result != null && result.success) {
+      await _refreshAccess();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle_rounded,
+                  color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Your previous payment was recovered and your subject is now unlocked!',
+                  style:
+                      GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: _accentGreen,
+          duration: const Duration(seconds: 4),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    }
   }
 
   Future<void> _preFetchSubjects() async {
@@ -97,11 +134,24 @@ class _SubjectListScreenState extends State<SubjectListScreen>
 
   bool _isFreeSubject(Map<String, dynamic> data) => data['isFree'] == true;
 
-  Map<String, dynamic> _getExamConfig() {
+  bool get _isJamb {
     final s = widget.scopeName.toLowerCase();
-    if (s.contains('jamb') || s.contains('utme')) {
-      return {'questionsPerQuiz': 40, 'timeLimit': 30 * 60};
-    } else if (s.contains('waec') || s.contains('wassce')) {
+    return s.contains('jamb') || s.contains('utme');
+  }
+
+  bool get _isWaec {
+    final s = widget.scopeName.toLowerCase();
+    return s.contains('waec') || s.contains('wassce');
+  }
+
+  Map<String, dynamic> _getSubjectConfig(String subjectName) {
+    if (_isJamb) {
+      final isUseOfEnglish = subjectName.toLowerCase().contains('english');
+      return isUseOfEnglish
+          ? {'questionsPerQuiz': 60, 'timeLimit': 30 * 60}
+          : {'questionsPerQuiz': 40, 'timeLimit': 20 * 60};
+    }
+    if (_isWaec) {
       return {'questionsPerQuiz': 60, 'timeLimit': 60 * 60};
     }
     return {'questionsPerQuiz': 50, 'timeLimit': 45 * 60};
@@ -117,27 +167,31 @@ class _SubjectListScreenState extends State<SubjectListScreen>
 
     switch (result.errorType) {
       case PaymentErrorType.network:
-        message = result.errorMessage ?? 'Network issue. Please try again.';
+        message =
+            'No internet connection. Please check your network and try again.';
         icon = Icons.wifi_off;
         color = Colors.orange;
         break;
       case PaymentErrorType.timeout:
-        message = 'Payment timed out. Please try again.';
+        message = 'Connection timed out. Please check your network and try again.';
         icon = Icons.timer_off;
         color = Colors.orange;
         break;
       case PaymentErrorType.server:
-        message = result.errorMessage ?? 'Service unavailable. Try again later.';
+        message =
+            result.errorMessage ?? 'Service unavailable. Try again later.';
         icon = Icons.cloud_off;
         color = Colors.red;
         break;
       case PaymentErrorType.verification:
-        message = result.errorMessage ?? 'Verification failed. Check your transaction history.';
+        message = result.errorMessage ??
+            'Payment could not be verified. If you completed the transfer, it will be confirmed automatically when you reopen the app.';
         icon = Icons.error_outline;
         color = Colors.amber;
         break;
       default:
-        message = result.errorMessage ?? 'An error occurred. Please try again.';
+        message =
+            result.errorMessage ?? 'An error occurred. Please try again.';
         icon = Icons.error_outline;
         color = Colors.red;
     }
@@ -150,19 +204,24 @@ class _SubjectListScreenState extends State<SubjectListScreen>
             const SizedBox(width: 10),
             Expanded(
               child: Text(message,
-                  style: GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
+                  style:
+                      GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
             ),
           ],
         ),
         backgroundColor: color,
-        duration: const Duration(seconds: 4),
+        // network/timeout = 3s, others = 4s so user can read longer messages
+        duration: Duration(
+          seconds: (result.errorType == PaymentErrorType.network ||
+                  result.errorType == PaymentErrorType.timeout)
+              ? 3
+              : 4,
+        ),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        action: (result.errorType == PaymentErrorType.network ||
-                result.errorType == PaymentErrorType.timeout)
-            ? SnackBarAction(label: 'RETRY', textColor: Colors.white, onPressed: () {})
-            : null,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        // No retry button
       ),
     );
   }
@@ -175,16 +234,17 @@ class _SubjectListScreenState extends State<SubjectListScreen>
       return;
     }
 
-    // Read theme here — before any async gap
     final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
     final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
-    final fieldFill = isDark ? const Color(0xFF252E2C) : const Color(0xFFF5FAF6);
+    final fieldFill =
+        isDark ? const Color(0xFF252E2C) : const Color(0xFFF5FAF6);
 
     showDialog(
       context: context,
       builder: (dialogContext) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         backgroundColor: cardColor,
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -198,13 +258,16 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                   color: _accentGreen.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(Icons.lock_open_rounded, color: _accentGreen, size: 28),
+                child: Icon(Icons.lock_open_rounded,
+                    color: _accentGreen, size: 28),
               ),
               const SizedBox(height: 16),
               Text(
                 'Unlock $subjectName',
                 style: GoogleFonts.poppins(
-                    fontSize: 18, fontWeight: FontWeight.w800, color: textColor),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: textColor),
               ),
               const SizedBox(height: 8),
               Text(
@@ -216,23 +279,29 @@ class _SubjectListScreenState extends State<SubjectListScreen>
               ),
               const SizedBox(height: 20),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
                   color: fieldFill,
                   borderRadius: BorderRadius.circular(14),
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.payments_outlined, color: _accentGreen, size: 20),
+                    Icon(Icons.payments_outlined,
+                        color: _accentGreen, size: 20),
                     const SizedBox(width: 10),
                     Text('One-time payment',
                         style: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: isDark ? Colors.white60 : Colors.grey.shade600)),
+                            color: isDark
+                                ? Colors.white60
+                                : Colors.grey.shade600)),
                     const Spacer(),
                     Text('₦500',
                         style: GoogleFonts.poppins(
-                            fontSize: 18, fontWeight: FontWeight.w800, color: textColor)),
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: textColor)),
                   ],
                 ),
               ),
@@ -245,14 +314,18 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
-                          color: isDark ? Colors.white12 : Colors.grey.shade100,
+                          color: isDark
+                              ? Colors.white12
+                              : Colors.grey.shade100,
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Center(
                           child: Text('Cancel',
                               style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
-                                  color: isDark ? Colors.white60 : Colors.grey.shade600)),
+                                  color: isDark
+                                      ? Colors.white60
+                                      : Colors.grey.shade600)),
                         ),
                       ),
                     ),
@@ -286,11 +359,13 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     CircularProgressIndicator(
-                                        color: _accentGreen, strokeWidth: 2.5),
+                                        color: _accentGreen,
+                                        strokeWidth: 2.5),
                                     const SizedBox(height: 16),
                                     Text('Processing payment...',
                                         style: GoogleFonts.poppins(
-                                            fontSize: 14, color: textColor)),
+                                            fontSize: 14,
+                                            color: textColor)),
                                   ],
                                 ),
                               ),
@@ -307,15 +382,18 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                         if (result.success) {
                           await _refreshAccess();
                           if (!mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(SnackBar(
                             content: Row(children: [
                               const Icon(Icons.check_circle_rounded,
                                   color: Colors.white, size: 20),
                               const SizedBox(width: 10),
                               Expanded(
-                                  child: Text('$subjectName is now unlocked!',
+                                  child: Text(
+                                      '$subjectName is now unlocked!',
                                       style: GoogleFonts.poppins(
-                                          color: Colors.white, fontSize: 13))),
+                                          color: Colors.white,
+                                          fontSize: 13))),
                             ]),
                             backgroundColor: _accentGreen,
                             duration: const Duration(seconds: 3),
@@ -344,7 +422,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                         child: Center(
                           child: Text('Pay ₦500',
                               style: GoogleFonts.poppins(
-                                  fontWeight: FontWeight.w700, color: Colors.white)),
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
                         ),
                       ),
                     ),
@@ -361,7 +440,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+    final bgColor =
+        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
     final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
     final subtextColor = isDark ? Colors.white60 : Colors.grey.shade500;
@@ -370,7 +450,6 @@ class _SubjectListScreenState extends State<SubjectListScreen>
       backgroundColor: bgColor,
       body: Column(
         children: [
-          // ── Gradient Header ─────────────────────────────────────
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -414,7 +493,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                           Text('Select a subject to begin',
                               style: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: Colors.white.withValues(alpha: 0.75))),
+                                  color: Colors.white
+                                      .withValues(alpha: 0.75))),
                         ],
                       ),
                     ),
@@ -423,8 +503,6 @@ class _SubjectListScreenState extends State<SubjectListScreen>
               ),
             ),
           ),
-
-          // ── Subject List ────────────────────────────────────────
           Expanded(
             child: _isLoadingAccess
                 ? Center(
@@ -440,7 +518,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                       if (snapshot.hasError) {
                         return Center(
                             child: Text('Error loading subjects!',
-                                style: GoogleFonts.poppins(color: textColor)));
+                                style: GoogleFonts.poppins(
+                                    color: textColor)));
                       }
                       if (!snapshot.hasData) return const SizedBox();
 
@@ -458,12 +537,16 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                       return FadeTransition(
                         opacity: _fadeAnimation,
                         child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                          padding:
+                              const EdgeInsets.fromLTRB(20, 20, 20, 24),
                           itemCount: subjects.length,
                           itemBuilder: (context, index) {
-                            final data =
-                                subjects[index].data() as Map<String, dynamic>;
+                            final data = subjects[index].data()
+                                as Map<String, dynamic>;
                             final id = subjects[index].id;
+                            // ← FIX: subjectName declared here
+                            final subjectName =
+                                data['name'] as String? ?? 'Subject';
                             final isFree = _isFreeSubject(data);
                             final hasAccess =
                                 _unlockedSubjectIds.contains(id) || isFree;
@@ -471,13 +554,15 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                             return GestureDetector(
                               onTap: () {
                                 if (hasAccess) {
-                                  final config = _getExamConfig();
+                                  final config =
+                                      _getSubjectConfig(subjectName);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => QuizLoadingScreen(
+                                      builder: (context) =>
+                                          QuizLoadingScreen(
                                         subjectId: id,
-                                        subjectName: data['name'],
+                                        subjectName: subjectName,
                                         scopeId: widget.scopeId,
                                         scopeName: widget.scopeName,
                                         questionsPerQuiz:
@@ -487,15 +572,17 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                     ),
                                   );
                                 } else {
-                                  _handlePurchaseTap(id, data['name']);
+                                  _handlePurchaseTap(id, subjectName);
                                 }
                               },
                               child: Container(
-                                margin: const EdgeInsets.only(bottom: 12),
+                                margin:
+                                    const EdgeInsets.only(bottom: 12),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: cardColor,
-                                  borderRadius: BorderRadius.circular(18),
+                                  borderRadius:
+                                      BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withValues(
@@ -512,11 +599,13 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                       height: 48,
                                       decoration: BoxDecoration(
                                         color: hasAccess
-                                            ? _accentGreen.withValues(alpha: 0.1)
+                                            ? _accentGreen
+                                                .withValues(alpha: 0.1)
                                             : (isDark
                                                 ? Colors.white10
                                                 : Colors.grey.shade100),
-                                        borderRadius: BorderRadius.circular(14),
+                                        borderRadius:
+                                            BorderRadius.circular(14),
                                       ),
                                       child: Icon(
                                         Icons.menu_book_rounded,
@@ -534,9 +623,10 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(data['name'],
+                                          Text(subjectName,
                                               style: GoogleFonts.poppins(
-                                                  fontWeight: FontWeight.w700,
+                                                  fontWeight:
+                                                      FontWeight.w700,
                                                   fontSize: 15,
                                                   color: textColor)),
                                           const SizedBox(height: 3),
@@ -547,7 +637,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                                   fontSize: 12,
                                                   color: subtextColor),
                                               maxLines: 1,
-                                              overflow: TextOverflow.ellipsis),
+                                              overflow:
+                                                  TextOverflow.ellipsis),
                                         ],
                                       ),
                                     ),
@@ -555,17 +646,21 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                     if (hasAccess) ...[
                                       if (isFree)
                                         Container(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 5),
+                                          padding: const EdgeInsets
+                                              .symmetric(
+                                              horizontal: 10,
+                                              vertical: 5),
                                           decoration: BoxDecoration(
                                             color: _accentGreen,
                                             borderRadius:
-                                                BorderRadius.circular(20),
+                                                BorderRadius.circular(
+                                                    20),
                                           ),
                                           child: Text('FREE',
                                               style: GoogleFonts.poppins(
                                                   color: Colors.white,
-                                                  fontWeight: FontWeight.w700,
+                                                  fontWeight:
+                                                      FontWeight.w700,
                                                   fontSize: 11,
                                                   letterSpacing: 0.5)),
                                         )
@@ -577,7 +672,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                             color: _accentGreen
                                                 .withValues(alpha: 0.1),
                                             borderRadius:
-                                                BorderRadius.circular(10),
+                                                BorderRadius.circular(
+                                                    10),
                                           ),
                                           child: Icon(
                                               Icons.arrow_forward_rounded,
@@ -586,14 +682,16 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                         ),
                                     ] else
                                       Container(
-                                        padding: const EdgeInsets.symmetric(
+                                        padding: const EdgeInsets
+                                            .symmetric(
                                             horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: Colors.orange.shade50,
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
-                                              color: Colors.orange.shade200,
+                                              color:
+                                                  Colors.orange.shade200,
                                               width: 1),
                                         ),
                                         child: Row(
@@ -601,12 +699,15 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                           children: [
                                             Icon(Icons.lock_rounded,
                                                 size: 12,
-                                                color: Colors.orange.shade700),
+                                                color: Colors
+                                                    .orange.shade700),
                                             const SizedBox(width: 4),
                                             Text('₦500',
                                                 style: GoogleFonts.poppins(
-                                                    color: Colors.orange.shade700,
-                                                    fontWeight: FontWeight.w700,
+                                                    color: Colors
+                                                        .orange.shade700,
+                                                    fontWeight:
+                                                        FontWeight.w700,
                                                     fontSize: 12)),
                                           ],
                                         ),

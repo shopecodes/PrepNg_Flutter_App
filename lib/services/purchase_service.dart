@@ -4,6 +4,7 @@ import 'package:flutter_paystack_plus/flutter_paystack_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'dart:io';
 import '../config/paystack_config.dart';
@@ -47,10 +48,123 @@ class PurchaseService {
   String get _publicKey => PaystackConfig.publicKey;
   String get _secretKey => PaystackConfig.secretKey;
 
-  /// Verify payment with Paystack API
+  // ─── SharedPreferences keys ────────────────────────────────────────────────
+  static const _kPendingRef = 'pending_payment_reference';
+  static const _kPendingSubjectId = 'pending_payment_subject_id';
+  static const _kPendingSubjectName = 'pending_payment_subject_name';
+  /// true only after FlutterPaystackPlus.openPaystackPopup() returns without
+  /// throwing — meaning Paystack actually received the reference.
+  /// If false, the reference was never sent to Paystack and must be discarded.
+  static const _kPendingPopupOpened = 'pending_payment_popup_opened';
+
+  Future<void> _savePendingPayment({
+    required String reference,
+    required String subjectId,
+    required String subjectName,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kPendingRef, reference);
+    await prefs.setString(_kPendingSubjectId, subjectId);
+    await prefs.setString(_kPendingSubjectName, subjectName);
+    await prefs.setBool(_kPendingPopupOpened, false); // not opened yet
+    debugPrint('💾 Pending payment saved (popup not yet opened): $reference');
+  }
+
+  /// Mark the popup as successfully opened so recovery knows this reference
+  /// is real and worth verifying on the next app launch.
+  Future<void> _markPopupOpened() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_kPendingPopupOpened, true);
+    debugPrint('✅ Paystack popup confirmed open — reference is live');
+  }
+
+  Future<void> _clearPendingPayment() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_kPendingRef);
+    await prefs.remove(_kPendingSubjectId);
+    await prefs.remove(_kPendingSubjectName);
+    await prefs.remove(_kPendingPopupOpened);
+    debugPrint('🗑️ Pending payment cleared');
+  }
+
+  /// Called on every app launch from SubjectListScreen.initState().
+  ///
+  /// Recovery only runs when ALL three conditions are true:
+  ///   1. A saved reference exists
+  ///   2. The Paystack popup was actually opened (_kPendingPopupOpened == true)
+  ///   3. Paystack confirms the payment as successful
+  ///
+  /// This prevents the "Payment could not be verified" snackbar that was
+  /// appearing when a stale reference from a network-failed attempt was found.
+  Future<PaymentResult?> recoverPendingPayment() async {
+    final prefs = await SharedPreferences.getInstance();
+    final ref = prefs.getString(_kPendingRef);
+    final subjectId = prefs.getString(_kPendingSubjectId);
+    final subjectName = prefs.getString(_kPendingSubjectName);
+    final popupWasOpened = prefs.getBool(_kPendingPopupOpened) ?? false;
+
+    if (ref == null || subjectId == null) return null;
+
+    // ── KEY FIX ──────────────────────────────────────────────────────────────
+    // The popup never opened (network died before Paystack loaded the page).
+    // The reference was never sent to Paystack so there is nothing to verify.
+    // Discard it silently — no snackbar, no error shown to the user.
+    if (!popupWasOpened) {
+      debugPrint('⚠️ Stale ref found (popup never opened) — discarding: $ref');
+      await _clearPendingPayment();
+      return null;
+    }
+
+    debugPrint('🔄 Live pending ref found: $ref — verifying with Paystack...');
+    final isVerified = await _verifyPayment(ref);
+
+    if (isVerified) {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        debugPrint('⚠️ Verified but user not logged in — will retry next launch');
+        return null;
+      }
+
+      try {
+        final existing = await _firestore
+            .collection('user_subjects')
+            .where('paymentReference', isEqualTo: ref)
+            .get();
+
+        if (existing.docs.isEmpty) {
+          await _firestore.collection('user_subjects').add({
+            'userId': user.uid,
+            'subjectId': subjectId,
+            'purchaseDate': FieldValue.serverTimestamp(),
+            'subjectName': subjectName,
+            'amount': 500,
+            'paymentReference': ref,
+            'paymentMode': PaystackConfig.mode,
+            'recovered': true,
+          });
+          debugPrint('✅ Recovered payment saved to Firestore: $ref');
+        } else {
+          debugPrint('ℹ️ Already in Firestore, skipping duplicate write: $ref');
+        }
+
+        await _clearPendingPayment();
+        return PaymentResult.success();
+      } catch (e) {
+        debugPrint('❌ Error saving recovered payment: $e');
+        return null;
+      }
+    }
+
+    // Payment not confirmed yet — bank transfer may still be processing.
+    // Keep the reference so we check again next launch. No snackbar here.
+    debugPrint('⏳ Not yet verified — keeping ref for next launch: $ref');
+    return null;
+  }
+
   Future<bool> _verifyPayment(String reference) async {
     try {
-      final url = Uri.parse('https://api.paystack.co/transaction/verify/$reference');
+      final url = Uri.parse(
+          'https://api.paystack.co/transaction/verify/$reference');
       final response = await http.get(
         url,
         headers: {
@@ -59,22 +173,18 @@ class PurchaseService {
         },
       ).timeout(
         const Duration(seconds: 30),
-        onTimeout: () {
-          throw TimeoutException('Payment verification timed out');
-        },
+        onTimeout: () => throw TimeoutException('Payment verification timed out'),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         debugPrint('Verification Response: $data');
-
         if (data['status'] == true && data['data']['status'] == 'success') {
-          debugPrint('✅ Payment verified successfully! (${PaystackConfig.mode} mode)');
+          debugPrint('✅ Payment verified!');
           return true;
         }
       }
-
-      debugPrint('❌ Payment verification failed');
+      debugPrint('❌ Verification failed');
       return false;
     } on SocketException catch (e) {
       debugPrint('❌ Network error during verification: $e');
@@ -88,7 +198,19 @@ class PurchaseService {
     }
   }
 
-  /// Main payment function with comprehensive error handling
+  bool _isNetworkError(dynamic e) {
+    final s = e.toString().toLowerCase();
+    return s.contains('connection') ||
+        s.contains('socket') ||
+        s.contains('network') ||
+        s.contains('refused') ||
+        s.contains('clientexception') ||
+        s.contains('unreachable') ||
+        s.contains('errno = 101') ||
+        s.contains('errno = 111') ||
+        s.contains('failed host lookup');
+  }
+
   Future<PaymentResult> payAndUnlock(
     BuildContext context, {
     required String subjectId,
@@ -99,16 +221,11 @@ class PurchaseService {
 
     if (user == null) {
       return PaymentResult.error(
-        'You must be logged in to purchase subjects',
-        PaymentErrorType.unknown,
-      );
+          'You must be logged in to purchase subjects', PaymentErrorType.unknown);
     }
-
     if (!context.mounted) {
       return PaymentResult.error(
-        'Screen closed during payment',
-        PaymentErrorType.cancelled,
-      );
+          'Screen closed during payment', PaymentErrorType.cancelled);
     }
 
     try {
@@ -116,35 +233,73 @@ class PurchaseService {
       debugPrint('=== PAYMENT STARTED (${PaystackConfig.mode} MODE) ===');
       debugPrint('Reference: $reference');
 
+      // Save to disk with popupOpened = false.
+      // If network fails before Paystack loads, recovery will discard this.
+      await _savePendingPayment(
+        reference: reference,
+        subjectId: subjectId,
+        subjectName: subjectName,
+      );
+
+      if (!context.mounted) {
+        await _clearPendingPayment();
+        return PaymentResult.error(
+            'Screen closed during payment setup', PaymentErrorType.cancelled);
+      }
+
       bool paymentCancelled = false;
       bool paymentSuccessCallback = false;
 
-      await FlutterPaystackPlus.openPaystackPopup(
-        publicKey: _publicKey,
-        secretKey: _secretKey,
-        context: context,
-        customerEmail: email,
-        amount: "50000",
-        reference: reference,
-        currency: 'NGN',
-        metadata: {
-          'subjectId': subjectId,
-          'subjectName': subjectName,
-          'userId': user.uid,
-          'mode': PaystackConfig.mode,
-        },
-        onClosed: () {
-          debugPrint('=== PAYMENT WINDOW CLOSED ===');
-          paymentCancelled = true;
-        },
-        onSuccess: () {
-          debugPrint('=== onSuccess callback fired ===');
-          paymentSuccessCallback = true;
-        },
-      );
+      try {
+        await FlutterPaystackPlus.openPaystackPopup(
+          publicKey: _publicKey,
+          secretKey: _secretKey,
+          context: context,
+          customerEmail: email,
+          amount: "50000",
+          reference: reference,
+          currency: 'NGN',
+          metadata: {
+            'subjectId': subjectId,
+            'subjectName': subjectName,
+            'userId': user.uid,
+            'mode': PaystackConfig.mode,
+          },
+          onClosed: () {
+            debugPrint('=== PAYMENT WINDOW CLOSED ===');
+            paymentCancelled = true;
+          },
+          onSuccess: () {
+            debugPrint('=== onSuccess callback fired ===');
+            paymentSuccessCallback = true;
+          },
+        );
+
+        // Popup opened successfully — mark it so recovery treats this ref as real
+        await _markPopupOpened();
+
+      } on SocketException {
+        // Network died before Paystack could even load — popup never opened
+        await _clearPendingPayment();
+        return PaymentResult.error(
+          'No internet connection. Please check your network and try again.',
+          PaymentErrorType.network,
+        );
+      } catch (e) {
+        if (_isNetworkError(e)) {
+          await _clearPendingPayment();
+          return PaymentResult.error(
+            'No internet connection. Please check your network and try again.',
+            PaymentErrorType.network,
+          );
+        }
+        rethrow;
+      }
 
       if (paymentCancelled && !paymentSuccessCallback) {
-        return PaymentResult.error('Payment was cancelled', PaymentErrorType.cancelled);
+        await _clearPendingPayment();
+        return PaymentResult.error(
+            'Payment was cancelled', PaymentErrorType.cancelled);
       }
 
       await Future.delayed(const Duration(seconds: 2));
@@ -154,15 +309,24 @@ class PurchaseService {
 
       if (isVerified) {
         try {
-          await _firestore.collection('user_subjects').add({
-            'userId': user.uid,
-            'subjectId': subjectId,
-            'purchaseDate': FieldValue.serverTimestamp(),
-            'subjectName': subjectName,
-            'amount': 500,
-            'paymentReference': reference,
-            'paymentMode': PaystackConfig.mode,
-          });
+          final existing = await _firestore
+              .collection('user_subjects')
+              .where('paymentReference', isEqualTo: reference)
+              .get();
+
+          if (existing.docs.isEmpty) {
+            await _firestore.collection('user_subjects').add({
+              'userId': user.uid,
+              'subjectId': subjectId,
+              'purchaseDate': FieldValue.serverTimestamp(),
+              'subjectName': subjectName,
+              'amount': 500,
+              'paymentReference': reference,
+              'paymentMode': PaystackConfig.mode,
+            });
+          }
+
+          await _clearPendingPayment();
           debugPrint('✅ Purchase saved to Firestore');
           return PaymentResult.success();
         } catch (e) {
@@ -174,46 +338,42 @@ class PurchaseService {
         }
       }
 
+      // Bank transfer not confirmed yet — keep pending ref for next launch
       return PaymentResult.error(
-        'Payment could not be verified. Please check your transaction history.',
+        'Payment could not be verified. If you completed the transfer, it will be confirmed automatically when you reopen the app.',
         PaymentErrorType.verification,
       );
     } on SocketException catch (e) {
       debugPrint('❌ Network Error: $e');
+      await _clearPendingPayment();
       return PaymentResult.error(
-        'Unable to connect to payment service. Please check your internet connection and try again.',
+        'No internet connection. Please check your network and try again.',
         PaymentErrorType.network,
       );
     } on TimeoutException catch (e) {
       debugPrint('❌ Timeout Error: $e');
       return PaymentResult.error(
-        'Payment request timed out. Please check your internet connection and try again.',
+        'Payment request timed out. Please check your internet and try again.',
         PaymentErrorType.timeout,
       );
     } on HttpException catch (e) {
       debugPrint('❌ HTTP Error: $e');
+      await _clearPendingPayment();
       return PaymentResult.error(
-        'Payment service is temporarily unavailable. Please try again in a few moments.',
+        'Payment service is temporarily unavailable. Please try again later.',
         PaymentErrorType.server,
       );
     } catch (e) {
       debugPrint('❌ Unexpected Error: $e');
-
-      final errorString = e.toString().toLowerCase();
-      if (errorString.contains('connection') ||
-          errorString.contains('socket') ||
-          errorString.contains('network') ||
-          errorString.contains('refused')) {
+      if (_isNetworkError(e)) {
+        await _clearPendingPayment();
         return PaymentResult.error(
-          'Unable to connect to payment service. Please check your internet connection and try again.',
+          'No internet connection. Please check your network and try again.',
           PaymentErrorType.network,
         );
       }
-
       return PaymentResult.error(
-        'An unexpected error occurred. Please try again.',
-        PaymentErrorType.unknown,
-      );
+          'An unexpected error occurred. Please try again.', PaymentErrorType.unknown);
     }
   }
 
@@ -222,13 +382,10 @@ class PurchaseService {
     if (user == null) return false;
 
     try {
-      // Check if subject is free in Firestore first
-      final subjectDoc = await _firestore.collection('subjects').doc(subjectId).get();
-      if (subjectDoc.exists && subjectDoc.data()?['isFree'] == true) {
-        return true;
-      }
+      final subjectDoc =
+          await _firestore.collection('subjects').doc(subjectId).get();
+      if (subjectDoc.exists && subjectDoc.data()?['isFree'] == true) return true;
 
-      // Otherwise check if user has purchased it
       final snapshot = await _firestore
           .collection('user_subjects')
           .where('userId', isEqualTo: user.uid)
@@ -242,35 +399,23 @@ class PurchaseService {
     }
   }
 
-  /// Returns IDs of all subjects the user can access —
-  /// both purchased subjects AND subjects marked as free in Firestore
   Future<Set<String>> getPurchasedSubjectIds() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return {};
 
     try {
-      // Run both queries in parallel for efficiency
       final results = await Future.wait([
-        // Get subjects the user has purchased
         _firestore
             .collection('user_subjects')
             .where('userId', isEqualTo: user.uid)
             .get(),
-        // Get all subjects marked as free
-        _firestore
-            .collection('subjects')
-            .where('isFree', isEqualTo: true)
-            .get(),
+        _firestore.collection('subjects').where('isFree', isEqualTo: true).get(),
       ]);
 
-      final purchasedIds = results[0]
-          .docs
-          .map((doc) => doc.data()['subjectId'] as String)
-          .toSet();
-
+      final purchasedIds =
+          results[0].docs.map((doc) => doc.data()['subjectId'] as String).toSet();
       final freeIds = results[1].docs.map((doc) => doc.id).toSet();
 
-      // Combine both sets — user has access to purchased + free subjects
       return {...purchasedIds, ...freeIds};
     } catch (e) {
       debugPrint("Error fetching purchases: $e");
@@ -280,10 +425,7 @@ class PurchaseService {
 
   Future<void> mockPurchase(String subjectId, String subjectName) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      debugPrint("Error: User must be logged in");
-      return;
-    }
+    if (user == null) return;
 
     try {
       await _firestore.collection('user_subjects').add({

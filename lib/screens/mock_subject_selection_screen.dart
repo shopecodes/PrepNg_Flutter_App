@@ -22,10 +22,8 @@ class MockSubjectSelectionScreen extends StatefulWidget {
 class _MockSubjectSelectionScreenState
     extends State<MockSubjectSelectionScreen>
     with SingleTickerProviderStateMixin {
-
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final ConnectivityService _connectivity = ConnectivityService();
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
@@ -34,14 +32,22 @@ class _MockSubjectSelectionScreenState
   bool _isStarting = false;
   String? _errorMessage;
 
-  List<Map<String, dynamic>> _availableSubjects = [];
+  // All JAMB subjects (excluding Use-of-English)
+  List<Map<String, dynamic>> _allSubjects = [];
+  // IDs the user has unlocked
+  Set<String> _unlockedIds = {};
+  // IDs the user has selected for the mock exam
   final Set<String> _selectedSubjectIds = {};
+
   String? _useOfEnglishSubjectId;
   String? _useOfEnglishName;
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const int _requiredAdditionalSubjects = 3;
-  static const int _questionsPerSubject = 40;
+
+  // ✅ Use of English: 60 questions (JAMB spec); all other subjects: 40
+  static const int _questionsForUseOfEnglish = 60;
+  static const int _questionsPerOtherSubject = 40;
 
   @override
   void initState() {
@@ -61,6 +67,48 @@ class _MockSubjectSelectionScreenState
     super.dispose();
   }
 
+  /// Cache-first Firestore query — instant from cache, falls back to
+  /// server with 30s timeout on cache miss.
+  Future<QuerySnapshot<Map<String, dynamic>>> _queryCollection(
+    Query<Map<String, dynamic>> query,
+  ) async {
+    try {
+      final cached =
+          await query.get(const GetOptions(source: Source.cache));
+      if (cached.docs.isNotEmpty) {
+        debugPrint('📦 Cache hit for query');
+        return cached;
+      }
+    } catch (_) {}
+
+    debugPrint('🌐 Cache miss — fetching from server');
+    return await query
+        .get(const GetOptions(source: Source.server))
+        .timeout(
+          const Duration(seconds: 30),
+          onTimeout: () =>
+              throw TimeoutException('Loading subjects timed out'),
+        );
+  }
+
+  /// Cache-first single document fetch.
+  Future<DocumentSnapshot<Map<String, dynamic>>> _getDoc(
+      String collection, String docId) async {
+    try {
+      final cached = await _firestore
+          .collection(collection)
+          .doc(docId)
+          .get(const GetOptions(source: Source.cache));
+      if (cached.exists) return cached;
+    } catch (_) {}
+
+    return await _firestore
+        .collection(collection)
+        .doc(docId)
+        .get(const GetOptions(source: Source.server))
+        .timeout(const Duration(seconds: 30));
+  }
+
   Future<void> _loadSubjects() async {
     setState(() {
       _isLoading = true;
@@ -68,21 +116,13 @@ class _MockSubjectSelectionScreenState
     });
 
     try {
-      // ── Find Use-of-English via isFree:true ───────────
-      final freeSnap = await _connectivity.runWithTimeout(
-        operation: () => _firestore
+      // ── Find Use-of-English via isFree:true ──────────────────────────────
+      final freeSnap = await _queryCollection(
+        _firestore
             .collection('subjects')
             .where('isFree', isEqualTo: true)
-            .limit(1)
-            .get(),
-        onRetry: _loadSubjects,
-        message: 'Loading subjects timed out. Please check your internet.',
+            .limit(1),
       );
-
-      if (freeSnap == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
 
       if (freeSnap.docs.isEmpty) {
         setState(() {
@@ -98,10 +138,6 @@ class _MockSubjectSelectionScreenState
       _useOfEnglishName =
           freeDoc.data()['name'] as String? ?? 'Use-of-English';
 
-      debugPrint('JAMB scopeId: $jambScopeId');
-      debugPrint(
-          'Use-of-English: $_useOfEnglishName ($_useOfEnglishSubjectId)');
-
       if (jambScopeId.isEmpty) {
         setState(() {
           _errorMessage = 'Free subject has no scopeId. Check Firestore.';
@@ -110,48 +146,32 @@ class _MockSubjectSelectionScreenState
         return;
       }
 
-      // ── Fetch all subjects with same scopeId ──────────
-      final subjectsSnap = await _connectivity.runWithTimeout(
-        operation: () => _firestore
+      // ── Fetch ALL subjects in JAMB scope ─────────────────────────────────
+      final subjectsSnap = await _queryCollection(
+        _firestore
             .collection('subjects')
-            .where('scopeId', isEqualTo: jambScopeId)
-            .get(),
-        onRetry: _loadSubjects,
-        message: 'Loading subjects timed out. Please check your internet.',
+            .where('scopeId', isEqualTo: jambScopeId),
       );
 
-      if (subjectsSnap == null) {
-        setState(() => _isLoading = false);
-        return;
-      }
-
-      // ── Get user's unlocked subject IDs ───────────────
+      // ── Get user's unlocked subject IDs ──────────────────────────────────
       final uid = _auth.currentUser?.uid;
       Set<String> unlockedIds = {};
       if (uid != null) {
-        final userSubjectsSnap = await _connectivity.runWithTimeout(
-          operation: () => _firestore
+        final userSubjectsSnap = await _queryCollection(
+          _firestore
               .collection('user_subjects')
-              .where('userId', isEqualTo: uid)
-              .get(),
-          onRetry: _loadSubjects,
-          message: 'Loading your subjects timed out. Please check your internet.',
+              .where('userId', isEqualTo: uid),
         );
-
-        if (userSubjectsSnap == null) {
-          setState(() => _isLoading = false);
-          return;
-        }
-
         unlockedIds = userSubjectsSnap.docs
             .map((d) => d.data()['subjectId'] as String)
             .toSet();
       }
 
-      // ── Build selectable list (exclude Use-of-English) ─
-      final available = subjectsSnap.docs
+      // ── Build full subject list (exclude Use-of-English) ─────────────────
+      // All subjects are shown. Unlocked ones are selectable, locked ones
+      // show a lock icon and cannot be selected.
+      final allSubjects = subjectsSnap.docs
           .where((doc) => doc.id != _useOfEnglishSubjectId)
-          .where((doc) => unlockedIds.contains(doc.id))
           .map((doc) => {
                 'id': doc.id,
                 'name': doc.data()['name'] as String? ?? '',
@@ -159,23 +179,30 @@ class _MockSubjectSelectionScreenState
               })
           .toList();
 
-      available.sort((a, b) =>
-          (a['name'] as String).compareTo(b['name'] as String));
-
-      debugPrint('Available selectable subjects: ${available.length}');
+      allSubjects.sort(
+          (a, b) => (a['name'] as String).compareTo(b['name'] as String));
 
       if (mounted) {
         setState(() {
-          _availableSubjects = available;
+          _allSubjects = allSubjects;
+          _unlockedIds = unlockedIds;
           _isLoading = false;
         });
         _animController.forward();
+      }
+    } on TimeoutException {
+      if (mounted) {
+        setState(() {
+          _errorMessage =
+              'Loading timed out. Please check your internet and try again.';
+          _isLoading = false;
+        });
       }
     } catch (e) {
       debugPrint('Error loading subjects: $e');
       if (mounted) {
         setState(() {
-          _errorMessage = 'Failed to load subjects. Please try again.\n$e';
+          _errorMessage = 'Failed to load subjects. Please try again.';
           _isLoading = false;
         });
       }
@@ -183,7 +210,9 @@ class _MockSubjectSelectionScreenState
   }
 
   void _toggleSubject(String subjectId) {
-    if (_isStarting) return; // block changes while exam is loading
+    if (_isStarting) return;
+    // Only allow toggling unlocked subjects
+    if (!_unlockedIds.contains(subjectId)) return;
     setState(() {
       if (_selectedSubjectIds.contains(subjectId)) {
         _selectedSubjectIds.remove(subjectId);
@@ -196,7 +225,7 @@ class _MockSubjectSelectionScreenState
   bool get _canStart =>
       _selectedSubjectIds.length == _requiredAdditionalSubjects;
 
-  bool _timedOut = false; // set on timeout to block late navigation
+  bool _timedOut = false;
 
   Future<void> _startMockExam() async {
     if (!_canStart || _isStarting || _useOfEnglishSubjectId == null) return;
@@ -208,9 +237,8 @@ class _MockSubjectSelectionScreenState
     setState(() => _isStarting = true);
 
     try {
-      // Hard 10s cap on the entire exam start flow
       await _runStartMockExam(uid).timeout(
-        const Duration(seconds: 10),
+        const Duration(seconds: 30),
         onTimeout: () {
           _timedOut = true;
           _showError('Connection timed out. Please check your internet.');
@@ -232,12 +260,13 @@ class _MockSubjectSelectionScreenState
       final Map<String, List<Question>> subjectQuestions = {};
       final List<String> subjectNames = [];
 
-      // Use-of-English always first
-      final uoeQuestions =
-          await _fetchQuestions(_useOfEnglishSubjectId!, uid);
-      if (uoeQuestions == null) {
-        return;
-      }
+      // ✅ Use of English always first — 60 questions
+      final uoeQuestions = await _fetchQuestions(
+        _useOfEnglishSubjectId!,
+        uid,
+        limit: _questionsForUseOfEnglish,
+      );
+      if (uoeQuestions == null) return;
       if (uoeQuestions.isEmpty) {
         _showError('No questions found for $_useOfEnglishName.');
         return;
@@ -245,25 +274,20 @@ class _MockSubjectSelectionScreenState
       subjectQuestions[_useOfEnglishName!] = uoeQuestions;
       subjectNames.add(_useOfEnglishName!);
 
-      // Selected subjects
+      // ✅ Selected subjects — 40 questions each
       for (final subjectId in _selectedSubjectIds) {
-        final subjectDoc = await _connectivity.runWithTimeout(
-          operation: () =>
-              _firestore.collection('subjects').doc(subjectId).get(),
-          message: 'Loading questions timed out. Please check your internet.',
-        );
-
-        if (subjectDoc == null) {
-            return;
-        }
+        final subjectDoc = await _getDoc('subjects', subjectId);
+        if (!subjectDoc.exists) return;
 
         final subjectName =
             subjectDoc.data()?['name'] as String? ?? subjectId;
 
-        final questions = await _fetchQuestions(subjectId, uid);
-        if (questions == null) {
-          return;
-        }
+        final questions = await _fetchQuestions(
+          subjectId,
+          uid,
+          limit: _questionsPerOtherSubject,
+        );
+        if (questions == null) return;
         if (questions.isEmpty) {
           _showError('No questions found for $subjectName.');
           return;
@@ -273,7 +297,6 @@ class _MockSubjectSelectionScreenState
         subjectNames.add(subjectName);
       }
 
-      // Block navigation if timeout already fired
       if (mounted && !_timedOut) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
@@ -294,23 +317,36 @@ class _MockSubjectSelectionScreenState
     }
   }
 
-  /// Returns null if a timeout/network error occurred.
-  /// Returns empty list if no questions exist for the subject.
+  // ✅ `limit` parameter — caller decides how many questions to take
   Future<List<Question>?> _fetchQuestions(
-      String subjectId, String uid) async {
+    String subjectId,
+    String uid, {
+    required int limit,
+  }) async {
     QuerySnapshot<Map<String, dynamic>> snap;
     try {
       snap = await _firestore
           .collection('questions')
           .where('subjectId', isEqualTo: subjectId)
-          .get()
-          .timeout(const Duration(seconds: 10));
-    } on TimeoutException {
-      _showError('Connection timed out. Please check your internet.');
-      return null;
-    } catch (e) {
-      _showError('Failed to load questions. Please try again.');
-      return null;
+          .get(const GetOptions(source: Source.cache));
+
+      if (snap.docs.isEmpty) throw Exception('Cache empty');
+      debugPrint('📦 Questions from cache for $subjectId');
+    } catch (_) {
+      try {
+        debugPrint('🌐 Fetching questions from server for $subjectId');
+        snap = await _firestore
+            .collection('questions')
+            .where('subjectId', isEqualTo: subjectId)
+            .get(const GetOptions(source: Source.server))
+            .timeout(const Duration(seconds: 30));
+      } on TimeoutException {
+        _showError('Connection timed out. Please check your internet.');
+        return null;
+      } catch (e) {
+        _showError('Failed to load questions. Please try again.');
+        return null;
+      }
     }
 
     final all = snap.docs
@@ -319,7 +355,6 @@ class _MockSubjectSelectionScreenState
 
     if (all.isEmpty) return [];
 
-    // Deduplication
     List<String> usedIds = [];
     try {
       final progressDoc = await _firestore
@@ -330,22 +365,21 @@ class _MockSubjectSelectionScreenState
           .get();
 
       if (progressDoc.exists) {
-        usedIds = List<String>.from(
-            progressDoc.data()?['usedQuestionIds'] ?? []);
+        usedIds =
+            List<String>.from(progressDoc.data()?['usedQuestionIds'] ?? []);
       }
     } catch (_) {}
 
     List<Question> pool =
         all.where((q) => !usedIds.contains(q.id)).toList();
-    if (pool.length < _questionsPerSubject) {
+    if (pool.length < limit) {
       pool = List.from(all);
       usedIds = [];
     }
 
     pool.shuffle();
-    final selected = pool.take(_questionsPerSubject).toList();
+    final selected = pool.take(limit).toList();
 
-    // Save used IDs (best-effort, no timeout needed)
     try {
       await _firestore
           .collection('quiz_progress')
@@ -367,8 +401,9 @@ class _MockSubjectSelectionScreenState
           const Icon(Icons.error_outline, color: Colors.white, size: 18),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(msg, style: GoogleFonts.poppins(
-                color: Colors.white, fontSize: 13)),
+            child: Text(msg,
+                style:
+                    GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
           ),
         ],
       ),
@@ -383,7 +418,11 @@ class _MockSubjectSelectionScreenState
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+    final bgColor =
+        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
+    final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
+
     return Scaffold(
       backgroundColor: bgColor,
       body: Column(
@@ -395,10 +434,14 @@ class _MockSubjectSelectionScreenState
                     child: CircularProgressIndicator(
                         color: _accentGreen, strokeWidth: 2.5))
                 : _errorMessage != null
-                    ? _buildError()
-                    : _buildBody(),
+                    ? _buildError(isDark: isDark)
+                    : _buildBody(
+                        isDark: isDark,
+                        cardColor: cardColor,
+                        textColor: textColor),
           ),
-          if (!_isLoading && _errorMessage == null) _buildStartButton(),
+          if (!_isLoading && _errorMessage == null)
+            _buildStartButton(isDark: isDark, cardColor: cardColor),
         ],
       ),
     );
@@ -544,38 +587,11 @@ class _MockSubjectSelectionScreenState
     );
   }
 
-  Widget _buildBody({bool isDark = false, Color cardColor = Colors.white, Color textColor = const Color(0xFF1A2E1F)}) {
-    if (_availableSubjects.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.lock_outline_rounded,
-                  size: 52,
-                  color: _accentGreen.withValues(alpha: 0.5)),
-              const SizedBox(height: 20),
-              Text('No unlocked JAMB subjects',
-                  style: GoogleFonts.poppins(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: textColor)),
-              const SizedBox(height: 10),
-              Text(
-                'Unlock at least $_requiredAdditionalSubjects JAMB subjects\nto take the mock exam.',
-                textAlign: TextAlign.center,
-                style: GoogleFonts.poppins(
-                    fontSize: 13,
-                    color: Colors.grey.shade500,
-                    height: 1.5),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
+  Widget _buildBody({
+    bool isDark = false,
+    Color cardColor = Colors.white,
+    Color textColor = const Color(0xFF1A2E1F),
+  }) {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: ListView(
@@ -587,7 +603,8 @@ class _MockSubjectSelectionScreenState
             name: _useOfEnglishName ?? 'Use-of-English',
             icon: '📖',
             isSelected: true,
-            isLocked: true,
+            isUnlocked: true,
+            isMandatory: true,
             isDark: isDark,
             cardColor: cardColor,
             textColor: textColor,
@@ -595,19 +612,23 @@ class _MockSubjectSelectionScreenState
           const SizedBox(height: 20),
           _sectionLabel('Choose $_requiredAdditionalSubjects subjects'),
           const SizedBox(height: 10),
-          ..._availableSubjects.map((subject) {
+          ..._allSubjects.map((subject) {
             final id = subject['id'] as String;
+            final isUnlocked = _unlockedIds.contains(id);
             final isSelected = _selectedSubjectIds.contains(id);
-            // Lock all tiles once exam is starting
-            final isDisabled = _isStarting || (!isSelected &&
-                _selectedSubjectIds.length >= _requiredAdditionalSubjects);
+            final isDisabled = _isStarting ||
+                (!isSelected &&
+                    _selectedSubjectIds.length >=
+                        _requiredAdditionalSubjects);
+
             return _subjectTile(
               name: subject['name'] as String,
               icon: subject['icon'] as String? ?? '📚',
               isSelected: isSelected,
-              isLocked: _isStarting,
+              isUnlocked: isUnlocked,
+              isMandatory: false,
               isDisabled: isDisabled,
-              onTap: () => _toggleSubject(id),
+              onTap: isUnlocked ? () => _toggleSubject(id) : null,
               isDark: isDark,
               cardColor: cardColor,
               textColor: textColor,
@@ -634,37 +655,49 @@ class _MockSubjectSelectionScreenState
     required String name,
     required String icon,
     required bool isSelected,
-    required bool isLocked,
+    required bool isUnlocked,
+    required bool isMandatory,
     bool isDisabled = false,
     VoidCallback? onTap,
     bool isDark = false,
     Color cardColor = Colors.white,
     Color textColor = const Color(0xFF1A2E1F),
   }) {
+    final bool isLocked = !isUnlocked && !isMandatory;
+
     return GestureDetector(
-      onTap: isLocked || isDisabled ? null : onTap,
+      onTap: isLocked || isDisabled || isMandatory ? null : onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           color: isSelected
               ? _accentGreen.withValues(alpha: 0.08)
-              : cardColor,
+              : isLocked
+                  ? (isDark
+                      ? Colors.white.withValues(alpha: 0.03)
+                      : Colors.grey.shade50)
+                  : cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? _accentGreen.withValues(alpha: 0.5)
-                : (isDark ? Colors.white12 : Colors.grey.shade200),
+                : isLocked
+                    ? (isDark ? Colors.white12 : Colors.grey.shade200)
+                    : (isDark ? Colors.white12 : Colors.grey.shade200),
             width: isSelected ? 2 : 1,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: isLocked
+              ? []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -674,27 +707,89 @@ class _MockSubjectSelectionScreenState
               decoration: BoxDecoration(
                 color: isSelected
                     ? _accentGreen.withValues(alpha: 0.1)
-                    : Colors.grey.shade100,
+                    : isLocked
+                        ? (isDark
+                            ? Colors.white.withValues(alpha: 0.05)
+                            : Colors.grey.shade100)
+                        : Colors.grey.shade100,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
-                child: Text(icon, style: const TextStyle(fontSize: 20)),
+                child: Text(
+                  icon,
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: isLocked ? Colors.grey.shade400 : null,
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 14),
             Expanded(
-              child: Text(
-                name,
-                style: GoogleFonts.poppins(
-                  fontSize: 14,
-                  fontWeight:
-                      isSelected ? FontWeight.w600 : FontWeight.w500,
-                  color: isDisabled ? (isDark ? Colors.white30 : Colors.grey.shade400) : textColor,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    name,
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight:
+                          isSelected ? FontWeight.w600 : FontWeight.w500,
+                      color: isLocked
+                          ? (isDark
+                              ? Colors.white30
+                              : Colors.grey.shade400)
+                          : isDisabled
+                              ? (isDark
+                                  ? Colors.white30
+                                  : Colors.grey.shade400)
+                              : textColor,
+                    ),
+                  ),
+                  if (isLocked) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      'Unlock this subject to use in mock exam',
+                      style: GoogleFonts.poppins(
+                        fontSize: 11,
+                        color: isDark
+                            ? Colors.white24
+                            : Colors.grey.shade400,
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
-            if (isLocked)
-              Icon(Icons.lock_open_rounded, color: _accentGreen, size: 18)
+            const SizedBox(width: 8),
+            // Right indicator
+            if (isMandatory)
+              Icon(Icons.lock_open_rounded,
+                  color: _accentGreen, size: 18)
+            else if (isLocked)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.orange.shade50,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                      color: Colors.orange.shade200, width: 1),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.lock_rounded,
+                        size: 11, color: Colors.orange.shade700),
+                    const SizedBox(width: 3),
+                    Text('₦500',
+                        style: GoogleFonts.poppins(
+                            color: Colors.orange.shade700,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 11)),
+                  ],
+                ),
+              )
             else if (isSelected)
               Container(
                 width: 24,
@@ -711,8 +806,11 @@ class _MockSubjectSelectionScreenState
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: isDark ? Colors.white24 : Colors.grey.shade300, width: 2),
+                  border: Border.all(
+                      color: isDark
+                          ? Colors.white24
+                          : Colors.grey.shade300,
+                      width: 2),
                   shape: BoxShape.circle,
                 ),
               ),
@@ -722,14 +820,18 @@ class _MockSubjectSelectionScreenState
     );
   }
 
-  Widget _buildStartButton({bool isDark = false, Color cardColor = Colors.white}) {
+  Widget _buildStartButton({
+    bool isDark = false,
+    Color cardColor = Colors.white,
+  }) {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(
         color: cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            color:
+                Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
