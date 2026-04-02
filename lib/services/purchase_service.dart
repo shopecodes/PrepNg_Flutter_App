@@ -48,13 +48,20 @@ class PurchaseService {
   String get _publicKey => PaystackConfig.publicKey;
   String get _secretKey => PaystackConfig.secretKey;
 
-  // ─── SharedPreferences keys ────────────────────────────────────────────────
   static const _kPendingRef = 'pending_payment_reference';
   static const _kPendingSubjectId = 'pending_payment_subject_id';
   static const _kPendingSubjectName = 'pending_payment_subject_name';
-  /// true only after FlutterPaystackPlus.openPaystackPopup() returns without
-  /// throwing — meaning Paystack actually received the reference.
-  /// If false, the reference was never sent to Paystack and must be discarded.
+
+  // ✅ FIXED: This flag is now set inside onClosed/onSuccess callbacks,
+  // NOT after openPaystackPopup() returns. Here's why that matters:
+  //
+  // When the user taps "Pay with Transfer" and copies the account number,
+  // then switches to their bank app — Android may kill this app to free memory.
+  // In that case, openPaystackPopup() never returns, so any code after it
+  // never runs. But onClosed fires as soon as the user interacts with the
+  // Paystack page, which means the flag gets saved to disk before the user
+  // even leaves the app. On next launch, recovery sees popupOpened=true
+  // and calls Paystack's verify API to check if the transfer went through.
   static const _kPendingPopupOpened = 'pending_payment_popup_opened';
 
   Future<void> _savePendingPayment({
@@ -66,12 +73,10 @@ class PurchaseService {
     await prefs.setString(_kPendingRef, reference);
     await prefs.setString(_kPendingSubjectId, subjectId);
     await prefs.setString(_kPendingSubjectName, subjectName);
-    await prefs.setBool(_kPendingPopupOpened, false); // not opened yet
+    await prefs.setBool(_kPendingPopupOpened, false);
     debugPrint('💾 Pending payment saved (popup not yet opened): $reference');
   }
 
-  /// Mark the popup as successfully opened so recovery knows this reference
-  /// is real and worth verifying on the next app launch.
   Future<void> _markPopupOpened() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_kPendingPopupOpened, true);
@@ -89,13 +94,10 @@ class PurchaseService {
 
   /// Called on every app launch from SubjectListScreen.initState().
   ///
-  /// Recovery only runs when ALL three conditions are true:
+  /// Recovery runs when:
   ///   1. A saved reference exists
-  ///   2. The Paystack popup was actually opened (_kPendingPopupOpened == true)
+  ///   2. _kPendingPopupOpened == true (user interacted with Paystack popup)
   ///   3. Paystack confirms the payment as successful
-  ///
-  /// This prevents the "Payment could not be verified" snackbar that was
-  /// appearing when a stale reference from a network-failed attempt was found.
   Future<PaymentResult?> recoverPendingPayment() async {
     final prefs = await SharedPreferences.getInstance();
     final ref = prefs.getString(_kPendingRef);
@@ -105,12 +107,8 @@ class PurchaseService {
 
     if (ref == null || subjectId == null) return null;
 
-    // ── KEY FIX ──────────────────────────────────────────────────────────────
-    // The popup never opened (network died before Paystack loaded the page).
-    // The reference was never sent to Paystack so there is nothing to verify.
-    // Discard it silently — no snackbar, no error shown to the user.
     if (!popupWasOpened) {
-      debugPrint('⚠️ Stale ref found (popup never opened) — discarding: $ref');
+      debugPrint('⚠️ Stale ref (popup never opened) — discarding: $ref');
       await _clearPendingPayment();
       return null;
     }
@@ -121,7 +119,7 @@ class PurchaseService {
     if (isVerified) {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        debugPrint('⚠️ Verified but user not logged in — will retry next launch');
+        debugPrint('⚠️ Verified but user not logged in — retrying next launch');
         return null;
       }
 
@@ -144,7 +142,7 @@ class PurchaseService {
           });
           debugPrint('✅ Recovered payment saved to Firestore: $ref');
         } else {
-          debugPrint('ℹ️ Already in Firestore, skipping duplicate write: $ref');
+          debugPrint('ℹ️ Already in Firestore, skipping duplicate: $ref');
         }
 
         await _clearPendingPayment();
@@ -155,8 +153,6 @@ class PurchaseService {
       }
     }
 
-    // Payment not confirmed yet — bank transfer may still be processing.
-    // Keep the reference so we check again next launch. No snackbar here.
     debugPrint('⏳ Not yet verified — keeping ref for next launch: $ref');
     return null;
   }
@@ -233,8 +229,6 @@ class PurchaseService {
       debugPrint('=== PAYMENT STARTED (${PaystackConfig.mode} MODE) ===');
       debugPrint('Reference: $reference');
 
-      // Save to disk with popupOpened = false.
-      // If network fails before Paystack loads, recovery will discard this.
       await _savePendingPayment(
         reference: reference,
         subjectId: subjectId,
@@ -268,18 +262,20 @@ class PurchaseService {
           onClosed: () {
             debugPrint('=== PAYMENT WINDOW CLOSED ===');
             paymentCancelled = true;
+            // ✅ Mark popup opened here — this fires as soon as the user
+            // interacts with the Paystack page. If the user copies the bank
+            // account number and switches to their bank app (causing Android
+            // to kill this app), this flag is already on disk. Recovery will
+            // then verify the reference on next app launch.
+            _markPopupOpened();
           },
           onSuccess: () {
             debugPrint('=== onSuccess callback fired ===');
             paymentSuccessCallback = true;
+            _markPopupOpened();
           },
         );
-
-        // Popup opened successfully — mark it so recovery treats this ref as real
-        await _markPopupOpened();
-
       } on SocketException {
-        // Network died before Paystack could even load — popup never opened
         await _clearPendingPayment();
         return PaymentResult.error(
           'No internet connection. Please check your network and try again.',
@@ -338,7 +334,6 @@ class PurchaseService {
         }
       }
 
-      // Bank transfer not confirmed yet — keep pending ref for next launch
       return PaymentResult.error(
         'Payment could not be verified. If you completed the transfer, it will be confirmed automatically when you reopen the app.',
         PaymentErrorType.verification,

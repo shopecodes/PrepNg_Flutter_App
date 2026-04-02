@@ -91,17 +91,14 @@ class _ResultScreenState extends State<ResultScreen>
 
   Future<void> _saveFinalResults() async {
     try {
-      // 1. Save quiz result to progress
       await _progressService.saveQuizResult(
         subjectName: widget.subjectName,
         score: widget.score,
         totalQuestions: widget.questions.length,
       );
 
-      // 2. Record daily streak activity
       await _streakService.recordActivity();
 
-      // 3. Get user profile for leaderboard
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final userDoc = await FirebaseFirestore.instance
@@ -112,7 +109,6 @@ class _ResultScreenState extends State<ResultScreen>
         final displayName = data?['displayName'] ?? 'Anonymous';
         final department = data?['department'] ?? 'Science';
 
-        // 4. Record score to weekly leaderboard
         await _leaderboardService.recordScore(
           score: widget.score,
           totalQuestions: widget.questions.length,
@@ -135,12 +131,14 @@ class _ResultScreenState extends State<ResultScreen>
         backgroundColor: _bgColor,
         body: Column(
           children: [
-            // ── Score Header ──────────────────────────────────────
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_scoreColor, _scoreColor.withValues(alpha: 0.75)],
+                  colors: [
+                    _scoreColor,
+                    _scoreColor.withValues(alpha: 0.75)
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -188,17 +186,18 @@ class _ResultScreenState extends State<ResultScreen>
                                   height: 140,
                                   child: CircularProgressIndicator(
                                     value: animatedScore / 100,
-                                    backgroundColor:
-                                        Colors.white.withValues(alpha: 0.25),
+                                    backgroundColor: Colors.white
+                                        .withValues(alpha: 0.25),
                                     valueColor:
-                                        const AlwaysStoppedAnimation<Color>(
-                                            Colors.white),
+                                        const AlwaysStoppedAnimation<
+                                            Color>(Colors.white),
                                     strokeWidth: 10,
                                     strokeCap: StrokeCap.round,
                                   ),
                                 ),
                                 Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.center,
                                   children: [
                                     Text(
                                       '${animatedScore.toInt()}%',
@@ -243,14 +242,18 @@ class _ResultScreenState extends State<ResultScreen>
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 5),
                                 decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(20),
+                                  color: Colors.white
+                                      .withValues(alpha: 0.2),
+                                  borderRadius:
+                                      BorderRadius.circular(20),
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(Icons.cloud_done_rounded,
-                                        color: Colors.white, size: 14),
+                                    const Icon(
+                                        Icons.cloud_done_rounded,
+                                        color: Colors.white,
+                                        size: 14),
                                     const SizedBox(width: 6),
                                     Text(
                                       'Progress Saved',
@@ -272,8 +275,6 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
             ),
-
-            // ── Review Label ──────────────────────────────────────
             FadeTransition(
               opacity: _fadeAnimation,
               child: Padding(
@@ -310,8 +311,6 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
             ),
-
-            // ── Questions Review List ─────────────────────────────
             Expanded(
               child: FadeTransition(
                 opacity: _fadeAnimation,
@@ -335,8 +334,6 @@ class _ResultScreenState extends State<ResultScreen>
                 ),
               ),
             ),
-
-            // ── Go Home Button ────────────────────────────────────
             Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               decoration: BoxDecoration(
@@ -350,8 +347,8 @@ class _ResultScreenState extends State<ResultScreen>
                 ],
               ),
               child: GestureDetector(
-                onTap: () =>
-                    Navigator.of(context).popUntil((route) => route.isFirst),
+                onTap: () => Navigator.of(context)
+                    .popUntil((route) => route.isFirst),
                 child: Container(
                   width: double.infinity,
                   height: 56,
@@ -488,95 +485,16 @@ class _ReviewTileState extends State<_ReviewTile> {
       return;
     }
 
-    final result = await showDialog<bool>(
+    // FIX: Use showModalBottomSheet instead of showGeneralDialog.
+    // This natively handles keyboard insets — the sheet slides up
+    // with the keyboard automatically, with no overflow or debug stripes.
+    final result = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            const Icon(Icons.flag_outlined, color: Colors.orange),
-            const SizedBox(width: 8),
-            Text(
-              'Report Problem',
-              style: GoogleFonts.poppins(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'What\'s the issue with this question?',
-              style: GoogleFonts.poppins(
-                fontSize: 13,
-                color: Colors.grey.shade700,
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: reasonController,
-              maxLines: 4,
-              decoration: InputDecoration(
-                hintText: 'Example:\n- Wrong answer marked as correct\n- Correct answer not in options\n- Question is unclear',
-                hintStyle: GoogleFonts.poppins(
-                  fontSize: 12,
-                  color: Colors.grey.shade400,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: _accentGreen, width: 2),
-                ),
-              ),
-              style: GoogleFonts.poppins(fontSize: 13),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(
-              'Cancel',
-              style: GoogleFonts.poppins(
-                color: Colors.grey.shade600,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              if (reasonController.text.trim().isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Please describe the issue')),
-                );
-                return;
-              }
-              Navigator.pop(context, true);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.orange,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-            child: Text(
-              'Submit Report',
-              style: GoogleFonts.poppins(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
+      isScrollControlled: true, // essential: allows the sheet to resize for keyboard
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return _FlagDialogSheet(reasonController: reasonController);
+      },
     );
 
     if (result == true && reasonController.text.trim().isNotEmpty) {
@@ -591,22 +509,24 @@ class _ReviewTileState extends State<_ReviewTile> {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // Get user email
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .get();
-      final userEmail = userDoc.data()?['email'] ?? user.email ?? 'unknown';
+      final userEmail =
+          userDoc.data()?['email'] ?? user.email ?? 'unknown';
 
-      // Save flag to Firebase
-      await FirebaseFirestore.instance.collection('flagged_questions').add({
+      await FirebaseFirestore.instance
+          .collection('flagged_questions')
+          .add({
         'questionId': widget.question.id,
         'questionText': widget.question.text,
         'options': widget.question.options,
         'userAnswer': widget.userAnswer != null
             ? widget.question.options[widget.userAnswer!]
             : 'No answer',
-        'correctAnswer': widget.question.options[widget.question.correctAnswerIndex],
+        'correctAnswer':
+            widget.question.options[widget.question.correctAnswerIndex],
         'userAnswerIndex': widget.userAnswer,
         'correctAnswerIndex': widget.question.correctAnswerIndex,
         'userExplanation': reason,
@@ -690,7 +610,9 @@ class _ReviewTileState extends State<_ReviewTile> {
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
-              widget.isCorrect ? Icons.check_rounded : Icons.close_rounded,
+              widget.isCorrect
+                  ? Icons.check_rounded
+                  : Icons.close_rounded,
               color: tileColor,
               size: 20,
             ),
@@ -733,7 +655,9 @@ class _ReviewTileState extends State<_ReviewTile> {
                     answer: widget.userAnswer != null
                         ? widget.question.options[widget.userAnswer!]
                         : 'No answer',
-                    color: widget.isCorrect ? _accentGreen : Colors.red.shade400,
+                    color: widget.isCorrect
+                        ? _accentGreen
+                        : Colors.red.shade400,
                     icon: widget.isCorrect
                         ? Icons.check_circle_outline_rounded
                         : Icons.cancel_outlined,
@@ -742,7 +666,8 @@ class _ReviewTileState extends State<_ReviewTile> {
                     const SizedBox(height: 10),
                     _answerRow(
                       label: 'Correct Answer',
-                      answer: widget.question.options[widget.question.correctAnswerIndex],
+                      answer: widget.question
+                          .options[widget.question.correctAnswerIndex],
                       color: _accentGreen,
                       icon: Icons.check_circle_rounded,
                     ),
@@ -778,8 +703,6 @@ class _ReviewTileState extends State<_ReviewTile> {
                       ),
                     ),
                   ],
-                  
-                  // ── FLAG BUTTON (Only for wrong answers) ──
                   if (!widget.isCorrect) ...[
                     const SizedBox(height: 14),
                     if (_isFlagged)
@@ -794,7 +717,9 @@ class _ReviewTileState extends State<_ReviewTile> {
                         ),
                         child: Row(
                           children: [
-                            Icon(Icons.flag, size: 14, color: Colors.orange.shade700),
+                            Icon(Icons.flag,
+                                size: 14,
+                                color: Colors.orange.shade700),
                             const SizedBox(width: 6),
                             Expanded(
                               child: Text(
@@ -811,7 +736,8 @@ class _ReviewTileState extends State<_ReviewTile> {
                       )
                     else
                       GestureDetector(
-                        onTap: _isSubmittingFlag ? null : _showFlagDialog,
+                        onTap:
+                            _isSubmittingFlag ? null : _showFlagDialog,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
@@ -819,7 +745,8 @@ class _ReviewTileState extends State<_ReviewTile> {
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                                color: Colors.orange.shade300, width: 1.5),
+                                color: Colors.orange.shade300,
+                                width: 1.5),
                           ),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
@@ -830,13 +757,15 @@ class _ReviewTileState extends State<_ReviewTile> {
                                   height: 14,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.orange.shade600),
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(
+                                            Colors.orange.shade600),
                                   ),
                                 )
                               else
                                 Icon(Icons.flag_outlined,
-                                    size: 15, color: Colors.orange.shade600),
+                                    size: 15,
+                                    color: Colors.orange.shade600),
                               const SizedBox(width: 6),
                               Text(
                                 _isSubmittingFlag
@@ -899,6 +828,154 @@ class _ReviewTileState extends State<_ReviewTile> {
           ),
         ),
       ],
+    );
+  }
+}
+
+// ── Flag Dialog Sheet ─────────────────────────────────────────────────────────
+// Extracted into its own StatefulWidget so it has its own BuildContext
+// and can read keyboard insets correctly via MediaQuery.of(context).
+
+class _FlagDialogSheet extends StatefulWidget {
+  final TextEditingController reasonController;
+
+  const _FlagDialogSheet({required this.reasonController});
+
+  @override
+  State<_FlagDialogSheet> createState() => _FlagDialogSheetState();
+}
+
+class _FlagDialogSheetState extends State<_FlagDialogSheet> {
+  static const Color _accentGreen = Color(0xFF4CAF7D);
+
+  @override
+  Widget build(BuildContext context) {
+    // viewInsets.bottom is the keyboard height — reads correctly here
+    // because showModalBottomSheet forwards MediaQuery into the sheet.
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      // This single padding is all that's needed — pushes the whole
+      // sheet up by exactly the keyboard height, no overflow, no stripes.
+      padding: EdgeInsets.only(bottom: keyboardHeight),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Row(
+                  children: [
+                    const Icon(Icons.flag_outlined, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Report Problem',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'What\'s the issue with this question?',
+                  style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                TextField(
+                  controller: widget.reasonController,
+                  maxLines: 4,
+                  autofocus: true,
+                  decoration: InputDecoration(
+                    hintText:
+                        'Example:\n- Wrong answer marked as correct\n- Correct answer not in options\n- Question is unclear',
+                    hintStyle: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: Colors.grey.shade400,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          BorderSide(color: Colors.grey.shade300),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide:
+                          const BorderSide(color: _accentGreen, width: 2),
+                    ),
+                  ),
+                  style: GoogleFonts.poppins(fontSize: 13),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: Text(
+                        'Cancel',
+                        style: GoogleFonts.poppins(
+                          color: Colors.grey.shade600,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (widget.reasonController.text.trim().isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content:
+                                    Text('Please describe the issue')),
+                          );
+                          return;
+                        }
+                        Navigator.pop(context, true);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'Submit Report',
+                        style: GoogleFonts.poppins(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

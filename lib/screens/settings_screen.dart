@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:prep_ng/screens/auth/welcome_screen.dart';
 import '../../services/user_service.dart';
@@ -27,12 +28,12 @@ class _SettingsScreenState extends State<SettingsScreen>
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isEditing = false;
+  bool _isDeletingAccount = false;
 
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
 
-  // Color palette
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF1A2E1F);
@@ -200,7 +201,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(width:8),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: GestureDetector(
                       onTap: () => Navigator.pop(context, true),
@@ -234,6 +235,7 @@ class _SettingsScreenState extends State<SettingsScreen>
       ),
     );
 
+    if (!mounted) return;
     if (confirm == true) await _performLogout();
   }
 
@@ -263,9 +265,7 @@ class _SettingsScreenState extends State<SettingsScreen>
         ),
       );
 
-      // Clear FCM token before signing out
       await NotificationService().onUserLogout();
-
       await FirebaseAuth.instance.signOut();
 
       if (!mounted) return;
@@ -282,13 +282,311 @@ class _SettingsScreenState extends State<SettingsScreen>
     }
   }
 
+  // ─── Delete Account ────────────────────────────────────────────────────────
+
+  Future<void> _confirmDeleteAccount() async {
+    // Step 1: First confirmation dialog
+    final firstConfirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.delete_forever_rounded,
+                    color: Colors.red.shade600, size: 26),
+              ),
+              const SizedBox(height: 16),
+              Text('Delete Account?',
+                  style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: _darkGreen)),
+              const SizedBox(height: 8),
+              Text(
+                'This will permanently delete your account and all associated data including your quiz progress, streaks, and purchased subjects.\n\nThis action cannot be undone.',
+                style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey.shade500,
+                    height: 1.5),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, false),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Center(
+                          child: Text('Cancel',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade600)),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(context, true),
+                      child: Container(
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade600,
+                          borderRadius: BorderRadius.circular(14),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.red.withValues(alpha: 0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Text('Delete',
+                              style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // ✅ Guard context after async gap (showDialog is awaited above)
+    if (!mounted) return;
+    if (firstConfirm != true) return;
+
+    // Step 2: Second confirmation — type "DELETE" to confirm
+    final TextEditingController confirmController = TextEditingController();
+    final secondConfirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        backgroundColor: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Are you absolutely sure?',
+                  style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.red.shade700)),
+              const SizedBox(height: 10),
+              Text(
+                'Type DELETE below to confirm you want to permanently delete your account.',
+                style: GoogleFonts.poppins(
+                    fontSize: 13,
+                    color: Colors.grey.shade500,
+                    height: 1.5),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: confirmController,
+                style: GoogleFonts.poppins(fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Type DELETE here',
+                  hintStyle: GoogleFonts.poppins(
+                      color: Colors.grey.shade400, fontSize: 13),
+                  filled: true,
+                  fillColor: const Color(0xFFF5FAF6),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none,
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide:
+                        BorderSide(color: Colors.red.shade400, width: 1.5),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 20),
+              StatefulBuilder(
+                builder: (context, setDialogState) {
+                  confirmController.addListener(() => setDialogState(() {}));
+                  final isValid = confirmController.text.trim() == 'DELETE';
+                  return GestureDetector(
+                    onTap: isValid ? () => Navigator.pop(context, true) : null,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: double.infinity,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: isValid
+                            ? Colors.red.shade600
+                            : Colors.grey.shade300,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Center(
+                        child: Text(
+                          'Permanently Delete Account',
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w700,
+                            color: isValid
+                                ? Colors.white
+                                : Colors.grey.shade500,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () => Navigator.pop(context, false),
+                child: Center(
+                  child: Text('Cancel',
+                      style: GoogleFonts.poppins(
+                          fontSize: 13,
+                          color: Colors.grey.shade500,
+                          fontWeight: FontWeight.w600)),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    // ✅ Guard context after second async gap
+    if (!mounted) return;
+    if (secondConfirm == true) await _performDeleteAccount();
+  }
+
+  Future<void> _performDeleteAccount() async {
+    try {
+      final hasInternet = await _connectivityService.hasInternetConnection();
+      if (!mounted) return;
+      if (!hasInternet) {
+        _showSnackBar('Check your internet connection and try again',
+            isError: true);
+        return;
+      }
+
+      setState(() => _isDeletingAccount = true);
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(
+          child: Container(
+            padding: const EdgeInsets.all(28),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(
+                    color: Colors.red.shade600, strokeWidth: 2.5),
+                const SizedBox(height: 16),
+                Text('Deleting account...',
+                    style: GoogleFonts.poppins(
+                        fontSize: 13, color: Colors.grey.shade600)),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final uid = user.uid;
+
+      final batch = FirebaseFirestore.instance.batch();
+
+      batch.delete(FirebaseFirestore.instance.collection('users').doc(uid));
+
+      final userSubjects = await FirebaseFirestore.instance
+          .collection('user_subjects')
+          .where('userId', isEqualTo: uid)
+          .get();
+      for (final doc in userSubjects.docs) {
+        batch.delete(doc.reference);
+      }
+
+      final progressSnap = await FirebaseFirestore.instance
+          .collection('quiz_progress')
+          .doc(uid)
+          .collection('subjects')
+          .get();
+      for (final doc in progressSnap.docs) {
+        batch.delete(doc.reference);
+      }
+      batch.delete(
+          FirebaseFirestore.instance.collection('quiz_progress').doc(uid));
+
+      await batch.commit();
+
+      await NotificationService().onUserLogout();
+      await user.delete();
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+        (route) => false,
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      setState(() => _isDeletingAccount = false);
+
+      if (e.code == 'requires-recent-login') {
+        _showSnackBar(
+          'For security, please log out and log back in before deleting your account.',
+          isError: true,
+        );
+      } else {
+        _showSnackBar('Failed to delete account. Please try again.',
+            isError: true);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      setState(() => _isDeletingAccount = false);
+      _showSnackBar('Check your internet connection and try again',
+          isError: true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: _bgColor,
       body: Column(
         children: [
-          // ── Header ───────────────────────────────────────────────
           Container(
             decoration: BoxDecoration(
               gradient: const LinearGradient(
@@ -355,8 +653,6 @@ class _SettingsScreenState extends State<SettingsScreen>
               ),
             ),
           ),
-
-          // ── Body ─────────────────────────────────────────────────
           Expanded(
             child: _isLoading
                 ? Center(
@@ -371,7 +667,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // ── Profile Card ───────────────────────
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
@@ -447,9 +742,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 ],
                               ),
                             ),
-
                             const SizedBox(height: 20),
-
                             Text(
                               'EDIT PROFILE',
                               style: GoogleFonts.poppins(
@@ -459,9 +752,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 letterSpacing: 2,
                               ),
                             ),
-
                             const SizedBox(height: 10),
-
                             Container(
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
@@ -493,8 +784,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(14),
-                                    borderSide:
-                                        BorderSide(color: _accentGreen, width: 1.5),
+                                    borderSide: BorderSide(
+                                        color: _accentGreen, width: 1.5),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 16, vertical: 16),
@@ -506,9 +797,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 },
                               ),
                             ),
-
                             const SizedBox(height: 20),
-
                             Text(
                               'DEPARTMENT',
                               style: GoogleFonts.poppins(
@@ -518,13 +807,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 letterSpacing: 2,
                               ),
                             ),
-
                             const SizedBox(height: 12),
-
                             ...(_departments.map((dept) {
                               final isSelected = _selectedDept == dept['name'];
                               final color = dept['color'] as Color;
-
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
@@ -550,7 +836,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     boxShadow: isSelected
                                         ? [
                                             BoxShadow(
-                                              color: color.withValues(alpha: 0.15),
+                                              color:
+                                                  color.withValues(alpha: 0.15),
                                               blurRadius: 12,
                                               offset: const Offset(0, 4),
                                             ),
@@ -570,7 +857,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                         padding: const EdgeInsets.all(10),
                                         decoration: BoxDecoration(
                                           color: color.withValues(alpha: 0.15),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius:
+                                              BorderRadius.circular(12),
                                         ),
                                         child: Icon(dept['icon'] as IconData,
                                             color: color, size: 24),
@@ -598,9 +886,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                                 ),
                               );
                             }).toList()),
-
                             const SizedBox(height: 24),
-
                             if (_isEditing)
                               GestureDetector(
                                 onTap: _isSaving ? null : _saveChanges,
@@ -615,8 +901,8 @@ class _SettingsScreenState extends State<SettingsScreen>
                                     borderRadius: BorderRadius.circular(16),
                                     boxShadow: [
                                       BoxShadow(
-                                        color:
-                                            _accentGreen.withValues(alpha: 0.35),
+                                        color: _accentGreen
+                                            .withValues(alpha: 0.35),
                                         blurRadius: 20,
                                         offset: const Offset(0, 8),
                                       ),
@@ -643,7 +929,6 @@ class _SettingsScreenState extends State<SettingsScreen>
                                   ),
                                 ),
                               ),
-
                             GestureDetector(
                               onTap: _confirmLogout,
                               child: Container(
@@ -678,6 +963,50 @@ class _SettingsScreenState extends State<SettingsScreen>
                                       ),
                                     ),
                                   ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            GestureDetector(
+                              onTap: _isDeletingAccount
+                                  ? null
+                                  : _confirmDeleteAccount,
+                              child: Container(
+                                width: double.infinity,
+                                height: 56,
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                      color: Colors.red.shade200, width: 1.5),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.delete_forever_rounded,
+                                        color: Colors.red.shade700, size: 18),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Delete Account',
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.red.shade700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Center(
+                              child: Text(
+                                'Deleting your account is permanent and cannot be undone.',
+                                textAlign: TextAlign.center,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: Colors.grey.shade400,
+                                  height: 1.5,
                                 ),
                               ),
                             ),
