@@ -43,14 +43,7 @@ class SnackbarUtil {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        duration: const Duration(seconds: 4),
-        action: SnackBarAction(
-          label: 'RETRY',
-          textColor: Colors.white,
-          onPressed: () {
-            // Will be handled by the calling code
-          },
-        ),
+        duration: const Duration(seconds: 3),
       ),
     );
   }
@@ -174,7 +167,7 @@ class SnackbarUtil {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
-        duration: const Duration(minutes: 5), // Long duration for loading
+        duration: const Duration(minutes: 5),
       ),
     );
   }

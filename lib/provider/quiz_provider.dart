@@ -9,7 +9,7 @@ import '../models/question_model.dart';
 class QuizProvider with ChangeNotifier {
   Timer? _timer;
   int _timeRemaining = 0;
-  int _totalTime = 0; // ✅ Added: Store the total time limit for timer color calculation
+  int _totalTime = 0;
   List<Question> _questions = [];
   int _currentQuestionIndex = 0;
   int? _selectedAnswerIndex;
@@ -21,7 +21,7 @@ class QuizProvider with ChangeNotifier {
   int get currentQuestionIndex => _currentQuestionIndex;
   int? get selectedAnswerIndex => _selectedAnswerIndex;
   int get timeRemaining => _timeRemaining;
-  int get totalTime => _totalTime; // ✅ Added: Getter for total time
+  int get totalTime => _totalTime;
   Map<int, int> get userAnswers => _userAnswers;
 
   int get score {
@@ -104,7 +104,7 @@ class QuizProvider with ChangeNotifier {
     _currentQuestionIndex = 0;
     _userAnswers = {};
     _timeRemaining = timeLimitSeconds;
-    _totalTime = timeLimitSeconds; // ✅ Added: Store total time for timer color
+    _totalTime = timeLimitSeconds;
     _selectedAnswerIndex = null;
 
     debugPrint(

@@ -25,9 +25,9 @@ class ExamScope {
       id: doc.id,
       name: data['name'] ?? '',
       description: data['description'] ?? '',
-      questionsPerQuiz: data['questionsPerQuiz'] ?? 40, // default JAMB
-      timeLimit: data['timeLimit'] ?? 1800, // default 30 mins
-      passingScore: data['passingScore'] ?? 50, // default 50%
+      questionsPerQuiz: data['questionsPerQuiz'] ?? 40,
+      timeLimit: data['timeLimit'] ?? 1800,
+      passingScore: data['passingScore'] ?? 50,
     );
   }
 }

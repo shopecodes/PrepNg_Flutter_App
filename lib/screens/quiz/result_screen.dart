@@ -485,7 +485,7 @@ class _ReviewTileState extends State<_ReviewTile> {
       return;
     }
 
-    // FIX: Use showModalBottomSheet instead of showGeneralDialog.
+    // Use showModalBottomSheet instead of showGeneralDialog.
     // This natively handles keyboard insets — the sheet slides up
     // with the keyboard automatically, with no overflow or debug stripes.
     final result = await showModalBottomSheet<bool>(

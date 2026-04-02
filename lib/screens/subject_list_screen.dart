@@ -60,7 +60,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _recoverPaymentIfNeeded(); // ← check for interrupted bank transfers
+        _recoverPaymentIfNeeded();
         _refreshAccess();
         _preFetchSubjects();
       }
@@ -93,8 +93,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
               Expanded(
                 child: Text(
                   'Your previous payment was recovered and your subject is now unlocked!',
-                  style:
-                      GoogleFonts.poppins(color: Colors.white, fontSize: 13),
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontSize: 13),
                 ),
               ),
             ],
@@ -103,8 +103,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
           duration: const Duration(seconds: 4),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
         ),
       );
     }
@@ -146,7 +146,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
 
   Map<String, dynamic> _getSubjectConfig(String subjectName) {
     if (_isJamb) {
-      final isUseOfEnglish = subjectName.toLowerCase().contains('english');
+      final isUseOfEnglish =
+          subjectName.toLowerCase().contains('english');
       return isUseOfEnglish
           ? {'questionsPerQuiz': 60, 'timeLimit': 30 * 60}
           : {'questionsPerQuiz': 40, 'timeLimit': 20 * 60};
@@ -164,6 +165,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     String message;
     IconData icon;
     Color color;
+    int durationSeconds;
 
     switch (result.errorType) {
       case PaymentErrorType.network:
@@ -171,29 +173,37 @@ class _SubjectListScreenState extends State<SubjectListScreen>
             'No internet connection. Please check your network and try again.';
         icon = Icons.wifi_off;
         color = Colors.orange;
+        durationSeconds = 3;
         break;
       case PaymentErrorType.timeout:
-        message = 'Connection timed out. Please check your network and try again.';
+        message =
+            'Connection timed out. Please check your network and try again.';
         icon = Icons.timer_off;
         color = Colors.orange;
+        durationSeconds = 3;
         break;
       case PaymentErrorType.server:
         message =
             result.errorMessage ?? 'Service unavailable. Try again later.';
         icon = Icons.cloud_off;
         color = Colors.red;
+        durationSeconds = 4;
         break;
       case PaymentErrorType.verification:
+        // Not a true error — just a "your transfer is pending" notice.
+        // Amber + info icon + longer duration so the user reads it fully.
         message = result.errorMessage ??
-            'Payment could not be verified. If you completed the transfer, it will be confirmed automatically when you reopen the app.';
-        icon = Icons.error_outline;
-        color = Colors.amber;
+            'If you completed the bank transfer, your subject will unlock automatically the next time you open the app.';
+        icon = Icons.info_outline_rounded;
+        color = Colors.amber.shade700;
+        durationSeconds = 6;
         break;
       default:
         message =
             result.errorMessage ?? 'An error occurred. Please try again.';
         icon = Icons.error_outline;
         color = Colors.red;
+        durationSeconds = 4;
     }
 
     ScaffoldMessenger.of(context).showSnackBar(
@@ -203,48 +213,48 @@ class _SubjectListScreenState extends State<SubjectListScreen>
             Icon(icon, color: Colors.white, size: 20),
             const SizedBox(width: 10),
             Expanded(
-              child: Text(message,
-                  style:
-                      GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
+              child: Text(
+                message,
+                style: GoogleFonts.poppins(
+                    color: Colors.white, fontSize: 13),
+              ),
             ),
           ],
         ),
         backgroundColor: color,
-        // network/timeout = 3s, others = 4s so user can read longer messages
-        duration: Duration(
-          seconds: (result.errorType == PaymentErrorType.network ||
-                  result.errorType == PaymentErrorType.timeout)
-              ? 3
-              : 4,
-        ),
+        duration: Duration(seconds: durationSeconds),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        // No retry button
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
 
-  Future<void> _handlePurchaseTap(String subjectId, String subjectName) async {
-    final hasInternet = await _connectivityService.hasInternetConnection();
+  Future<void> _handlePurchaseTap(
+      String subjectId, String subjectName) async {
+    final hasInternet =
+        await _connectivityService.hasInternetConnection();
     if (!mounted) return;
     if (!hasInternet) {
       SnackbarUtil.showNoInternetSnackbar(context);
       return;
     }
 
-    final isDark = Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
+    final isDark =
+        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
+    final cardColor =
+        isDark ? const Color(0xFF1E2625) : Colors.white;
+    final textColor =
+        isDark ? Colors.white : const Color(0xFF1A2E1F);
     final fieldFill =
         isDark ? const Color(0xFF252E2C) : const Color(0xFFF5FAF6);
 
     showDialog(
       context: context,
       builder: (dialogContext) => Dialog(
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24)),
         backgroundColor: cardColor,
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -274,7 +284,9 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                 'Get full access to all practice questions for $subjectName for a one-time fee.',
                 style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: isDark ? Colors.white60 : Colors.grey.shade500,
+                    color: isDark
+                        ? Colors.white60
+                        : Colors.grey.shade500,
                     height: 1.5),
               ),
               const SizedBox(height: 20),
@@ -335,13 +347,14 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                     child: GestureDetector(
                       onTap: () async {
                         Navigator.of(dialogContext).pop();
-                        final stillHasInternet =
-                            await _connectivityService.hasInternetConnection();
+                        final stillHasInternet = await _connectivityService
+                            .hasInternetConnection();
                         if (!mounted) return;
                         if (!stillHasInternet) {
                           SnackbarUtil.showNoInternetSnackbar(context);
                           return;
                         }
+
                         showDialog(
                           context: context,
                           barrierDismissible: false,
@@ -353,7 +366,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                 padding: const EdgeInsets.all(28),
                                 decoration: BoxDecoration(
                                   color: cardColor,
-                                  borderRadius: BorderRadius.circular(24),
+                                  borderRadius:
+                                      BorderRadius.circular(24),
                                 ),
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
@@ -372,36 +386,44 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                             ),
                           ),
                         );
-                        final result = await _purchaseService.payAndUnlock(
+
+                        final result =
+                            await _purchaseService.payAndUnlock(
                           context,
                           subjectId: subjectId,
                           subjectName: subjectName,
                         );
+
                         if (!mounted) return;
-                        Navigator.of(context).pop();
+                        Navigator.of(context).pop(); // dismiss loading
+
                         if (result.success) {
                           await _refreshAccess();
                           if (!mounted) return;
-                          ScaffoldMessenger.of(context)
-                              .showSnackBar(SnackBar(
-                            content: Row(children: [
-                              const Icon(Icons.check_circle_rounded,
-                                  color: Colors.white, size: 20),
-                              const SizedBox(width: 10),
-                              Expanded(
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Row(children: [
+                                const Icon(Icons.check_circle_rounded,
+                                    color: Colors.white, size: 20),
+                                const SizedBox(width: 10),
+                                Expanded(
                                   child: Text(
-                                      '$subjectName is now unlocked!',
-                                      style: GoogleFonts.poppins(
-                                          color: Colors.white,
-                                          fontSize: 13))),
-                            ]),
-                            backgroundColor: _accentGreen,
-                            duration: const Duration(seconds: 3),
-                            behavior: SnackBarBehavior.floating,
-                            margin: const EdgeInsets.all(16),
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
-                          ));
+                                    '$subjectName is now unlocked!',
+                                    style: GoogleFonts.poppins(
+                                        color: Colors.white,
+                                        fontSize: 13),
+                                  ),
+                                ),
+                              ]),
+                              backgroundColor: _accentGreen,
+                              duration: const Duration(seconds: 3),
+                              behavior: SnackBarBehavior.floating,
+                              margin: const EdgeInsets.all(16),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.circular(12)),
+                            ),
+                          );
                         } else {
                           _showPaymentError(result);
                         }
@@ -413,7 +435,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                           borderRadius: BorderRadius.circular(14),
                           boxShadow: [
                             BoxShadow(
-                              color: _accentGreen.withValues(alpha: 0.35),
+                              color:
+                                  _accentGreen.withValues(alpha: 0.35),
                               blurRadius: 12,
                               offset: const Offset(0, 6),
                             ),
@@ -442,9 +465,12 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
     final bgColor =
         isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
-    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
-    final subtextColor = isDark ? Colors.white60 : Colors.grey.shade500;
+    final cardColor =
+        isDark ? const Color(0xFF1E2625) : Colors.white;
+    final textColor =
+        isDark ? Colors.white : const Color(0xFF1A2E1F);
+    final subtextColor =
+        isDark ? Colors.white60 : Colors.grey.shade500;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -476,8 +502,10 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back_ios_new_rounded,
-                          color: Colors.white, size: 20),
+                      icon: const Icon(
+                          Icons.arrow_back_ios_new_rounded,
+                          color: Colors.white,
+                          size: 20),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     const SizedBox(width: 4),
@@ -529,7 +557,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                         return Center(
                           child: Text(
                             'No subjects found for ${widget.scopeName}.',
-                            style: GoogleFonts.poppins(color: textColor),
+                            style:
+                                GoogleFonts.poppins(color: textColor),
                           ),
                         );
                       }
@@ -537,19 +566,19 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                       return FadeTransition(
                         opacity: _fadeAnimation,
                         child: ListView.builder(
-                          padding:
-                              const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                          padding: const EdgeInsets.fromLTRB(
+                              20, 20, 20, 24),
                           itemCount: subjects.length,
                           itemBuilder: (context, index) {
                             final data = subjects[index].data()
                                 as Map<String, dynamic>;
                             final id = subjects[index].id;
-                            // ← FIX: subjectName declared here
                             final subjectName =
                                 data['name'] as String? ?? 'Subject';
                             final isFree = _isFreeSubject(data);
                             final hasAccess =
-                                _unlockedSubjectIds.contains(id) || isFree;
+                                _unlockedSubjectIds.contains(id) ||
+                                    isFree;
 
                             return GestureDetector(
                               onTap: () {
@@ -586,7 +615,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.black.withValues(
-                                          alpha: isDark ? 0.25 : 0.05),
+                                          alpha:
+                                              isDark ? 0.25 : 0.05),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -603,7 +633,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                                 .withValues(alpha: 0.1)
                                             : (isDark
                                                 ? Colors.white10
-                                                : Colors.grey.shade100),
+                                                : Colors
+                                                    .grey.shade100),
                                         borderRadius:
                                             BorderRadius.circular(14),
                                       ),
@@ -613,7 +644,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                             ? _accentGreen
                                             : (isDark
                                                 ? Colors.white38
-                                                : Colors.grey.shade400),
+                                                : Colors
+                                                    .grey.shade400),
                                         size: 22,
                                       ),
                                     ),
@@ -637,8 +669,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                                   fontSize: 12,
                                                   color: subtextColor),
                                               maxLines: 1,
-                                              overflow:
-                                                  TextOverflow.ellipsis),
+                                              overflow: TextOverflow
+                                                  .ellipsis),
                                         ],
                                       ),
                                     ),
@@ -684,14 +716,15 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                       Container(
                                         padding: const EdgeInsets
                                             .symmetric(
-                                            horizontal: 12, vertical: 6),
+                                            horizontal: 12,
+                                            vertical: 6),
                                         decoration: BoxDecoration(
                                           color: Colors.orange.shade50,
                                           borderRadius:
                                               BorderRadius.circular(20),
                                           border: Border.all(
-                                              color:
-                                                  Colors.orange.shade200,
+                                              color: Colors
+                                                  .orange.shade200,
                                               width: 1),
                                         ),
                                         child: Row(
@@ -703,12 +736,15 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                                     .orange.shade700),
                                             const SizedBox(width: 4),
                                             Text('₦500',
-                                                style: GoogleFonts.poppins(
-                                                    color: Colors
-                                                        .orange.shade700,
-                                                    fontWeight:
-                                                        FontWeight.w700,
-                                                    fontSize: 12)),
+                                                style:
+                                                    GoogleFonts.poppins(
+                                                        color: Colors
+                                                            .orange
+                                                            .shade700,
+                                                        fontWeight:
+                                                            FontWeight
+                                                                .w700,
+                                                        fontSize: 12)),
                                           ],
                                         ),
                                       ),

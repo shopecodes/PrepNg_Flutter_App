@@ -7,14 +7,13 @@ import 'package:flutter/foundation.dart';
 class QuizService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Added scopeId to ensure getting the right exam type (JAMB vs WAEC)
   Future<List<Question>> loadQuestions(String subjectId, String scopeId) async {
     try {
       final QuerySnapshot snapshot = await _firestore
           .collection('questions')
           .where('subjectId', isEqualTo: subjectId)
           .where('scopeId', isEqualTo: scopeId) // Critical for JAMB/WAEC separation
-          .get(const GetOptions(source: Source.serverAndCache)); // For offline access
+          .get(const GetOptions(source: Source.serverAndCache));
 
       if (snapshot.docs.isEmpty) {
         throw Exception("No questions found. Check subjectId: $subjectId and scopeId: $scopeId");
