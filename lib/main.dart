@@ -14,17 +14,16 @@ import 'provider/theme_provider.dart';
 import 'services/auth_services.dart';
 import 'services/notification_service.dart';
 import 'services/connectivity_service.dart';
+import 'services/purchase_service.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/profile_check_wrapper.dart';
 import 'screens/question_of_the_day_screen.dart';
 
-// ── Background message handler (must be top-level) ──────────────────────────
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   debugPrint('Background message received: ${message.messageId}');
 }
 
-// ── Global navigator key for notification navigation ────────────────────────
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
@@ -62,8 +61,7 @@ class MyApp extends StatelessWidget {
         textTheme:
             GoogleFonts.poppinsTextTheme(ThemeProvider.darkTheme.textTheme),
       ),
-      themeMode:
-          themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
       routes: {
         '/qotd': (context) {
           final date =
@@ -94,24 +92,20 @@ class _AppInitializerState extends State<AppInitializer> {
     try {
       final startTime = DateTime.now();
 
-      // ── Step 1: Firebase core init — no internet needed ─────────────────
       await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform,
       );
 
-      // Enable offline persistence right after core init
       FirebaseFirestore.instance.settings = const Settings(
         persistenceEnabled: true,
         cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
       );
 
-      // ── Step 2: Network-dependent calls — capped at 20 seconds ──────────
       Widget nextScreen = await _runInit().timeout(
         const Duration(seconds: 20),
         onTimeout: () => _onTimeout(),
       );
 
-      // Guarantee loading screen shows for at least 5 seconds
       final elapsed = DateTime.now().difference(startTime);
       const minimumDuration = Duration(seconds: 5);
       if (elapsed < minimumDuration) {
@@ -128,23 +122,113 @@ class _AppInitializerState extends State<AppInitializer> {
 
   Future<Widget> _runInit() async {
     NotificationService.navigatorKey = navigatorKey;
-    await NotificationService().initialize();
+    _initNotificationsSafely();
 
-    // ── Use currentUser first (synchronous, reads from local Firebase cache)
-    // Falls back to authStateChanges() only if currentUser is null.
     final User? user = FirebaseAuth.instance.currentUser ??
         await FirebaseAuth.instance
             .authStateChanges()
             .first
-            .timeout(const Duration(seconds: 15), onTimeout: () => null);
+            .timeout(const Duration(seconds: 8), onTimeout: () => null);
 
     final prefs = await SharedPreferences.getInstance();
-    final onboardingComplete =
-        prefs.getBool('onboarding_complete') ?? false;
+    final onboardingComplete = prefs.getBool('onboarding_complete') ?? false;
 
     if (!onboardingComplete) return const OnboardingScreen();
     if (user == null) return const WelcomeScreen();
+
+    // User logged in — start payment recovery in background
+    _recoverPaymentInBackground();
+
     return const ProfileCheckWrapper();
+  }
+
+  void _recoverPaymentInBackground() {
+    // Wait 2s for the destination screen to fully mount before
+    // running recovery — ensures connectivityScaffoldKey is ready
+    Future.delayed(const Duration(seconds: 2), () async {
+      try {
+        debugPrint('🔍 Starting background payment recovery...');
+        final result = await PurchaseService().recoverPendingPayment();
+
+        if (result == null) {
+          debugPrint('ℹ️ No recovery needed');
+          return;
+        }
+
+        if (result.success) {
+          // Payment was recovered and subject unlocked — green snackbar
+          debugPrint('✅ Recovery succeeded — showing success snackbar');
+          _showSnackbar(
+            message:
+                'Your previous payment was confirmed and your subject is now unlocked! Go to your subject list to access it.',
+            backgroundColor: const Color(0xFF4CAF7D),
+            icon: Icons.check_circle_rounded,
+            duration: const Duration(seconds: 6),
+          );
+        } else if (result.errorType == PaymentErrorType.incompleteReminder) {
+          // User had an incomplete payment (copied acc number, never paid)
+          // Show an amber reminder so they know they have an open payment
+          debugPrint('⚠️ Incomplete payment — showing reminder snackbar');
+          _showSnackbar(
+            message: result.errorMessage ??
+                'You have an incomplete payment. If you\'ve already sent the money, your subject will unlock automatically. Otherwise tap a subject to complete your payment.',
+            backgroundColor: Colors.amber.shade700,
+            icon: Icons.info_outline_rounded,
+            duration: const Duration(seconds: 7),
+          );
+        }
+      } catch (e) {
+        debugPrint('❌ Payment recovery error: $e');
+      }
+    });
+  }
+
+  void _showSnackbar({
+    required String message,
+    required Color backgroundColor,
+    required IconData icon,
+    required Duration duration,
+  }) {
+    // Small extra delay so the snackbar lands after screen transition animations
+    Future.delayed(const Duration(milliseconds: 500), () {
+      connectivityScaffoldKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(icon, color: Colors.white, size: 20),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  message,
+                  style: GoogleFonts.poppins(
+                      color: Colors.white, fontSize: 13),
+                ),
+              ),
+            ],
+          ),
+          backgroundColor: backgroundColor,
+          duration: duration,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12)),
+        ),
+      );
+    });
+  }
+
+  void _initNotificationsSafely() {
+    NotificationService()
+        .initialize()
+        .timeout(
+          const Duration(seconds: 5),
+          onTimeout: () {
+            debugPrint('⚠️ NotificationService timed out');
+          },
+        )
+        .catchError((e) {
+      debugPrint('⚠️ NotificationService error: $e');
+    });
   }
 
   Widget _onTimeout() {

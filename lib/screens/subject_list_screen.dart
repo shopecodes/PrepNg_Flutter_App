@@ -60,7 +60,9 @@ class _SubjectListScreenState extends State<SubjectListScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        _recoverPaymentIfNeeded();
+        // Recovery is now handled in main.dart — do NOT call it here.
+        // Just load access state. If main.dart's recovery just finished
+        // writing to Firestore, _refreshAccess() will pick it up.
         _refreshAccess();
         _preFetchSubjects();
       }
@@ -71,43 +73,6 @@ class _SubjectListScreenState extends State<SubjectListScreen>
   void dispose() {
     _animController.dispose();
     super.dispose();
-  }
-
-  /// Runs silently on every launch of this screen.
-  /// If the app was killed while a bank transfer was in progress,
-  /// this verifies the reference saved in SharedPreferences and unlocks
-  /// the subject automatically if Paystack confirms payment was successful.
-  Future<void> _recoverPaymentIfNeeded() async {
-    final result = await _purchaseService.recoverPendingPayment();
-    if (!mounted) return;
-    if (result != null && result.success) {
-      await _refreshAccess();
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle_rounded,
-                  color: Colors.white, size: 20),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  'Your previous payment was recovered and your subject is now unlocked!',
-                  style: GoogleFonts.poppins(
-                      color: Colors.white, fontSize: 13),
-                ),
-              ),
-            ],
-          ),
-          backgroundColor: _accentGreen,
-          duration: const Duration(seconds: 4),
-          behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-    }
   }
 
   Future<void> _preFetchSubjects() async {
@@ -190,8 +155,6 @@ class _SubjectListScreenState extends State<SubjectListScreen>
         durationSeconds = 4;
         break;
       case PaymentErrorType.verification:
-        // Not a true error — just a "your transfer is pending" notice.
-        // Amber + info icon + longer duration so the user reads it fully.
         message = result.errorMessage ??
             'If you completed the bank transfer, your subject will unlock automatically the next time you open the app.';
         icon = Icons.info_outline_rounded;
@@ -395,7 +358,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                         );
 
                         if (!mounted) return;
-                        Navigator.of(context).pop(); // dismiss loading
+                        Navigator.of(context).pop();
 
                         if (result.success) {
                           await _refreshAccess();

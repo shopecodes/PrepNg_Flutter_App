@@ -204,3 +204,71 @@ exports.testQOTDNotification = onRequest(async (req, res) => {
     res.status(500).send(`Error: ${error.message}`);
   }
 });
+
+// ── Paystack Webhook ────────────────────────────────────────────────────────
+exports.paystackWebhook = onRequest(async (req, res) => {
+  try {
+    const crypto = require("crypto");
+    const { defineSecret } = require("firebase-functions/params");
+    const paystackSecret = defineSecret("PAYSTACK_SECRET_KEY");
+    const secret = paystackSecret.value();
+
+    const hash = crypto
+      .createHmac("sha512", secret)
+      .update(JSON.stringify(req.body))
+      .digest("hex");
+
+    if (hash !== req.headers["x-paystack-signature"]) {
+      console.warn("Invalid Paystack signature");
+      return res.status(401).send("Unauthorized");
+    }
+
+    const event = req.body;
+    if (event.event !== "charge.success") {
+      console.log(`Ignoring event: ${event.event}`);
+      return res.status(200).send("OK");
+    }
+
+    const data = event.data;
+    const reference = data.reference;
+    const metadata = data.metadata || {};
+    const subjectId = metadata.subjectId;
+    const subjectName = metadata.subjectName;
+    const userId = metadata.userId;
+
+    console.log(`charge.success — ref: ${reference}, userId: ${userId}, subjectId: ${subjectId}`);
+
+    if (!subjectId || !userId) {
+      console.error("Missing subjectId or userId in metadata");
+      return res.status(200).send("OK");
+    }
+
+    const existing = await db
+      .collection("user_subjects")
+      .where("paymentReference", "==", reference)
+      .limit(1)
+      .get();
+
+    if (!existing.empty) {
+      console.log(`Already saved — skipping duplicate: ${reference}`);
+      return res.status(200).send("OK");
+    }
+
+    await db.collection("user_subjects").add({
+      userId: userId,
+      subjectId: subjectId,
+      subjectName: subjectName || null,
+      amount: 500,
+      paymentReference: reference,
+      paymentMode: "LIVE",
+      purchaseDate: FieldValue.serverTimestamp(),
+      source: "webhook",
+    });
+
+    console.log(`Subject unlocked via webhook: ${subjectId} for user: ${userId}`);
+    return res.status(200).send("OK");
+  } catch (error) {
+    console.error("Webhook error:", error);
+    return res.status(200).send("OK");
+  }
+});

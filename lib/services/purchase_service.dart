@@ -9,7 +9,6 @@ import 'dart:convert';
 import 'dart:io';
 import '../config/paystack_config.dart';
 
-/// Result of a payment operation with detailed error information
 class PaymentResult {
   final bool success;
   final String? errorMessage;
@@ -32,7 +31,6 @@ class PaymentResult {
         errorType = type;
 }
 
-/// Types of payment errors for better handling
 enum PaymentErrorType {
   network,
   verification,
@@ -40,6 +38,9 @@ enum PaymentErrorType {
   timeout,
   server,
   unknown,
+  // Used when user had an incomplete payment (copied acc number, never paid)
+  // so main.dart can show a reminder snackbar instead of a success snackbar
+  incompleteReminder,
 }
 
 class PurchaseService {
@@ -51,28 +52,14 @@ class PurchaseService {
   static const _kPendingRef = 'pending_payment_reference';
   static const _kPendingSubjectId = 'pending_payment_subject_id';
   static const _kPendingSubjectName = 'pending_payment_subject_name';
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // KEY DESIGN:
-  //
-  // Save the reference to disk BEFORE opening the Paystack popup.
-  // NEVER delete it just because onClosed fired without onSuccess —
-  // that is indistinguishable from the user going to their bank app.
-  //
-  // Only clear the reference in two situations:
-  //   1. Paystack verifies the payment as "success" → unlock + clear
-  //   2. Paystack verifies the payment as definitively failed/abandoned
-  //      AND a minimum wait window has passed → clear
-  //
-  // On every app launch, recoverPendingPayment() checks any saved ref
-  // against Paystack's verify API. If money went through, subject unlocks.
-  // ─────────────────────────────────────────────────────────────────────────
-
-  // Timestamp of when the ref was created — used to decide when to give up
   static const _kPendingCreatedAt = 'pending_payment_created_at';
 
-  // How long we keep trying to verify (72 hours — covers slow bank transfers)
-  static const _kMaxRecoveryMs = 72 * 60 * 60 * 1000;
+  // 48 hours — covers Paystack settlement delays and slow bank transfers
+  static const _kMaxRecoveryMs = 48 * 60 * 60 * 1000;
+
+  // Lock: prevents race condition when main.dart and SubjectListScreen
+  // both call recoverPendingPayment() simultaneously on first navigation
+  static bool _recoveryInProgress = false;
 
   Future<void> _savePendingPayment({
     required String reference,
@@ -97,114 +84,200 @@ class PurchaseService {
     debugPrint('🗑️ Pending payment cleared');
   }
 
-  /// Called on every app launch from SubjectListScreen.initState().
+  /// Saves the subject unlock to Firestore with 3 automatic retries.
+  /// The duplicate check has been removed — references are unique by design
+  /// (timestamp-based) so writing directly is safe and avoids the index query
+  /// that was causing silent failures.
+  Future<bool> _saveSubjectUnlock({
+    required String userId,
+    required String subjectId,
+    required String? subjectName,
+    required String reference,
+    bool recovered = false,
+  }) async {
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      try {
+        await _firestore.collection('user_subjects').add({
+          'userId': userId,
+          'subjectId': subjectId,
+          'purchaseDate': FieldValue.serverTimestamp(),
+          'subjectName': subjectName,
+          'amount': 500,
+          'paymentReference': reference,
+          'paymentMode': PaystackConfig.mode,
+          if (recovered) 'recovered': true,
+        }).timeout(const Duration(seconds: 15));
+
+        debugPrint('✅ Subject saved to Firestore (attempt $attempt): $reference');
+        return true;
+      } catch (e) {
+        debugPrint('❌ Firestore attempt $attempt failed: $e');
+        if (attempt < 3) await Future.delayed(Duration(seconds: attempt * 2));
+      }
+    }
+    return false;
+  }
+
+  /// ── RECOVERY ─────────────────────────────────────────────────────────────
   ///
-  /// Flow:
-  ///   1. If no saved ref → nothing to do
-  ///   2. If ref is older than 72 hours → give up and clear
-  ///   3. Ask Paystack: did this payment succeed?
-  ///      YES → save to Firestore, clear ref, return success
-  ///      NO  → keep ref, return null (will retry next launch)
+  /// Called from main.dart on every cold start.
+  ///
+  /// Return values:
+  ///   PaymentResult.success()                 → subject unlocked, show green snackbar
+  ///   PaymentResult.error(incompleteReminder) → user has a pending payment they
+  ///                                             never completed, show amber reminder
+  ///   null                                    → nothing to do or retry next launch
+  ///
+  /// Paystack status handling:
+  ///   'success' / 'pending' → unlock subject immediately
+  ///   'abandoned'           → keep ref + show reminder (user may still pay)
+  ///   'failed'              → only status we clear on — definitive bank rejection
+  ///   null                  → network error, keep ref and retry next launch
   Future<PaymentResult?> recoverPendingPayment() async {
+    if (_recoveryInProgress) {
+      debugPrint('⏳ Recovery already in progress — skipping duplicate call');
+      return null;
+    }
+    _recoveryInProgress = true;
+    try {
+      return await _doRecovery();
+    } finally {
+      _recoveryInProgress = false;
+    }
+  }
+
+  Future<PaymentResult?> _doRecovery() async {
     final prefs = await SharedPreferences.getInstance();
     final ref = prefs.getString(_kPendingRef);
     final subjectId = prefs.getString(_kPendingSubjectId);
     final subjectName = prefs.getString(_kPendingSubjectName);
     final createdAt = prefs.getInt(_kPendingCreatedAt) ?? 0;
 
-    if (ref == null || subjectId == null) return null;
+    if (ref == null || subjectId == null) {
+      debugPrint('ℹ️ No pending payment to recover');
+      return null;
+    }
 
-    // Give up after 72 hours — bank transfers that haven't cleared by then
-    // almost certainly failed or were reversed.
     final age = DateTime.now().millisecondsSinceEpoch - createdAt;
     if (age > _kMaxRecoveryMs) {
-      debugPrint('⏰ Pending ref too old (${age ~/ 3600000}h) — discarding');
+      debugPrint('⏰ Ref expired (${age ~/ 3600000}h old) — discarding: $ref');
       await _clearPendingPayment();
       return null;
     }
 
-    debugPrint('🔄 Pending ref found: $ref — verifying with Paystack...');
-    final isVerified = await _verifyPayment(ref);
+    debugPrint('🔄 Pending ref found (${(age / 60000).toStringAsFixed(1)}min old): $ref');
 
-    if (isVerified) {
+    // Retry verification up to 3 times to handle temporary network blips
+    String? status;
+    for (int attempt = 1; attempt <= 3; attempt++) {
+      debugPrint('🔁 Verify attempt $attempt/3 for: $ref');
+      status = await _getPaymentStatus(ref);
+      debugPrint('📊 Attempt $attempt status: $status');
+      if (status != null) break;
+      if (attempt < 3) await Future.delayed(Duration(seconds: attempt * 3));
+    }
+
+    debugPrint('📊 Final Paystack status for $ref: $status');
+
+    // ── Payment confirmed — unlock immediately ────────────────────────────
+    if (status == 'success' || status == 'pending') {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) {
-        // User not logged in yet — keep the ref, retry next launch
-        debugPrint('⚠️ Verified but user not logged in — retrying next launch');
+        debugPrint('⚠️ Confirmed but user not logged in — retrying next launch');
         return null;
       }
 
-      try {
-        final existing = await _firestore
-            .collection('user_subjects')
-            .where('paymentReference', isEqualTo: ref)
-            .get();
+      final saved = await _saveSubjectUnlock(
+        userId: user.uid,
+        subjectId: subjectId,
+        subjectName: subjectName,
+        reference: ref,
+        recovered: true,
+      );
 
-        if (existing.docs.isEmpty) {
-          await _firestore.collection('user_subjects').add({
-            'userId': user.uid,
-            'subjectId': subjectId,
-            'purchaseDate': FieldValue.serverTimestamp(),
-            'subjectName': subjectName,
-            'amount': 500,
-            'paymentReference': ref,
-            'paymentMode': PaystackConfig.mode,
-            'recovered': true,
-          });
-          debugPrint('✅ Recovered payment saved to Firestore: $ref');
-        } else {
-          debugPrint('ℹ️ Already in Firestore, skipping duplicate: $ref');
-        }
-
+      if (saved) {
         await _clearPendingPayment();
+        debugPrint('✅ Recovery complete: $ref');
         return PaymentResult.success();
-      } catch (e) {
-        debugPrint('❌ Error saving recovered payment: $e');
-        // Don't clear — retry next launch
+      } else {
+        debugPrint('❌ Firestore save failed — keeping ref for next launch');
         return null;
       }
     }
 
-    // Not verified yet — keep the ref and retry on next launch.
-    // This covers the "transfer pending" state that bank transfers sit in
-    // for minutes to hours after the user sends money.
-    debugPrint('⏳ Not yet verified — keeping ref for next launch: $ref');
+    // ── Definitive failure — only status we clear on ──────────────────────
+    // 'failed' means the bank explicitly rejected the transfer.
+    // This is the ONLY status that guarantees no money moved.
+    if (status == 'failed') {
+      debugPrint('❌ Payment definitively failed — clearing ref: $ref');
+      await _clearPendingPayment();
+      return null;
+    }
+
+    // ── Abandoned — keep ref, show reminder ──────────────────────────────
+    // 'abandoned' means the Paystack popup was closed before payment.
+    // BUT the user may still send money after closing — Nigerian bank
+    // transfers can be initiated minutes or hours after copying the
+    // account number. We keep the ref for the full 48-hour window and
+    // show a gentle reminder so the user knows they have an open payment.
+    if (status == 'abandoned') {
+      debugPrint('⚠️ Status abandoned — keeping ref, showing reminder: $ref');
+      return PaymentResult.error(
+        'You have an incomplete payment for $subjectName. '
+        'If you\'ve already sent the money, your subject will unlock automatically. '
+        'Otherwise tap a subject to pay now.',
+        PaymentErrorType.incompleteReminder,
+      );
+    }
+
+    // ── null — network error or ref not yet on Paystack ───────────────────
+    // Keep the ref silently — retry next launch.
+    debugPrint('⏳ Could not verify after 3 attempts — keeping ref: $ref');
     return null;
   }
 
-  Future<bool> _verifyPayment(String reference) async {
+  /// Returns raw Paystack status string, or null on network error.
+  /// Possible values: 'success' | 'pending' | 'failed' | 'abandoned' | null
+  Future<String?> _getPaymentStatus(String reference) async {
     try {
       final url = Uri.parse(
           'https://api.paystack.co/transaction/verify/$reference');
       final response = await http
-          .get(
-            url,
-            headers: {
-              'Authorization': 'Bearer $_secretKey',
-              'Content-Type': 'application/json',
-            },
-          )
+          .get(url, headers: {
+            'Authorization': 'Bearer $_secretKey',
+            'Content-Type': 'application/json',
+          })
           .timeout(const Duration(seconds: 30));
+
+      debugPrint('Paystack verify HTTP ${response.statusCode} for $reference');
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        debugPrint('Verification response: $data');
-        if (data['status'] == true && data['data']['status'] == 'success') {
-          debugPrint('✅ Payment verified!');
-          return true;
+        if (data['status'] == true && data['data'] != null) {
+          final txStatus = data['data']['status'] as String?;
+          debugPrint('Paystack tx status: $txStatus');
+          return txStatus;
         }
+        debugPrint('Paystack status:false — message: ${data['message']}');
+        return null;
       }
-      debugPrint('❌ Verification failed: ${response.statusCode}');
-      return false;
+
+      if (response.statusCode == 404) {
+        debugPrint('Paystack 404 — ref not found: $reference');
+        return null;
+      }
+
+      debugPrint('Paystack unexpected HTTP: ${response.statusCode}');
+      return null;
     } on SocketException catch (e) {
-      debugPrint('❌ Network error during verification: $e');
-      return false;
+      debugPrint('❌ Network error verifying: $e');
+      return null;
     } on TimeoutException catch (e) {
-      debugPrint('❌ Verification timeout: $e');
-      return false;
+      debugPrint('❌ Timeout verifying: $e');
+      return null;
     } catch (e) {
-      debugPrint('❌ Verification error: $e');
-      return false;
+      debugPrint('❌ Verify error: $e');
+      return null;
     }
   }
 
@@ -218,7 +291,11 @@ class PurchaseService {
         s.contains('unreachable') ||
         s.contains('errno = 101') ||
         s.contains('errno = 111') ||
-        s.contains('failed host lookup');
+        s.contains('errno=101') ||
+        s.contains('errno=111') ||
+        s.contains('failed host lookup') ||
+        s.contains('os error') ||
+        s.contains('network is unreachable');
   }
 
   Future<PaymentResult> payAndUnlock(
@@ -244,8 +321,6 @@ class PurchaseService {
       debugPrint('=== PAYMENT STARTED (${PaystackConfig.mode} MODE) ===');
       debugPrint('Reference: $reference');
 
-      // Save BEFORE opening the popup. If the OS kills the app the moment
-      // the user switches to their bank app, this ref survives on disk.
       await _savePendingPayment(
         reference: reference,
         subjectId: subjectId,
@@ -276,26 +351,10 @@ class PurchaseService {
             'mode': PaystackConfig.mode,
           },
           onClosed: () {
-            // ── WHY NOTHING IS DONE HERE ──────────────────────────────────────
-            // onClosed fires in two very different situations:
-            //   a) User tapped X to cancel (no payment intended)
-            //   b) User copied the bank account number, then closed the popup
-            //      to go to their bank app and send money
-            //
-            // I cannot tell (a) from (b) at this moment. The only reliable
-            // signal is Paystack's verify API. So leave the ref on disk
-            // and let recoverPendingPayment() sort it out on the next launch.
-            //
-            // Result: genuine cancellations get a stale ref that verify will
-            // return "abandoned" for → cleared on next launch. Bank transfers
-            // that succeeded get recovered automatically. ✅
-            debugPrint('=== PAYMENT WINDOW CLOSED (ref kept on disk) ===');
+            debugPrint('=== POPUP CLOSED — ref kept on disk ===');
           },
           onSuccess: () {
-            // Card payments and instant transfers land here.
-            // Bank transfers that complete while the popup is still open
-            // also fire this (rare but possible).
-            debugPrint('=== onSuccess callback fired ===');
+            debugPrint('=== onSuccess fired ===');
             paymentSuccessCallback = true;
           },
         );
@@ -304,6 +363,12 @@ class PurchaseService {
         return PaymentResult.error(
           'No internet connection. Please check your network and try again.',
           PaymentErrorType.network,
+        );
+      } on TimeoutException {
+        await _clearPendingPayment();
+        return PaymentResult.error(
+          'Connection timed out. Please check your network and try again.',
+          PaymentErrorType.timeout,
         );
       } catch (e) {
         if (_isNetworkError(e)) {
@@ -316,74 +381,62 @@ class PurchaseService {
         rethrow;
       }
 
-      // ── POST-POPUP LOGIC ────────────────────────────────────────────────
-      //
-      // If onSuccess fired → card payment or instant transfer. Verify now.
-      // If onSuccess did NOT fire → user either cancelled OR went to bank app.
-      //   Either way, we verify. If the transfer already went through (fast
-      //   banks), the subject unlocks immediately. If not, the ref stays on
-      //   disk and recovery handles it on next launch.
-      //
-      // Never call _clearPendingPayment() here unless verification passes.
-
-      // Brief delay to let Paystack's backend settle
       await Future.delayed(const Duration(seconds: 2));
+      debugPrint('=== VERIFYING (onSuccess=$paymentSuccessCallback) ===');
 
-      debugPrint('=== VERIFYING PAYMENT (paymentSuccessCallback=$paymentSuccessCallback) ===');
-      final isVerified = await _verifyPayment(reference);
+      final status = await _getPaymentStatus(reference);
+      debugPrint('Post-popup status: $status');
 
-      if (isVerified) {
-        try {
-          final existing = await _firestore
-              .collection('user_subjects')
-              .where('paymentReference', isEqualTo: reference)
-              .get();
-
-          if (existing.docs.isEmpty) {
-            await _firestore.collection('user_subjects').add({
-              'userId': user.uid,
-              'subjectId': subjectId,
-              'purchaseDate': FieldValue.serverTimestamp(),
-              'subjectName': subjectName,
-              'amount': 500,
-              'paymentReference': reference,
-              'paymentMode': PaystackConfig.mode,
-            });
-          }
-
+      if (status == 'success') {
+        final saved = await _saveSubjectUnlock(
+          userId: user.uid,
+          subjectId: subjectId,
+          subjectName: subjectName,
+          reference: reference,
+        );
+        if (saved) {
           await _clearPendingPayment();
-          debugPrint('✅ Purchase saved to Firestore');
           return PaymentResult.success();
-        } catch (e) {
-          debugPrint('❌ Error saving to Firestore: $e');
-          // Don't clear — recovery will retry on next launch
+        } else {
           return PaymentResult.error(
-            'Payment successful but failed to save. Please contact support with reference: $reference',
+            'Payment was successful but we couldn\'t save it right now. '
+            'Reopen the app and your subject will unlock automatically.',
             PaymentErrorType.server,
           );
         }
       }
 
-      // Verification returned non-success.
-      // - If onSuccess fired: something went wrong (shouldn't happen normally)
-      // - If onSuccess did NOT fire: user cancelled OR sent a bank transfer
-      //   that hasn't cleared yet.
-      //
-      // In both cases: keep the ref on disk so recovery can check again.
-      // The message below tells the user what to expect.
-      if (paymentSuccessCallback) {
-        // Paystack told us success but verify disagreed — rare timing issue.
-        // Recovery will catch it on next launch.
+      if (status == 'pending') {
+        final saved = await _saveSubjectUnlock(
+          userId: user.uid,
+          subjectId: subjectId,
+          subjectName: subjectName,
+          reference: reference,
+        );
+        if (saved) {
+          await _clearPendingPayment();
+          return PaymentResult.success();
+        } else {
+          return PaymentResult.error(
+            'Your transfer is being processed. Your subject will unlock '
+            'automatically when you reopen the app.',
+            PaymentErrorType.verification,
+          );
+        }
+      }
+
+      if (status == 'failed') {
+        await _clearPendingPayment();
         return PaymentResult.error(
-          'Payment is being processed. Your subject will unlock automatically once confirmed — usually within a few minutes.',
+          'Payment was not completed. Please try again.',
           PaymentErrorType.verification,
         );
       }
 
-      // User closed the popup without onSuccess. Could be a cancel or a
-      // pending bank transfer. Show a neutral message.
+      // abandoned or null — ref stays on disk for recovery
       return PaymentResult.error(
-        'If you completed the bank transfer, your subject will unlock automatically the next time you open the app.',
+        'If you completed the bank transfer, your subject will unlock '
+        'automatically the next time you open the app.',
         PaymentErrorType.verification,
       );
     } on SocketException catch (e) {
@@ -394,7 +447,7 @@ class PurchaseService {
         PaymentErrorType.network,
       );
     } on TimeoutException catch (e) {
-      debugPrint('❌ Timeout Error: $e');
+      debugPrint('❌ Timeout: $e');
       return PaymentResult.error(
         'Payment request timed out. Please check your internet and try again.',
         PaymentErrorType.timeout,
@@ -407,7 +460,7 @@ class PurchaseService {
         PaymentErrorType.server,
       );
     } catch (e) {
-      debugPrint('❌ Unexpected Error: $e');
+      debugPrint('❌ Unexpected: $e');
       if (_isNetworkError(e)) {
         await _clearPendingPayment();
         return PaymentResult.error(
