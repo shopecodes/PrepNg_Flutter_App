@@ -15,6 +15,7 @@ import 'services/auth_services.dart';
 import 'services/notification_service.dart';
 import 'services/connectivity_service.dart';
 import 'services/purchase_service.dart';
+import 'services/offline_service.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/profile_check_wrapper.dart';
 import 'screens/question_of_the_day_screen.dart';
@@ -124,6 +125,12 @@ class _AppInitializerState extends State<AppInitializer> {
     NotificationService.navigatorKey = navigatorKey;
     _initNotificationsSafely();
 
+    // Flush any writes that were queued while the user was offline.
+    // Fire-and-forget — never blocks startup.
+    OfflineService.flushPendingWrites().catchError((e) {
+      debugPrint('Error flushing pending writes: $e');
+    });
+
     final User? user = FirebaseAuth.instance.currentUser ??
         await FirebaseAuth.instance
             .authStateChanges()
@@ -136,15 +143,12 @@ class _AppInitializerState extends State<AppInitializer> {
     if (!onboardingComplete) return const OnboardingScreen();
     if (user == null) return const WelcomeScreen();
 
-    // User logged in — start payment recovery in background
     _recoverPaymentInBackground();
 
     return const ProfileCheckWrapper();
   }
 
   void _recoverPaymentInBackground() {
-    // Wait 2s for the destination screen to fully mount before
-    // running recovery — ensures connectivityScaffoldKey is ready
     Future.delayed(const Duration(seconds: 2), () async {
       try {
         debugPrint('🔍 Starting background payment recovery...');
@@ -156,7 +160,6 @@ class _AppInitializerState extends State<AppInitializer> {
         }
 
         if (result.success) {
-          // Payment was recovered and subject unlocked — green snackbar
           debugPrint('✅ Recovery succeeded — showing success snackbar');
           _showSnackbar(
             message:
@@ -166,8 +169,6 @@ class _AppInitializerState extends State<AppInitializer> {
             duration: const Duration(seconds: 6),
           );
         } else if (result.errorType == PaymentErrorType.incompleteReminder) {
-          // User had an incomplete payment (copied acc number, never paid)
-          // Show an amber reminder so they know they have an open payment
           debugPrint('⚠️ Incomplete payment — showing reminder snackbar');
           _showSnackbar(
             message: result.errorMessage ??
@@ -189,7 +190,6 @@ class _AppInitializerState extends State<AppInitializer> {
     required IconData icon,
     required Duration duration,
   }) {
-    // Small extra delay so the snackbar lands after screen transition animations
     Future.delayed(const Duration(milliseconds: 500), () {
       connectivityScaffoldKey.currentState?.showSnackBar(
         SnackBar(

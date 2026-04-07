@@ -25,16 +25,38 @@ class MockQuizScreen extends StatefulWidget {
 
 class _MockQuizScreenState extends State<MockQuizScreen> {
   late Timer _timer;
-  int _secondsRemaining = 7200; // 2 hours (120 minutes)
+  int _secondsRemaining = 7200; // 2 hours
   int _currentSubjectIndex = 0;
   int _currentQuestionIndex = 0;
-  
+
   final Map<String, Map<int, int>> _selectedAnswers = {};
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreen = Color(0xFF014104);
-
   static const List<String> _optionLabels = ['A', 'B', 'C', 'D'];
+
+  // ── JAMB scoring weights ─────────────────────────────────────────────────
+  // Use of English: 60 questions → 160 marks (each correct = 160/60 ≈ 2.667)
+  // Other subjects: 40 questions → 80 marks each (each correct = 80/40 = 2.0)
+  // Total = 160 + 80 + 80 + 80 = 400 marks
+  static const int _useOfEnglishMaxMarks = 160;
+  static const int _otherSubjectMaxMarks = 80;
+
+  /// Returns the max JAMB marks for a subject based on its question count.
+  /// Use of English has 60 questions → 160 marks.
+  /// All other subjects have 40 questions → 80 marks.
+  int _maxMarksForSubject(String subject) {
+    final questionCount = widget.subjectQuestions[subject]?.length ?? 0;
+    return questionCount == 60 ? _useOfEnglishMaxMarks : _otherSubjectMaxMarks;
+  }
+
+  /// Converts raw correct count to scaled JAMB marks for a subject.
+  /// e.g. 45/60 correct for Use of English = (45/60) × 160 = 120 marks
+  double _scaledScore(String subject, int correctCount) {
+    final total = widget.subjectQuestions[subject]?.length ?? 1;
+    final maxMarks = _maxMarksForSubject(subject);
+    return (correctCount / total) * maxMarks;
+  }
 
   @override
   void initState() {
@@ -110,29 +132,34 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
   void _submitExam() {
     _timer.cancel();
 
-    Map<String, int> scores = {};
-    Map<String, int> totals = {};
+    // Raw correct counts — used for subject breakdown display
+    final Map<String, int> rawScores = {};
+    // Scaled JAMB marks — used for total out of 400
+    final Map<String, double> scaledScores = {};
+    final Map<String, int> totals = {};
+    final Map<String, int> maxMarks = {};
 
     widget.subjectQuestions.forEach((subject, questions) {
       int correct = 0;
       final answers = _selectedAnswers[subject]!;
-
       for (int i = 0; i < questions.length; i++) {
-        // Compare selected index with correctAnswerIndex
         if (answers[i] == questions[i].correctAnswerIndex) {
           correct++;
         }
       }
-
-      scores[subject] = correct;
+      rawScores[subject] = correct;
+      scaledScores[subject] = _scaledScore(subject, correct);
       totals[subject] = questions.length;
+      maxMarks[subject] = _maxMarksForSubject(subject);
     });
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => MockResultScreen(
-          scores: scores,
+          rawScores: rawScores,
+          scaledScores: scaledScores,
           totals: totals,
+          maxMarks: maxMarks,
           subjectQuestions: widget.subjectQuestions,
           selectedAnswers: _selectedAnswers,
         ),
@@ -210,7 +237,8 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                               qIndex == _currentQuestionIndex;
 
                           return GestureDetector(
-                            onTap: () => _jumpToQuestion(subjectIndex, qIndex),
+                            onTap: () =>
+                                _jumpToQuestion(subjectIndex, qIndex),
                             child: Container(
                               decoration: BoxDecoration(
                                 color: isCurrent
@@ -256,7 +284,6 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
     );
   }
 
-  // ── Smart image widget: handles URL, asset path, or empty ────────────────
   Widget _buildQuestionImage(String imagePath) {
     final isUrl = imagePath.startsWith('http://') ||
         imagePath.startsWith('https://');
@@ -350,10 +377,11 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
         final shouldExit = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16)),
             title: Text('Exit Mock Exam?',
-                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                style:
+                    GoogleFonts.poppins(fontWeight: FontWeight.bold)),
             content: Text(
               'Your progress will be lost. Are you sure?',
               style: GoogleFonts.poppins(),
@@ -381,348 +409,371 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
       },
       child: Builder(builder: (context) {
         final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-        final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+        final bgColor =
+            isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
         final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-        final textColor = isDark ? Colors.white : const Color(0xFF014104);
-        final subtextColor = isDark ? Colors.white60 : Colors.grey.shade600;
+        final textColor =
+            isDark ? Colors.white : const Color(0xFF014104);
+        final subtextColor =
+            isDark ? Colors.white60 : Colors.grey.shade600;
+
         return Scaffold(
-        backgroundColor: bgColor,
-        body: SafeArea(
-          child: Column(
-            children: [
-              // Header
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Mock Exam',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: _secondsRemaining < 600
-                                ? Colors.red.shade50
-                                : Colors.green.shade50,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.timer_outlined,
-                                size: 16,
-                                color: _secondsRemaining < 600
-                                    ? Colors.red.shade700
-                                    : _accentGreen,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
-                                style: GoogleFonts.poppins(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
-                                  color: _secondsRemaining < 600
-                                      ? Colors.red.shade700
-                                      : _darkGreen,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${_getTotalAnswered()} / $totalQuestions answered',
-                            style: GoogleFonts.poppins(
-                              fontSize: 12,
-                              color: Colors.grey.shade600,
-                            ),
-                          ),
-                        ),
-                        TextButton.icon(
-                          onPressed: _showNavigationGrid,
-                          icon: const Icon(Icons.grid_view_rounded, size: 16),
-                          label: const Text('Navigate'),
-                          style: TextButton.styleFrom(
-                            foregroundColor: _accentGreen,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // Subject tabs
-              Container(
-                height: 60,
-                color: cardColor,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: widget.subjects.length,
-                  itemBuilder: (context, index) {
-                    final subject = widget.subjects[index];
-                    final isActive = index == _currentSubjectIndex;
-                    final answered = _selectedAnswers[subject]?.length ?? 0;
-                    final total = widget.subjectQuestions[subject]!.length;
-
-                    return GestureDetector(
-                      onTap: () => setState(() {
-                        _currentSubjectIndex = index;
-                        _currentQuestionIndex = 0;
-                      }),
-                      child: Container(
-                        margin: const EdgeInsets.only(
-                            right: 12, top: 8, bottom: 8),
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
-                        decoration: BoxDecoration(
-                          color:
-                              isActive ? _accentGreen : Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              subject,
-                              style: GoogleFonts.poppins(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    isActive ? Colors.white : textColor,
-                              ),
-                            ),
-                            Text(
-                              '$answered/$total',
-                              style: GoogleFonts.poppins(
-                                fontSize: 11,
-                                color: isActive
-                                    ? Colors.white.withValues(alpha: 0.9)
-                                    : Colors.grey.shade600,
-                              ),
-                            ),
-                          ],
-                        ),
+          backgroundColor: bgColor,
+          body: SafeArea(
+            child: Column(
+              children: [
+                // Header
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black
+                            .withValues(alpha: isDark ? 0.25 : 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 2),
                       ),
-                    );
-                  },
-                ),
-              ),
-
-              const SizedBox(height: 16),
-
-              // Question
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                    ],
+                  ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Question ${_currentQuestionIndex + 1} of ${_currentQuestions.length}',
-                        style: GoogleFonts.poppins(
-                          fontSize: 12,
-                          color: subtextColor,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-
-                      Text(
-                        _currentQuestion.text,
-                        style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: textColor,
-                          height: 1.5,
-                        ),
-                      ),
-
-                      // ── Question image (if any) ──────────────
-                      if (_currentQuestion.imagePath != null &&
-                          _currentQuestion.imagePath!.isNotEmpty) ...[
-                        const SizedBox(height: 12),
-                        _buildQuestionImage(_currentQuestion.imagePath!),
-                      ],
-
-                      const SizedBox(height: 24),
-
-                      ..._currentQuestion.options.asMap().entries.map((entry) {
-                        final optionIndex = entry.key;
-                        final optionText = entry.value;
-                        final isSelected =
-                            _selectedAnswers[_currentSubject]
-                                    ?[_currentQuestionIndex] ==
-                                optionIndex;
-
-                        return GestureDetector(
-                          onTap: () => _selectAnswer(optionIndex),
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Mock Exam',
+                            style: GoogleFonts.poppins(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? _accentGreen.withValues(alpha: 0.1)
-                                  : cardColor,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: isSelected
-                                    ? _accentGreen
-                                    : (isDark ? Colors.white12 : Colors.grey.shade200),
-                                width: isSelected ? 2 : 1,
-                              ),
+                              color: _secondsRemaining < 600
+                                  ? Colors.red.shade50
+                                  : Colors.green.shade50,
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
                               children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? _accentGreen
-                                        : (isDark ? Colors.white10 : Colors.grey.shade100),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      optionIndex < _optionLabels.length
-                                          ? _optionLabels[optionIndex]
-                                          : '${optionIndex + 1}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                        color: isSelected
-                                            ? Colors.white
-                                            : textColor,
-                                      ),
-                                    ),
-                                  ),
+                                Icon(
+                                  Icons.timer_outlined,
+                                  size: 16,
+                                  color: _secondsRemaining < 600
+                                      ? Colors.red.shade700
+                                      : _accentGreen,
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    optionText,
-                                    style: GoogleFonts.poppins(
-                                      fontSize: 14,
-                                      color: textColor,
-                                      height: 1.4,
-                                    ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  '${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: _secondsRemaining < 600
+                                        ? Colors.red.shade700
+                                        : _darkGreen,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                        );
-                      }),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${_getTotalAnswered()} / $totalQuestions answered',
+                              style: GoogleFonts.poppins(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ),
+                          TextButton.icon(
+                            onPressed: _showNavigationGrid,
+                            icon: const Icon(Icons.grid_view_rounded,
+                                size: 16),
+                            label: const Text('Navigate'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: _accentGreen,
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              ),
 
-              // Navigation buttons
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
+                // Subject tabs
+                Container(
+                  height: 60,
                   color: cardColor,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: widget.subjects.length,
+                    itemBuilder: (context, index) {
+                      final subject = widget.subjects[index];
+                      final isActive = index == _currentSubjectIndex;
+                      final answered =
+                          _selectedAnswers[subject]?.length ?? 0;
+                      final total =
+                          widget.subjectQuestions[subject]!.length;
+
+                      return GestureDetector(
+                        onTap: () => setState(() {
+                          _currentSubjectIndex = index;
+                          _currentQuestionIndex = 0;
+                        }),
+                        child: Container(
+                          margin: const EdgeInsets.only(
+                              right: 12, top: 8, bottom: 8),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16),
+                          decoration: BoxDecoration(
+                            color: isActive
+                                ? _accentGreen
+                                : Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            mainAxisAlignment:
+                                MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                subject,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isActive
+                                      ? Colors.white
+                                      : textColor,
+                                ),
+                              ),
+                              Text(
+                                '$answered/$total',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 11,
+                                  color: isActive
+                                      ? Colors.white
+                                          .withValues(alpha: 0.9)
+                                      : Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
-                child: Row(
-                  children: [
-                    if (_currentQuestionIndex > 0 ||
-                        _currentSubjectIndex > 0)
+
+                const SizedBox(height: 16),
+
+                // Question
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Question ${_currentQuestionIndex + 1} of ${_currentQuestions.length}',
+                          style: GoogleFonts.poppins(
+                            fontSize: 12,
+                            color: subtextColor,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _currentQuestion.text,
+                          style: GoogleFonts.poppins(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: textColor,
+                            height: 1.5,
+                          ),
+                        ),
+                        if (_currentQuestion.imagePath != null &&
+                            _currentQuestion.imagePath!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          _buildQuestionImage(
+                              _currentQuestion.imagePath!),
+                        ],
+                        const SizedBox(height: 24),
+                        ..._currentQuestion.options
+                            .asMap()
+                            .entries
+                            .map((entry) {
+                          final optionIndex = entry.key;
+                          final optionText = entry.value;
+                          final isSelected =
+                              _selectedAnswers[_currentSubject]
+                                      ?[_currentQuestionIndex] ==
+                                  optionIndex;
+
+                          return GestureDetector(
+                            onTap: () => _selectAnswer(optionIndex),
+                            child: Container(
+                              margin:
+                                  const EdgeInsets.only(bottom: 12),
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? _accentGreen
+                                        .withValues(alpha: 0.1)
+                                    : cardColor,
+                                borderRadius:
+                                    BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? _accentGreen
+                                      : (isDark
+                                          ? Colors.white12
+                                          : Colors.grey.shade200),
+                                  width: isSelected ? 2 : 1,
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 32,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      color: isSelected
+                                          ? _accentGreen
+                                          : (isDark
+                                              ? Colors.white10
+                                              : Colors.grey.shade100),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        optionIndex <
+                                                _optionLabels.length
+                                            ? _optionLabels[
+                                                optionIndex]
+                                            : '${optionIndex + 1}',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: isSelected
+                                              ? Colors.white
+                                              : textColor,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Text(
+                                      optionText,
+                                      style: GoogleFonts.poppins(
+                                        fontSize: 14,
+                                        color: textColor,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // Navigation buttons
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black
+                            .withValues(alpha: isDark ? 0.25 : 0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, -2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      if (_currentQuestionIndex > 0 ||
+                          _currentSubjectIndex > 0)
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _previousQuestion,
+                            style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 16),
+                              side: BorderSide(color: _accentGreen),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Previous',
+                              style: GoogleFonts.poppins(
+                                fontSize: 15,
+                                fontWeight: FontWeight.w600,
+                                color: _accentGreen,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (_currentQuestionIndex > 0 ||
+                          _currentSubjectIndex > 0)
+                        const SizedBox(width: 12),
                       Expanded(
-                        child: OutlinedButton(
-                          onPressed: _previousQuestion,
-                          style: OutlinedButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 16),
-                            side: BorderSide(color: _accentGreen),
+                        flex: 2,
+                        child: ElevatedButton(
+                          onPressed: _currentQuestionIndex ==
+                                      _currentQuestions.length - 1 &&
+                                  _currentSubjectIndex ==
+                                      widget.subjects.length - 1
+                              ? _submitExam
+                              : _nextQuestion,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 16),
+                            backgroundColor: _accentGreen,
+                            foregroundColor: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
                           child: Text(
-                            'Previous',
+                            _currentQuestionIndex ==
+                                        _currentQuestions.length - 1 &&
+                                    _currentSubjectIndex ==
+                                        widget.subjects.length - 1
+                                ? 'Submit Exam'
+                                : 'Next',
                             style: GoogleFonts.poppins(
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
-                              color: _accentGreen,
                             ),
                           ),
                         ),
                       ),
-                    if (_currentQuestionIndex > 0 ||
-                        _currentSubjectIndex > 0)
-                      const SizedBox(width: 12),
-                    Expanded(
-                      flex: 2,
-                      child: ElevatedButton(
-                        onPressed: _currentQuestionIndex ==
-                                    _currentQuestions.length - 1 &&
-                                _currentSubjectIndex ==
-                                    widget.subjects.length - 1
-                            ? _submitExam
-                            : _nextQuestion,
-                        style: ElevatedButton.styleFrom(
-                          padding:
-                              const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: _accentGreen,
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: Text(
-                          _currentQuestionIndex ==
-                                      _currentQuestions.length - 1 &&
-                                  _currentSubjectIndex ==
-                                      widget.subjects.length - 1
-                              ? 'Submit Exam'
-                              : 'Next',
-                          style: GoogleFonts.poppins(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
+        );
       }),
     );
   }

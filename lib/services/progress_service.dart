@@ -3,30 +3,47 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'offline_service.dart';
 
 class ProgressService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Save quiz result — field is 'timestamp' everywhere
+  // ── Save quiz result — queues offline if write fails ──────────
   Future<void> saveQuizResult({
     required String subjectName,
     required int score,
     required int totalQuestions,
   }) async {
     final user = _auth.currentUser;
-    if (user != null) {
-      await _db.collection('results').add({
-        'userId': user.uid,
-        'subjectName': subjectName,
-        'score': score,
-        'totalQuestions': totalQuestions,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+    if (user == null) return;
+
+    final data = {
+      'userId': user.uid,
+      'subjectName': subjectName,
+      'score': score,
+      'totalQuestions': totalQuestions,
+      'timestamp': FieldValue.serverTimestamp(),
+    };
+
+    try {
+      await _db.collection('results').add(data);
+      await OfflineService.markOnline();
+    } catch (e) {
+      debugPrint('Progress write failed — queuing: $e');
+      final queueData = Map<String, dynamic>.from(data);
+      queueData['timestamp'] = '__serverTimestamp__';
+      await OfflineService.queueWrite(
+        collection: 'results',
+        data: queueData,
+      );
     }
   }
 
-  // Get all user results ordered by 'timestamp'
+  // ── Stream results — cache-first via Firestore persistence ────
+  // Firestore's offline persistence handles this automatically when
+  // persistenceEnabled:true is set in main.dart. The stream returns
+  // cached data immediately and updates when online.
   Stream<QuerySnapshot> getUserResults() {
     return _db
         .collection('results')
@@ -35,7 +52,7 @@ class ProgressService {
         .snapshots();
   }
 
-  // Clear history from BOTH collections
+  // ── Clear history ─────────────────────────────────────────────
   Future<bool> clearUserHistory() async {
     final user = _auth.currentUser;
     if (user == null) return false;

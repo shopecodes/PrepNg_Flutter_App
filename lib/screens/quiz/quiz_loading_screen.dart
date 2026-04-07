@@ -88,7 +88,6 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
     super.dispose();
   }
 
-  // ✅ Fixed: was ~/ 90 (wrong), now ~/ 60 (correct)
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     return '$minutes min';

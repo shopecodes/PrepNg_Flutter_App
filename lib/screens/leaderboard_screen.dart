@@ -6,6 +6,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../services/leaderboard_service.dart';
 import '../../services/connectivity_service.dart';
+import '../../services/offline_service.dart';
 
 class LeaderboardScreen extends StatefulWidget {
   const LeaderboardScreen({super.key});
@@ -29,6 +30,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   bool _isLoading = true;
   bool _hasError = false;
   bool _isOffline = false;
+  bool _neverBeenOnline = false;
+  bool _isRefreshing = false;
 
   static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
@@ -45,7 +48,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       parent: _fadeController,
       curve: Curves.easeOut,
     );
-    _load();
+    _load(forceRefresh: false);
   }
 
   @override
@@ -54,26 +57,41 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     super.dispose();
   }
 
-  Future<void> _load() async {
-    setState(() {
-      _isLoading = true;
-      _hasError = false;
-      _isOffline = false;
-    });
+  // ── Initial load: cache-first, no spinner if data found ────────
+  Future<void> _load({bool forceRefresh = false}) async {
+    if (forceRefresh) {
+      setState(() => _isRefreshing = true);
+    } else {
+      setState(() {
+        _isLoading = true;
+        _hasError = false;
+        _neverBeenOnline = false;
+      });
+    }
 
-    // Check connectivity first before showing cached data banner if offline
     final hasInternet = await _connectivityService.hasInternetConnection();
     if (mounted) setState(() => _isOffline = !hasInternet);
 
+    // If no internet and never been online — show specific message
+    if (!hasInternet) {
+      final everOnline = await OfflineService.hasEverBeenOnline();
+      if (!everOnline && mounted) {
+        setState(() {
+          _neverBeenOnline = true;
+          _isLoading = false;
+          _isRefreshing = false;
+        });
+        return;
+      }
+    }
+
     try {
       final results = await Future.wait([
-        _leaderboardService.getWeeklyLeaderboard(),
-        _leaderboardService.getMyRank(),
+        _leaderboardService.getWeeklyLeaderboard(forceRefresh: forceRefresh),
+        _leaderboardService.getMyRank(forceRefresh: forceRefresh),
       ]).timeout(
         const Duration(seconds: 10),
-        onTimeout: () {
-          throw TimeoutException('Leaderboard load timed out');
-        },
+        onTimeout: () => throw TimeoutException('Leaderboard load timed out'),
       );
 
       if (mounted) {
@@ -81,53 +99,78 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
           _entries = results[0] as List<LeaderboardEntry>;
           _myRank = results[1] as LeaderboardEntry?;
           _isLoading = false;
+          _isRefreshing = false;
+          _hasError = false;
         });
         _fadeController.forward(from: 0);
       }
     } on TimeoutException {
-      if (mounted) setState(() { _isLoading = false; _hasError = true; });
-      connectivityScaffoldKey.currentState?.showSnackBar(SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.wifi_off_rounded, color: Colors.white, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Connection timed out. Please check your internet.',
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: const Color(0xFF1A2E1F),
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+          // Only show error if we have no data at all
+          if (_entries.isEmpty) _hasError = true;
+        });
+        _showSnackbar(
+          'Connection timed out. Showing cached data.',
+          Colors.orange.shade700,
+          Icons.wifi_off_rounded,
+        );
+      }
     } catch (e) {
       debugPrint('Error loading leaderboard: $e');
-      if (mounted) setState(() { _isLoading = false; _hasError = true; });
-      connectivityScaffoldKey.currentState?.showSnackBar(SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.error_outline, color: Colors.white, size: 18),
-            const SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Failed to load leaderboard. Please try again.',
-                style: GoogleFonts.poppins(color: Colors.white, fontSize: 13),
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: Colors.red.shade700,
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-        margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      ));
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+          if (_entries.isEmpty) _hasError = true;
+        });
+        if (_entries.isEmpty) {
+          _showSnackbar(
+            'Failed to load leaderboard. Please try again.',
+            Colors.red.shade700,
+            Icons.error_outline,
+          );
+        }
+      }
     }
+  }
+
+  // ── Pull-to-refresh: always hits server ────────────────────────
+  Future<void> _refresh() async {
+    final hasInternet = await _connectivityService.hasInternetConnection();
+    if (!hasInternet) {
+      _showSnackbar(
+        'No internet connection. Showing cached data.',
+        const Color(0xFF1A2E1F),
+        Icons.wifi_off_rounded,
+      );
+      return;
+    }
+    await _load(forceRefresh: true);
+  }
+
+  void _showSnackbar(String message, Color color, IconData icon) {
+    connectivityScaffoldKey.currentState?.showSnackBar(SnackBar(
+      content: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(message,
+                style:
+                    GoogleFonts.poppins(color: Colors.white, fontSize: 13)),
+          ),
+        ],
+      ),
+      backgroundColor: color,
+      duration: const Duration(seconds: 4),
+      behavior: SnackBarBehavior.floating,
+      margin: const EdgeInsets.all(16),
+      shape:
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    ));
   }
 
   Color _rankColor(int rank) {
@@ -139,10 +182,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
 
   String _departmentEmoji(String dept) {
     switch (dept.toLowerCase()) {
-      case 'science': return '🔬';
-      case 'arts': return '🎨';
-      case 'commercial': return '💼';
-      default: return '📚';
+      case 'science':
+        return '🔬';
+      case 'arts':
+        return '🎨';
+      case 'commercial':
+        return '💼';
+      default:
+        return '📚';
     }
   }
 
@@ -153,10 +200,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
       body: Column(
         children: [
           _buildHeader(),
-          if (_isOffline && !_isLoading && !_hasError)
+
+          // Offline cached-data banner
+          if (_isOffline && !_isLoading && !_hasError && !_neverBeenOnline && _entries.isNotEmpty)
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               color: Colors.orange.shade50,
               child: Row(
                 children: [
@@ -173,22 +223,25 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 ],
               ),
             ),
+
           Expanded(
             child: _isLoading
-                ? Center(child: CircularProgressIndicator(
-                    color: _accentGreen, strokeWidth: 3))
-                : _hasError
-                    ? _buildError()
-                    : _entries.isEmpty
-                        ? _buildEmpty()
-                        : _buildContent(),
+                ? Center(
+                    child: CircularProgressIndicator(
+                        color: _accentGreen, strokeWidth: 3))
+                : _neverBeenOnline
+                    ? _buildNeverOnline()
+                    : _hasError
+                        ? _buildError()
+                        : _entries.isEmpty
+                            ? _buildEmpty()
+                            : _buildContent(),
           ),
         ],
       ),
     );
   }
 
-  // ── Header ─────────────────────────────────────────────────────
   Widget _buildHeader() {
     return Container(
       decoration: BoxDecoration(
@@ -250,15 +303,22 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                   ),
                   const Spacer(),
                   GestureDetector(
-                    onTap: _load,
+                    onTap: _isRefreshing ? null : _refresh,
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: const Icon(Icons.refresh_rounded,
-                          color: Colors.white, size: 20),
+                      child: _isRefreshing
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Icon(Icons.refresh_rounded,
+                              color: Colors.white, size: 20),
                     ),
                   ),
                 ],
@@ -287,7 +347,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                         ),
                         child: Center(
                           child: Text(
-                            '#${_myRank!.rank}',
+                            _myRank!.rank == 0
+                                ? '–'
+                                : '#${_myRank!.rank}',
                             style: GoogleFonts.poppins(
                               fontSize: 13,
                               fontWeight: FontWeight.w800,
@@ -305,7 +367,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                               'Your rank this week',
                               style: GoogleFonts.poppins(
                                 fontSize: 11,
-                                color: Colors.white.withValues(alpha: 0.75),
+                                color:
+                                    Colors.white.withValues(alpha: 0.75),
                               ),
                             ),
                             Text(
@@ -334,7 +397,65 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     );
   }
 
-  // ── Error State ────────────────────────────────────────────────
+  // ── Never been online — first time offline ─────────────────────
+  Widget _buildNeverOnline() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(40),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 90,
+              height: 90,
+              decoration: BoxDecoration(
+                color: Colors.blue.shade50,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.cloud_off_rounded,
+                  size: 42, color: Colors.blue.shade300),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Connect to Get Started',
+              style: GoogleFonts.poppins(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: _darkGreen),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'The leaderboard needs internet on your first visit. '
+              'Once loaded, it\'ll be available offline too.',
+              textAlign: TextAlign.center,
+              style: GoogleFonts.poppins(
+                  fontSize: 13,
+                  color: Colors.grey.shade500,
+                  height: 1.6),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () => _load(forceRefresh: false),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 28, vertical: 12),
+                decoration: BoxDecoration(
+                  color: _accentGreen,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text('Try Again',
+                    style: GoogleFonts.poppins(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600)),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildError() {
     return Center(
       child: Padding(
@@ -355,11 +476,13 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
               'Check your internet and try again.',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
-                  fontSize: 13, color: Colors.grey.shade500, height: 1.5),
+                  fontSize: 13,
+                  color: Colors.grey.shade500,
+                  height: 1.5),
             ),
             const SizedBox(height: 24),
             GestureDetector(
-              onTap: _load,
+              onTap: () => _load(forceRefresh: false),
               child: Container(
                 padding: const EdgeInsets.symmetric(
                     horizontal: 28, vertical: 12),
@@ -369,7 +492,8 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 ),
                 child: Text('Retry',
                     style: GoogleFonts.poppins(
-                        color: Colors.white, fontWeight: FontWeight.w600)),
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600)),
               ),
             ),
           ],
@@ -378,7 +502,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     );
   }
 
-  // ── Empty State ────────────────────────────────────────────────
   Widget _buildEmpty() {
     return Center(
       child: Padding(
@@ -394,16 +517,15 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.leaderboard_rounded,
-                  size: 42, color: _accentGreen.withValues(alpha: 0.6)),
+                  size: 42,
+                  color: _accentGreen.withValues(alpha: 0.6)),
             ),
             const SizedBox(height: 24),
-            Text(
-              'No entries yet',
-              style: GoogleFonts.poppins(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: _darkGreen),
-            ),
+            Text('No entries yet',
+                style: GoogleFonts.poppins(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: _darkGreen)),
             const SizedBox(height: 10),
             Text(
               'Complete quizzes this week to\nappear on the leaderboard.',
@@ -419,13 +541,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
     );
   }
 
-  // ── Content ────────────────────────────────────────────────────
   Widget _buildContent() {
     return FadeTransition(
       opacity: _fadeAnimation,
       child: RefreshIndicator(
         color: _accentGreen,
-        onRefresh: _load,
+        onRefresh: _refresh,
         child: ListView.builder(
           padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
           itemCount: _entries.length,
@@ -455,7 +576,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   }
 }
 
-// ── Top 3 Card ─────────────────────────────────────────────────────────────────
+// ── Top 3 Card (unchanged) ─────────────────────────────────────────────────────
 class _TopThreeCard extends StatelessWidget {
   final LeaderboardEntry entry;
   final bool isMe;
@@ -482,7 +603,8 @@ class _TopThreeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: isMe
             ? Border.all(color: _accentGreen, width: 2)
-            : Border.all(color: rankColor.withValues(alpha: 0.3), width: 1.5),
+            : Border.all(
+                color: rankColor.withValues(alpha: 0.3), width: 1.5),
         boxShadow: [
           BoxShadow(
             color: rankColor.withValues(alpha: 0.15),
@@ -567,9 +689,7 @@ class _TopThreeCard extends StatelessWidget {
               Text(
                 'pts',
                 style: GoogleFonts.poppins(
-                  fontSize: 11,
-                  color: Colors.grey.shade400,
-                ),
+                    fontSize: 11, color: Colors.grey.shade400),
               ),
             ],
           ),
@@ -579,7 +699,7 @@ class _TopThreeCard extends StatelessWidget {
   }
 }
 
-// ── Regular Row ────────────────────────────────────────────────────────────────
+// ── Regular Row (unchanged) ────────────────────────────────────────────────────
 class _LeaderboardRow extends StatelessWidget {
   final LeaderboardEntry entry;
   final bool isMe;
@@ -600,9 +720,7 @@ class _LeaderboardRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isMe
-            ? _accentGreen.withValues(alpha: 0.06)
-            : Colors.white,
+        color: isMe ? _accentGreen.withValues(alpha: 0.06) : Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isMe
@@ -693,9 +811,7 @@ class _LeaderboardRow extends StatelessWidget {
                 Text(
                   '$departmentEmoji  ${entry.quizzesTaken} quiz${entry.quizzesTaken == 1 ? '' : 'zes'}',
                   style: GoogleFonts.poppins(
-                    fontSize: 11,
-                    color: Colors.grey.shade400,
-                  ),
+                      fontSize: 11, color: Colors.grey.shade400),
                 ),
               ],
             ),

@@ -11,15 +11,23 @@ import '../../models/question_model.dart';
 import '../../services/streak_service.dart';
 
 class MockResultScreen extends StatefulWidget {
-  final Map<String, int> scores;
+  // Raw correct answer counts per subject
+  final Map<String, int> rawScores;
+  // Scaled JAMB marks per subject (out of 160 for UoE, 80 for others)
+  final Map<String, double> scaledScores;
+  // Total questions per subject
   final Map<String, int> totals;
+  // Max JAMB marks per subject
+  final Map<String, int> maxMarks;
   final Map<String, List<Question>> subjectQuestions;
   final Map<String, Map<int, int>> selectedAnswers;
 
   const MockResultScreen({
     super.key,
-    required this.scores,
+    required this.rawScores,
+    required this.scaledScores,
     required this.totals,
+    required this.maxMarks,
     required this.subjectQuestions,
     required this.selectedAnswers,
   });
@@ -39,9 +47,11 @@ class _MockResultScreenState extends State<MockResultScreen>
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreenFixed = Color(0xFF014104);
 
-  int _totalScore = 0;
+  // Total JAMB score out of 400
+  double _totalJambScore = 0;
+  // Total raw correct answers
+  int _totalRawScore = 0;
   int _totalQuestions = 0;
-  double _percentage = 0.0;
 
   @override
   void initState() {
@@ -57,42 +67,49 @@ class _MockResultScreenState extends State<MockResultScreen>
       CurvedAnimation(parent: _animController, curve: Curves.easeOut),
     );
     _slideAnimation =
-        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero).animate(
-      CurvedAnimation(parent: _animController, curve: Curves.easeOut),
-    );
+        Tween<Offset>(begin: const Offset(0, 0.15), end: Offset.zero)
+            .animate(CurvedAnimation(
+                parent: _animController, curve: Curves.easeOut));
     _animController.forward();
   }
 
   void _calculateTotals() {
-    widget.scores.forEach((subject, score) {
-      _totalScore += score;
-      _totalQuestions += widget.totals[subject]!;
+    widget.scaledScores.forEach((subject, scaled) {
+      _totalJambScore += scaled;
     });
-    _percentage = (_totalScore / _totalQuestions) * 100;
+    widget.rawScores.forEach((subject, raw) {
+      _totalRawScore += raw;
+      _totalQuestions += widget.totals[subject] ?? 0;
+    });
   }
+
+  // Percentage is based on 400-mark scale
+  double get _percentage => (_totalJambScore / 400) * 100;
 
   Future<void> _saveResult() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
 
-      // ── Save mock result ──────────────────────────────────────
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .collection('mock_results')
           .add({
         'timestamp': FieldValue.serverTimestamp(),
-        'totalScore': _totalScore,
+        'totalJambScore': double.parse(_totalJambScore.toStringAsFixed(1)),
+        'totalRawScore': _totalRawScore,
         'totalQuestions': _totalQuestions,
+        'maxScore': 400,
         'percentage': double.parse(_percentage.toStringAsFixed(1)),
-        'scores': widget.scores,
+        'rawScores': widget.rawScores,
+        'scaledScores': widget.scaledScores
+            .map((k, v) => MapEntry(k, double.parse(v.toStringAsFixed(1)))),
         'totals': widget.totals,
+        'maxMarks': widget.maxMarks,
       });
 
-      // ── Record streak — mock exam counts as studying ──────────
       await _streakService.recordActivity();
-
       debugPrint('Mock result saved + streak recorded');
     } catch (e) {
       debugPrint('Error saving mock result: $e');
@@ -131,10 +148,12 @@ class _MockResultScreenState extends State<MockResultScreen>
   @override
   Widget build(BuildContext context) {
     final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor = isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
+    final bgColor =
+        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
     final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
     final textColor = isDark ? Colors.white : const Color(0xFF014104);
     final subtextColor = isDark ? Colors.white60 : Colors.grey.shade600;
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
@@ -218,7 +237,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Overall Score Card
+                          // Overall Score Card — shows score out of 400
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(24),
@@ -227,7 +246,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: isDark ? 0.25 : 0.05),
+                                  color: Colors.black.withValues(
+                                      alpha: isDark ? 0.25 : 0.05),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -251,12 +271,36 @@ class _MockResultScreenState extends State<MockResultScreen>
                                           ),
                                         ),
                                         const SizedBox(height: 4),
+                                        // ── JAMB score out of 400 ──
+                                        RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              TextSpan(
+                                                text: _totalJambScore
+                                                    .toStringAsFixed(1),
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 32,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: textColor,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: ' / 400',
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: subtextColor,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
                                         Text(
-                                          '$_totalScore / $_totalQuestions',
+                                          '$_totalRawScore/$_totalQuestions correct',
                                           style: GoogleFonts.poppins(
-                                            fontSize: 28,
-                                            fontWeight: FontWeight.w800,
-                                            color: textColor,
+                                            fontSize: 12,
+                                            color: subtextColor,
                                           ),
                                         ),
                                       ],
@@ -285,10 +329,11 @@ class _MockResultScreenState extends State<MockResultScreen>
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: LinearProgressIndicator(
-                                    value: _percentage / 100,
+                                    value: _totalJambScore / 400,
                                     backgroundColor: Colors.grey.shade200,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        _getGradeColor()),
+                                    valueColor:
+                                        AlwaysStoppedAnimation<Color>(
+                                            _getGradeColor()),
                                     minHeight: 10,
                                   ),
                                 ),
@@ -309,49 +354,71 @@ class _MockResultScreenState extends State<MockResultScreen>
                           ),
                           const SizedBox(height: 12),
 
-                          ...widget.scores.entries.map((entry) {
+                          // Per-subject breakdown — shows scaled marks
+                          ...widget.rawScores.entries.map((entry) {
                             final subject = entry.key;
-                            final score = entry.value;
-                            final total = widget.totals[subject]!;
-                            final percentage = (score / total) * 100;
+                            final rawScore = entry.value;
+                            final total = widget.totals[subject] ?? 0;
+                            final scaled =
+                                widget.scaledScores[subject] ?? 0.0;
+                            final max = widget.maxMarks[subject] ?? 80;
+                            final subjectPercentage =
+                                total > 0 ? (rawScore / total) * 100 : 0.0;
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
                               padding: const EdgeInsets.all(20),
                               decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: cardColor,
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        Colors.black.withValues(alpha: 0.03),
+                                    color: Colors.black
+                                        .withValues(alpha: 0.03),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
                                 ],
                               ),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
                                 children: [
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        subject,
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w600,
-                                          color: textColor,
+                                      Expanded(
+                                        child: Text(
+                                          subject,
+                                          style: GoogleFonts.poppins(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            color: textColor,
+                                          ),
                                         ),
                                       ),
-                                      Text(
-                                        '$score / $total',
-                                        style: GoogleFonts.poppins(
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.w700,
-                                          color: _accentGreen,
-                                        ),
+                                      // Scaled JAMB marks for this subject
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            '${scaled.toStringAsFixed(1)} / $max',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w700,
+                                              color: _accentGreen,
+                                            ),
+                                          ),
+                                          Text(
+                                            '$rawScore/$total correct',
+                                            style: GoogleFonts.poppins(
+                                              fontSize: 11,
+                                              color: subtextColor,
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -363,19 +430,20 @@ class _MockResultScreenState extends State<MockResultScreen>
                                           borderRadius:
                                               BorderRadius.circular(6),
                                           child: LinearProgressIndicator(
-                                            value: percentage / 100,
+                                            value:
+                                                subjectPercentage / 100,
                                             backgroundColor:
                                                 Colors.grey.shade200,
                                             valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                                    _accentGreen),
+                                                AlwaysStoppedAnimation<
+                                                    Color>(_accentGreen),
                                             minHeight: 8,
                                           ),
                                         ),
                                       ),
                                       const SizedBox(width: 12),
                                       Text(
-                                        '${percentage.toStringAsFixed(0)}%',
+                                        '${subjectPercentage.toStringAsFixed(0)}%',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w600,
@@ -413,8 +481,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color:
-                                        _accentGreen.withValues(alpha: 0.4),
+                                    color: _accentGreen
+                                        .withValues(alpha: 0.4),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),

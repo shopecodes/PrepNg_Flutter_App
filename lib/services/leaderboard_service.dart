@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
+import 'offline_service.dart';
 
 class LeaderboardEntry {
   final String uid;
@@ -30,11 +31,12 @@ class LeaderboardService {
 
   String? get _uid => _auth.currentUser?.uid;
 
-  // ── Get current week ID (e.g. "2025-W12") ─────────────────────
   String get _currentWeekId {
     final now = DateTime.now();
     final startOfYear = DateTime(now.year, 1, 1);
-    final weekNumber = ((now.difference(startOfYear).inDays + startOfYear.weekday) / 7).ceil();
+    final weekNumber =
+        ((now.difference(startOfYear).inDays + startOfYear.weekday) / 7)
+            .ceil();
     return '${now.year}-W${weekNumber.toString().padLeft(2, '0')}';
   }
 
@@ -44,7 +46,6 @@ class LeaderboardService {
   DocumentReference _userScoreDoc(String weekId) =>
       _weekDoc(weekId).collection('scores').doc(_uid);
 
-  // ── Record a quiz result to the leaderboard ────────────────────
   Future<void> recordScore({
     required int score,
     required int totalQuestions,
@@ -57,46 +58,92 @@ class LeaderboardService {
       final weekId = _currentWeekId;
       final scorePercent = ((score / totalQuestions) * 100).round();
       final docRef = _userScoreDoc(weekId);
-      final doc = await docRef.get();
 
-      if (!doc.exists) {
-        await docRef.set({
-          'uid': _uid,
-          'displayName': displayName,
-          'department': department,
-          'totalScore': scorePercent,
-          'quizzesTaken': 1,
-          'weekId': weekId,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
-      } else {
-        final data = doc.data() as Map<String, dynamic>;
-        final newTotal = (data['totalScore'] ?? 0) + scorePercent;
-        final newCount = (data['quizzesTaken'] ?? 0) + 1;
+      try {
+        final doc = await docRef.get();
 
-        await docRef.update({
-          'displayName': displayName,
-          'department': department,
-          'totalScore': newTotal,
-          'quizzesTaken': newCount,
-          'updatedAt': FieldValue.serverTimestamp(),
-        });
+        if (!doc.exists) {
+          await docRef.set({
+            'uid': _uid,
+            'displayName': displayName,
+            'department': department,
+            'totalScore': scorePercent,
+            'quizzesTaken': 1,
+            'weekId': weekId,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        } else {
+          final data = doc.data() as Map<String, dynamic>;
+          final newTotal = (data['totalScore'] ?? 0) + scorePercent;
+          final newCount = (data['quizzesTaken'] ?? 0) + 1;
+
+          await docRef.update({
+            'displayName': displayName,
+            'department': department,
+            'totalScore': newTotal,
+            'quizzesTaken': newCount,
+            'updatedAt': FieldValue.serverTimestamp(),
+          });
+        }
+      } catch (e) {
+        // Offline — queue the write for later
+        debugPrint('Leaderboard write failed offline — queuing: $e');
+        await OfflineService.queueWrite(
+          collection: 'leaderboard/$weekId/scores',
+          docId: _uid,
+          data: {
+            'uid': _uid!,
+            'displayName': displayName,
+            'department': department,
+            'totalScore': scorePercent,
+            'quizzesTaken': 1,
+            'weekId': weekId,
+            'updatedAt': '__serverTimestamp__',
+          },
+          merge: true,
+        );
       }
     } catch (e) {
       debugPrint('Error recording leaderboard score: $e');
     }
   }
 
-  // ── Fetch top 50 for current week ──────────────────────────────
-  Future<List<LeaderboardEntry>> getWeeklyLeaderboard() async {
+  // ── Fetch leaderboard — cache first, server on force refresh ──
+  //
+  // [forceRefresh] = true → always hit server (used by pull-to-refresh)
+  // [forceRefresh] = false → try cache first, fall back to server
+  Future<List<LeaderboardEntry>> getWeeklyLeaderboard({
+    bool forceRefresh = false,
+  }) async {
     try {
       final weekId = _currentWeekId;
-      final snapshot = await _weekDoc(weekId)
+      final query = _weekDoc(weekId)
           .collection('scores')
           .orderBy('totalScore', descending: true)
-          .limit(50)
-          .get();
+          .limit(50);
 
+      QuerySnapshot snapshot;
+
+      if (!forceRefresh) {
+        // Try cache first
+        try {
+          final cached =
+              await query.get(const GetOptions(source: Source.cache));
+          if (cached.docs.isNotEmpty) {
+            debugPrint('📦 Leaderboard from cache');
+            await OfflineService.markOnline(); // cache implies past connection
+            return _mapToEntries(cached.docs);
+          }
+        } catch (_) {}
+      }
+
+      // Cache empty or force refresh — hit server
+      snapshot = await query
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 10));
+
+      await OfflineService.markOnline();
+      debugPrint('🌐 Leaderboard from server');
       return _mapToEntries(snapshot.docs);
     } catch (e) {
       debugPrint('Error fetching leaderboard: $e');
@@ -104,25 +151,50 @@ class LeaderboardService {
     }
   }
 
-  // ── Get current user's rank this week ─────────────────────────
-  Future<LeaderboardEntry?> getMyRank() async {
+  // ── My rank — cache first ──────────────────────────────────────
+  Future<LeaderboardEntry?> getMyRank({bool forceRefresh = false}) async {
     try {
       if (_uid == null) return null;
       final weekId = _currentWeekId;
-      final doc = await _userScoreDoc(weekId).get();
+
+      DocumentSnapshot doc;
+
+      if (!forceRefresh) {
+        try {
+          doc = await _userScoreDoc(weekId)
+              .get(const GetOptions(source: Source.cache));
+          if (!doc.exists) throw Exception('not in cache');
+          debugPrint('📦 My rank from cache');
+        } catch (_) {
+          doc = await _userScoreDoc(weekId)
+              .get(const GetOptions(source: Source.server))
+              .timeout(const Duration(seconds: 10));
+        }
+      } else {
+        doc = await _userScoreDoc(weekId)
+            .get(const GetOptions(source: Source.server))
+            .timeout(const Duration(seconds: 10));
+      }
+
       if (!doc.exists) return null;
 
-      // Count how many users scored higher
       final data = doc.data() as Map<String, dynamic>;
       final myScore = data['totalScore'] ?? 0;
 
-      final higherSnapshot = await _weekDoc(weekId)
-          .collection('scores')
-          .where('totalScore', isGreaterThan: myScore)
-          .count()
-          .get();
+      // Count users with higher score — requires server
+      // If offline, fall back to rank=0 (unknown)
+      int rank = 0;
+      try {
+        final higherSnapshot = await _weekDoc(weekId)
+            .collection('scores')
+            .where('totalScore', isGreaterThan: myScore)
+            .count()
+            .get();
+        rank = (higherSnapshot.count ?? 0) + 1;
+      } catch (_) {
+        rank = 0; // offline — rank unknown
+      }
 
-      final rank = (higherSnapshot.count ?? 0) + 1;
       final quizzesTaken = data['quizzesTaken'] ?? 1;
 
       return LeaderboardEntry(
@@ -140,7 +212,6 @@ class LeaderboardService {
     }
   }
 
-  // ── Week label for display (e.g. "Mar 3 – Mar 9") ─────────────
   String get currentWeekLabel {
     final now = DateTime.now();
     final monday = now.subtract(Duration(days: now.weekday - 1));
@@ -152,9 +223,7 @@ class LeaderboardService {
     return '${months[monday.month - 1]} ${monday.day} – ${months[sunday.month - 1]} ${sunday.day}';
   }
 
-  // ── Map Firestore docs to LeaderboardEntry list ────────────────
-  List<LeaderboardEntry> _mapToEntries(
-      List<QueryDocumentSnapshot> docs) {
+  List<LeaderboardEntry> _mapToEntries(List<QueryDocumentSnapshot> docs) {
     return docs.asMap().entries.map((entry) {
       final rank = entry.key + 1;
       final data = entry.value.data() as Map<String, dynamic>;

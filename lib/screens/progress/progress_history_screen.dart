@@ -443,7 +443,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
       stream: FirebaseFirestore.instance
           .collection('users')
           .doc(uid)
-          .collection('mock_results') // ── No orderBy here — sort in Dart to avoid index requirement
+          .collection('mock_results')
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -465,13 +465,16 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
           );
         }
 
-        // ── Sort by takenAt descending in Dart ────────────────────
+        // ── Sort by timestamp descending in Dart ────────────────────
         final results = List<QueryDocumentSnapshot>.from(snapshot.data!.docs);
         results.sort((a, b) {
           final aData = a.data() as Map<String, dynamic>;
           final bData = b.data() as Map<String, dynamic>;
-          final aTime = aData['takenAt'] as Timestamp?;
-          final bTime = bData['takenAt'] as Timestamp?;
+          
+          // Try takenAt first, then timestamp
+          final aTime = aData['takenAt'] as Timestamp? ?? aData['timestamp'] as Timestamp?;
+          final bTime = bData['takenAt'] as Timestamp? ?? bData['timestamp'] as Timestamp?;
+          
           if (aTime == null && bTime == null) return 0;
           if (aTime == null) return 1;
           if (bTime == null) return -1;
@@ -488,24 +491,19 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
               final data = doc.data() as Map<String, dynamic>;
               final documentId = doc.id;
 
-              final totalScore =
-                  (data['totalScore'] as num?)?.toInt() ?? 0;
-              final totalQuestions =
-                  (data['totalQuestions'] as num?)?.toInt() ?? 160;
+              final totalJambScore = (data['totalJambScore'] as num?)?.toDouble() ?? 
+                                     (data['totalScore'] as num?)?.toDouble() ?? 0.0;
+              final maxScore = (data['maxScore'] as num?)?.toInt() ?? 400;
 
+              // Percentage is based on 400-mark scale
               double percentage;
               final rawPct = data['percentage'];
               if (rawPct is num) {
                 percentage = rawPct.toDouble();
               } else if (rawPct is String) {
-                percentage = double.tryParse(rawPct) ??
-                    (totalQuestions > 0
-                        ? (totalScore / totalQuestions) * 100
-                        : 0.0);
+                percentage = double.tryParse(rawPct) ?? ((totalJambScore / maxScore) * 100);
               } else {
-                percentage = totalQuestions > 0
-                    ? (totalScore / totalQuestions) * 100
-                    : 0.0;
+                percentage = (totalJambScore / maxScore) * 100;
               }
 
               final color = _scoreColor(percentage);
@@ -513,10 +511,34 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
 
               final DateTime date = data['takenAt'] != null
                   ? (data['takenAt'] as Timestamp).toDate()
-                  : DateTime.now();
+                  : (data['timestamp'] != null 
+                      ? (data['timestamp'] as Timestamp).toDate()
+                      : DateTime.now());
 
-              final breakdown =
-                  (data['subjectBreakdown'] as List<dynamic>?) ?? [];
+              // ✅ Get breakdown from scaledScores (new format) or subjectBreakdown (old format)
+              final scaledScores = (data['scaledScores'] as Map<String, dynamic>?) ?? {};
+              final maxMarks = (data['maxMarks'] as Map<String, dynamic>?) ?? {};
+              final rawScores = (data['rawScores'] as Map<String, dynamic>?) ?? {};
+              final totals = (data['totals'] as Map<String, dynamic>?) ?? {};
+              
+              // Build breakdown from new format if available, otherwise use old format
+              final breakdown = scaledScores.isNotEmpty
+                  ? scaledScores.entries.map((entry) {
+                      final subject = entry.key;
+                      final scaled = (entry.value as num?)?.toDouble() ?? 0.0;
+                      final max = (maxMarks[subject] as num?)?.toInt() ?? 80;
+                      final raw = (rawScores[subject] as num?)?.toInt() ?? 0;
+                      final total = (totals[subject] as num?)?.toInt() ?? 40;
+                      
+                      return {
+                        'subjectName': subject,
+                        'score': raw,
+                        'total': total,
+                        'scaled': scaled,
+                        'maxMarks': max,
+                      };
+                    }).toList()
+                  : (data['subjectBreakdown'] as List<dynamic>?) ?? [];
 
               return Dismissible(
                 key: Key(documentId),
@@ -614,8 +636,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
+                                // ✅ FIXED: Show JAMB score out of 400
                                 Text(
-                                  '$totalScore/$totalQuestions',
+                                  '${totalJambScore.toStringAsFixed(1)}/$maxScore',
                                   style: GoogleFonts.poppins(
                                     fontWeight: FontWeight.w800,
                                     fontSize: 16,
@@ -661,6 +684,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                   (entry['score'] as num?)?.toInt() ?? 0;
                               final subjectTotal =
                                   (entry['total'] as num?)?.toInt() ?? 40;
+                              
+                              // ✅ FIXED: Show scaled JAMB marks for each subject
+                              final subjectScaled = (entry['scaled'] as num?)?.toDouble() ?? 0.0;
+                              final subjectMaxMarks = (entry['maxMarks'] as num?)?.toInt() ?? 80;
+                              
                               final subjectPercent =
                                   (subjectScore / subjectTotal) * 100;
                               final subjectColor =
@@ -701,8 +729,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                       ),
                                     ),
                                     const SizedBox(width: 8),
+                                    // ✅ FIXED: Show scaled marks if available, otherwise raw score
                                     Text(
-                                      '$subjectScore/$subjectTotal',
+                                      subjectScaled > 0 
+                                          ? '${subjectScaled.toStringAsFixed(1)}/$subjectMaxMarks'
+                                          : '$subjectScore/$subjectTotal',
                                       style: GoogleFonts.poppins(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
