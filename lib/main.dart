@@ -19,6 +19,9 @@ import 'services/offline_service.dart';
 import 'screens/auth/welcome_screen.dart';
 import 'screens/auth/profile_check_wrapper.dart';
 import 'screens/question_of_the_day_screen.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -89,6 +92,138 @@ class _AppInitializerState extends State<AppInitializer> {
     _initializeApp();
   }
 
+  // ── Uses navigatorKey so it works even after AppInitializer is gone ────────
+  Future<void> _checkForUpdate() async {
+    try {
+      final remoteConfig = FirebaseRemoteConfig.instance;
+      await remoteConfig.setConfigSettings(RemoteConfigSettings(
+        fetchTimeout: const Duration(seconds: 5),
+        minimumFetchInterval: const Duration(minutes: 5),
+      ));
+      await remoteConfig.fetchAndActivate();
+
+      final minVersion = remoteConfig.getString('minimum_version');
+      if (minVersion.isEmpty) return;
+
+      final packageInfo = await PackageInfo.fromPlatform();
+      final currentVersion = packageInfo.version;
+
+      debugPrint('App version: $currentVersion | Min required: $minVersion');
+
+      if (_isVersionOutdated(currentVersion, minVersion)) {
+        _showUpdateDialog();
+      }
+    } catch (e) {
+      debugPrint('Update check failed silently: $e');
+    }
+  }
+
+  bool _isVersionOutdated(String current, String minimum) {
+    try {
+      final c = current.split('.').map(int.parse).toList();
+      final m = minimum.split('.').map(int.parse).toList();
+      while (c.length < 3) {
+        c.add(0);
+      }
+      while (m.length < 3) {
+        m.add(0);
+      }
+      for (int i = 0; i < 3; i++) {
+        if (c[i] < m[i]) return true;
+        if (c[i] > m[i]) return false;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ── Uses navigatorKey.currentContext — valid even after _navigateTo() ──────
+  void _showUpdateDialog() {
+    final ctx = navigatorKey.currentContext;
+    if (ctx == null) return;
+
+    showDialog(
+      context: ctx,
+      barrierDismissible: false,
+      builder: (context) => PopScope(
+        canPop: false,
+        child: Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          backgroundColor: Colors.white,
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4CAF7D).withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: const Icon(Icons.system_update_rounded,
+                      color: Color(0xFF4CAF7D), size: 28),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Update Required',
+                  style: GoogleFonts.poppins(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      color: const Color(0xFF1A2E1F)),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'A new version of PrepNG is available with improvements and bug fixes. Please update to continue using the app.',
+                  style: GoogleFonts.poppins(
+                      fontSize: 13,
+                      color: Colors.grey.shade500,
+                      height: 1.5),
+                ),
+                const SizedBox(height: 24),
+                GestureDetector(
+                  onTap: () => launchUrl(
+                    Uri.parse(
+                        'https://play.google.com/store/apps/details?id=com.shorpe.prepng'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF4CAF7D),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: [
+                        BoxShadow(
+                          color:
+                              const Color(0xFF4CAF7D).withValues(alpha: 0.35),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Update Now',
+                        style: GoogleFonts.poppins(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _initializeApp() async {
     try {
       final startTime = DateTime.now();
@@ -115,6 +250,9 @@ class _AppInitializerState extends State<AppInitializer> {
 
       if (!mounted) return;
       _navigateTo(nextScreen);
+
+      // ── Run AFTER navigation so navigatorKey.currentContext is valid ────
+      _checkForUpdate();
     } catch (e) {
       debugPrint('Error initializing app: $e');
       if (mounted) _navigateTo(const WelcomeScreen());
@@ -125,8 +263,6 @@ class _AppInitializerState extends State<AppInitializer> {
     NotificationService.navigatorKey = navigatorKey;
     _initNotificationsSafely();
 
-    // Flush any writes that were queued while the user was offline.
-    // Fire-and-forget — never blocks startup.
     OfflineService.flushPendingWrites().catchError((e) {
       debugPrint('Error flushing pending writes: $e');
     });
@@ -144,7 +280,6 @@ class _AppInitializerState extends State<AppInitializer> {
     if (user == null) return const WelcomeScreen();
 
     _recoverPaymentInBackground();
-
     return const ProfileCheckWrapper();
   }
 

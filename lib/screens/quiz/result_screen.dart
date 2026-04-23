@@ -38,7 +38,6 @@ class _ResultScreenState extends State<ResultScreen>
   late Animation<double> _scoreAnimation;
   late Animation<double> _fadeAnimation;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
 
   double get _percentage =>
@@ -128,7 +127,7 @@ class _ResultScreenState extends State<ResultScreen>
     return PopScope(
       canPop: false,
       child: Scaffold(
-        backgroundColor: _bgColor,
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: Column(
           children: [
             Container(
@@ -337,10 +336,10 @@ class _ResultScreenState extends State<ResultScreen>
             Container(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).cardColor,
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.06),
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.18),
                     blurRadius: 16,
                     offset: const Offset(0, -4),
                   ),
@@ -439,8 +438,6 @@ class _ReviewTile extends StatefulWidget {
 
 class _ReviewTileState extends State<_ReviewTile> {
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
-  static const Color _bgColor = Color(0xFFF5FAF6);
 
   bool _isFlagged = false;
   bool _isSubmittingFlag = false;
@@ -582,11 +579,11 @@ class _ReviewTileState extends State<_ReviewTile> {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.14),
             blurRadius: 10,
             offset: const Offset(0, 3),
           ),
@@ -622,7 +619,7 @@ class _ReviewTileState extends State<_ReviewTile> {
             style: GoogleFonts.poppins(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: _darkGreen,
+              color: Theme.of(context).colorScheme.onSurface,
               height: 1.4,
             ),
             maxLines: 2,
@@ -644,7 +641,7 @@ class _ReviewTileState extends State<_ReviewTile> {
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _bgColor,
+                color: Theme.of(context).dividerColor.withValues(alpha: 0.28),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Column(
@@ -742,7 +739,7 @@ class _ReviewTileState extends State<_ReviewTile> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 10),
                           decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: Theme.of(context).cardColor,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                                 color: Colors.orange.shade300,
@@ -811,7 +808,10 @@ class _ReviewTileState extends State<_ReviewTile> {
                   style: GoogleFonts.poppins(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Colors.grey.shade600,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
                   ),
                 ),
                 TextSpan(
@@ -859,8 +859,8 @@ class _FlagDialogSheetState extends State<_FlagDialogSheet> {
       // sheet up by exactly the keyboard height, no overflow, no stripes.
       padding: EdgeInsets.only(bottom: keyboardHeight),
       child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
         ),
         child: SingleChildScrollView(
@@ -877,7 +877,7 @@ class _FlagDialogSheetState extends State<_FlagDialogSheet> {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade300,
+                      color: Theme.of(context).dividerColor,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -900,7 +900,10 @@ class _FlagDialogSheetState extends State<_FlagDialogSheet> {
                   'What\'s the issue with this question?',
                   style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: Colors.grey.shade700,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.75),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -913,12 +916,15 @@ class _FlagDialogSheetState extends State<_FlagDialogSheet> {
                         'Example:\n- Wrong answer marked as correct\n- Correct answer not in options\n- Question is unclear',
                     hintStyle: GoogleFonts.poppins(
                       fontSize: 12,
-                      color: Colors.grey.shade400,
+                      color: Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.55),
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide:
-                          BorderSide(color: Colors.grey.shade300),
+                          BorderSide(color: Theme.of(context).dividerColor),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -937,7 +943,10 @@ class _FlagDialogSheetState extends State<_FlagDialogSheet> {
                       child: Text(
                         'Cancel',
                         style: GoogleFonts.poppins(
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withValues(alpha: 0.7),
                           fontWeight: FontWeight.w600,
                         ),
                       ),

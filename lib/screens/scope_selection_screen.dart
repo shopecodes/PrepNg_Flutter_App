@@ -13,8 +13,6 @@ import 'bookmarks_screen.dart';
 import 'leaderboard_screen.dart';
 import 'question_of_the_day_screen.dart';
 import 'streaks_screen.dart';
-import 'package:provider/provider.dart';
-import '../provider/theme_provider.dart';
 
 class ScopeSelectionScreen extends StatefulWidget {
   const ScopeSelectionScreen({super.key});
@@ -198,14 +196,12 @@ class _ScopeSelectionScreenState extends State<ScopeSelectionScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor =
-        isDark ? const Color(0xFF121817) : const Color(0xFFF0F7F2);
-    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor =
-        isDark ? Colors.white : const Color(0xFF1A2E1F);
-    final subtextColor =
-        isDark ? Colors.white60 : Colors.grey.shade500;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -327,8 +323,8 @@ class _ScopeSelectionScreenState extends State<ScopeSelectionScreen>
                               borderRadius: BorderRadius.circular(14),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(
-                                      alpha: isDark ? 0.3 : 0.06),
+                                  color: theme.shadowColor.withValues(
+                                      alpha: isDark ? 0.3 : 0.16),
                                   blurRadius: 10,
                                   offset: const Offset(0, 4),
                                 ),
@@ -748,11 +744,14 @@ class _BottomNav extends StatelessWidget {
                   children: [
                     Icon(
                       item.icon,
-                      color: isSelected
-                          ? _accentGreen
-                          : (isDark
-                              ? Colors.white38
-                              : Colors.grey.shade400),
+                              color: isSelected
+                                  ? _accentGreen
+                                  : (isDark
+                              ? Colors.white54
+                              : Theme.of(context)
+                                  .colorScheme
+                                  .onSurface
+                                  .withValues(alpha: 0.45)),
                       size: 22,
                     ),
                     if (isSelected) ...[

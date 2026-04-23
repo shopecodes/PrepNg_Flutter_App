@@ -5,10 +5,12 @@ const { onRequest } = require("firebase-functions/v2/https");
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
+const { getAuth } = require("firebase-admin/auth");
 
 initializeApp();
 
 const db = getFirestore();
+const DELETE_BATCH_SIZE = 400;
 
 // ── Helper: get today's date string in WAT (UTC+1) ─────────────────────────
 function getWATDateString() {
@@ -22,6 +24,59 @@ function getWATDateString() {
 // Handles 'question', 'text', 'questionText' — whichever your upload script used
 function getQuestionText(data) {
   return data?.question ?? data?.text ?? data?.questionText ?? null;
+}
+
+async function deleteCollectionDocs(collectionRef) {
+  while (true) {
+    const snapshot = await collectionRef.limit(DELETE_BATCH_SIZE).get();
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    if (snapshot.size < DELETE_BATCH_SIZE) break;
+  }
+}
+
+async function deleteQueryDocs(query) {
+  while (true) {
+    const snapshot = await query.limit(DELETE_BATCH_SIZE).get();
+    if (snapshot.empty) break;
+
+    const batch = db.batch();
+    snapshot.docs.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    if (snapshot.size < DELETE_BATCH_SIZE) break;
+  }
+}
+
+async function deleteUserData(uid) {
+  const userRef = db.collection("users").doc(uid);
+  const quizProgressRef = db.collection("quiz_progress").doc(uid);
+  const qotdResponsesRef = db.collection("qotd_responses").doc(uid);
+
+  await deleteCollectionDocs(userRef.collection("bookmarks"));
+  await deleteCollectionDocs(userRef.collection("mock_results"));
+  await deleteCollectionDocs(quizProgressRef.collection("subjects"));
+  await deleteCollectionDocs(quizProgressRef.collection("mock_subjects"));
+  await deleteCollectionDocs(qotdResponsesRef.collection("responses"));
+
+  await deleteQueryDocs(
+    db.collection("user_subjects").where("userId", "==", uid)
+  );
+  await deleteQueryDocs(db.collection("results").where("userId", "==", uid));
+  //await deleteQueryDocs(
+    //db.collectionGroup("scores").where("uid", "==", uid)
+  //);
+
+  await Promise.all([
+    userRef.delete().catch(() => null),
+    quizProgressRef.delete().catch(() => null),
+    qotdResponsesRef.delete().catch(() => null),
+    db.collection("streaks").doc(uid).delete().catch(() => null),
+  ]);
 }
 
 // ── Sends QOTD notification every day at 9:00 AM WAT (8AM UTC) ────────────
@@ -206,6 +261,34 @@ exports.testQOTDNotification = onRequest(async (req, res) => {
 });
 
 // ── Paystack Webhook ────────────────────────────────────────────────────────
+exports.deleteAccount = onRequest(async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ message: "Method not allowed." });
+  }
+
+  try {
+    const authHeader = req.headers.authorization || "";
+    if (!authHeader.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Missing authorization token." });
+    }
+
+    const idToken = authHeader.substring("Bearer ".length).trim();
+    const decodedToken = await getAuth().verifyIdToken(idToken);
+    const uid = decodedToken.uid;
+
+    await deleteUserData(uid);
+    await getAuth().deleteUser(uid);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.error("Delete account error:", error);
+    return res.status(500).json({
+      message:
+        "We could not delete your account right now. Please try again.",
+    });
+  }
+});
+
 exports.paystackWebhook = onRequest(async (req, res) => {
   try {
     const crypto = require("crypto");

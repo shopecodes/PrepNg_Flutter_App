@@ -32,9 +32,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
   bool? _alreadyAnsweredToday;
   String? _noQuestionReason; // human-readable message for empty state
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   // ── Date key used for Firestore lookups ──────────────────────
   // _resolvedDateKey is set after the doc is loaded so all reads
@@ -237,35 +235,38 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
   }
 
   Color _optionColor(int index) {
+    final theme = Theme.of(context);
     if (!_hasAnswered) {
       return _selectedIndex == index
           ? _accentGreen.withValues(alpha: 0.1)
-          : Colors.white;
+          : theme.cardColor;
     }
     if (index == _question!.correctAnswerIndex) return Colors.green.shade50;
     if (index == _selectedIndex &&
         _selectedIndex != _question!.correctAnswerIndex) {
       return Colors.red.shade50;
     }
-    return Colors.white;
+    return theme.cardColor;
   }
 
   Color _optionBorderColor(int index) {
+    final theme = Theme.of(context);
     if (!_hasAnswered) {
-      return _selectedIndex == index ? _accentGreen : Colors.grey.shade200;
+      return _selectedIndex == index ? _accentGreen : theme.dividerColor;
     }
     if (index == _question!.correctAnswerIndex) return Colors.green.shade400;
     if (index == _selectedIndex &&
         _selectedIndex != _question!.correctAnswerIndex) {
       return Colors.red.shade400;
     }
-    return Colors.grey.shade200;
+    return theme.dividerColor;
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildHeader(),
@@ -369,6 +370,9 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
   }
 
   Widget _buildEmptyState() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -394,7 +398,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
               style: GoogleFonts.poppins(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: _darkGreen,
+                color: textColor,
               ),
             ),
             const SizedBox(height: 10),
@@ -403,7 +407,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                 fontSize: 14,
-                color: Colors.grey.shade500,
+                color: subtextColor,
                 height: 1.5,
               ),
             ),
@@ -414,6 +418,10 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
   }
 
   Widget _buildContent() {
+    final theme = Theme.of(context);
+    final cardColor = theme.cardColor;
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return FadeTransition(
       opacity: _fadeAnimation,
       child: SlideTransition(
@@ -446,7 +454,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
                           "You've already answered today's question. Come back tomorrow!",
                           style: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: _darkGreen,
+                            color: textColor,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -461,11 +469,11 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
                 width: double.infinity,
                 padding: const EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: cardColor,
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.06),
+                      color: theme.shadowColor.withValues(alpha: 0.22),
                       blurRadius: 20,
                       offset: const Offset(0, 8),
                     ),
@@ -498,7 +506,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
                             _question!.subjectId,
                             style: GoogleFonts.poppins(
                               fontSize: 11,
-                              color: Colors.grey.shade400,
+                              color: subtextColor,
                             ),
                           ),
                       ],
@@ -509,7 +517,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
                       style: GoogleFonts.poppins(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
-                        color: _darkGreen,
+                        color: textColor,
                         height: 1.6,
                       ),
                     ),
@@ -669,7 +677,7 @@ class _QuestionOfTheDayScreenState extends State<QuestionOfTheDayScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: _darkGreen,
+                  color: Theme.of(context).colorScheme.onSurface,
                   height: 1.4,
                 ),
               ),

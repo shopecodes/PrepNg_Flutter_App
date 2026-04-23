@@ -23,9 +23,7 @@ class _StreakScreenState extends State<StreakScreen>
   StreakData? _streakData;
   bool _isLoading = true;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
   static const Color _orange = Color(0xFFE89B4A);
 
   @override
@@ -103,8 +101,9 @@ class _StreakScreenState extends State<StreakScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildHeader(),
@@ -288,6 +287,9 @@ class _StreakScreenState extends State<StreakScreen>
 
   // ── Heatmap ────────────────────────────────────────────────────
   Widget _buildHeatmap() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     final days = _getLast70Days();
     final activeDays = _streakData?.activeDays ?? [];
     final weekLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
@@ -301,11 +303,11 @@ class _StreakScreenState extends State<StreakScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: theme.shadowColor.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -323,7 +325,7 @@ class _StreakScreenState extends State<StreakScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: _darkGreen,
+                  color: textColor,
                 ),
               ),
             ],
@@ -341,7 +343,7 @@ class _StreakScreenState extends State<StreakScreen>
                         style: GoogleFonts.poppins(
                           fontSize: 10,
                           fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade400,
+                          color: subtextColor,
                         ),
                       ),
                     ),
@@ -369,11 +371,11 @@ class _StreakScreenState extends State<StreakScreen>
                             ? _accentGreen
                             : active
                                 ? _accentGreen.withValues(alpha: 0.75)
-                                : Colors.grey.shade100,
+                                : theme.dividerColor.withValues(alpha: 0.45),
                         borderRadius: BorderRadius.circular(6),
                         border: today
                             ? Border.all(
-                                color: _darkGreen.withValues(alpha: 0.3),
+                                color: textColor.withValues(alpha: 0.25),
                                 width: 1.5)
                             : null,
                       ),
@@ -389,7 +391,7 @@ class _StreakScreenState extends State<StreakScreen>
           Row(
             children: [
               const Spacer(),
-              _legendDot(Colors.grey.shade100, 'No activity'),
+              _legendDot(theme.dividerColor.withValues(alpha: 0.45), 'No activity'),
               const SizedBox(width: 12),
               _legendDot(_accentGreen.withValues(alpha: 0.75), 'Studied'),
               const SizedBox(width: 12),
@@ -417,7 +419,7 @@ class _StreakScreenState extends State<StreakScreen>
           label,
           style: GoogleFonts.poppins(
             fontSize: 11,
-            color: Colors.grey.shade500,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
           ),
         ),
       ],
@@ -426,6 +428,9 @@ class _StreakScreenState extends State<StreakScreen>
 
   // ── Milestones ─────────────────────────────────────────────────
   Widget _buildMilestones() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     final current = _streakData?.currentStreak ?? 0;
     final best = _streakData?.bestStreak ?? 0;
 
@@ -440,11 +445,11 @@ class _StreakScreenState extends State<StreakScreen>
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: theme.shadowColor.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -463,7 +468,7 @@ class _StreakScreenState extends State<StreakScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: _darkGreen,
+                  color: textColor,
                 ),
               ),
             ],
@@ -485,7 +490,7 @@ class _StreakScreenState extends State<StreakScreen>
                     decoration: BoxDecoration(
                       color: achieved
                           ? _accentGreen.withValues(alpha: 0.1)
-                          : Colors.grey.shade100,
+                          : theme.dividerColor.withValues(alpha: 0.45),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
@@ -506,7 +511,7 @@ class _StreakScreenState extends State<StreakScreen>
                               style: GoogleFonts.poppins(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
-                                color: achieved ? _darkGreen : Colors.grey.shade500,
+                                color: achieved ? textColor : subtextColor,
                               ),
                             ),
                             Text(
@@ -518,7 +523,7 @@ class _StreakScreenState extends State<StreakScreen>
                                 fontWeight: FontWeight.w600,
                                 color: achieved
                                     ? _accentGreen
-                                    : Colors.grey.shade400,
+                                    : subtextColor,
                               ),
                             ),
                           ],
@@ -528,7 +533,7 @@ class _StreakScreenState extends State<StreakScreen>
                           borderRadius: BorderRadius.circular(6),
                           child: LinearProgressIndicator(
                             value: achieved ? 1.0 : progressValue,
-                            backgroundColor: Colors.grey.shade100,
+                            backgroundColor: theme.dividerColor.withValues(alpha: 0.45),
                             valueColor: AlwaysStoppedAnimation<Color>(
                               achieved ? _accentGreen : _orange,
                             ),
@@ -564,18 +569,19 @@ class _StatCard extends StatelessWidget {
     required this.unit,
   });
 
-  static const Color _darkGreen = Color(0xFF1A2E1F);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: theme.shadowColor.withValues(alpha: 0.16),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -598,7 +604,7 @@ class _StatCard extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              color: _darkGreen,
+              color: textColor,
               height: 1,
             ),
           ),
@@ -606,7 +612,7 @@ class _StatCard extends StatelessWidget {
             unit,
             style: GoogleFonts.poppins(
               fontSize: 11,
-              color: Colors.grey.shade400,
+              color: subtextColor,
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -615,7 +621,7 @@ class _StatCard extends StatelessWidget {
             label,
             style: GoogleFonts.poppins(
               fontSize: 10,
-              color: Colors.grey.shade500,
+              color: subtextColor,
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

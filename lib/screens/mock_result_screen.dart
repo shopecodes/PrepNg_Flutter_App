@@ -1,8 +1,6 @@
 // lib/screens/mock_exam/mock_result_screen.dart
 
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../provider/theme_provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,12 +11,10 @@ import '../../services/streak_service.dart';
 class MockResultScreen extends StatefulWidget {
   // Raw correct answer counts per subject
   final Map<String, int> rawScores;
-  // Scaled JAMB marks per subject (out of 160 for UoE, 80 for others)
+  // Scaled JAMB marks per subject (correct × 2.5, max 100 each)
   final Map<String, double> scaledScores;
   // Total questions per subject
   final Map<String, int> totals;
-  // Max JAMB marks per subject
-  final Map<String, int> maxMarks;
   final Map<String, List<Question>> subjectQuestions;
   final Map<String, Map<int, int>> selectedAnswers;
 
@@ -27,7 +23,6 @@ class MockResultScreen extends StatefulWidget {
     required this.rawScores,
     required this.scaledScores,
     required this.totals,
-    required this.maxMarks,
     required this.subjectQuestions,
     required this.selectedAnswers,
   });
@@ -46,6 +41,10 @@ class _MockResultScreenState extends State<MockResultScreen>
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
   static const Color _darkGreenFixed = Color(0xFF014104);
+
+  // Each subject max = 100, total max = 400
+  static const int _maxMarksPerSubject = 100;
+  static const int _totalMaxMarks = 400;
 
   // Total JAMB score out of 400
   double _totalJambScore = 0;
@@ -83,8 +82,8 @@ class _MockResultScreenState extends State<MockResultScreen>
     });
   }
 
-  // Percentage is based on 400-mark scale
-  double get _percentage => (_totalJambScore / 400) * 100;
+  // Percentage based on 400-mark scale
+  double get _percentage => (_totalJambScore / _totalMaxMarks) * 100;
 
   Future<void> _saveResult() async {
     try {
@@ -97,16 +96,16 @@ class _MockResultScreenState extends State<MockResultScreen>
           .collection('mock_results')
           .add({
         'timestamp': FieldValue.serverTimestamp(),
-        'totalJambScore': double.parse(_totalJambScore.toStringAsFixed(1)),
+        'totalJambScore':
+            double.parse(_totalJambScore.toStringAsFixed(1)),
         'totalRawScore': _totalRawScore,
         'totalQuestions': _totalQuestions,
-        'maxScore': 400,
+        'maxScore': _totalMaxMarks,
         'percentage': double.parse(_percentage.toStringAsFixed(1)),
         'rawScores': widget.rawScores,
         'scaledScores': widget.scaledScores
             .map((k, v) => MapEntry(k, double.parse(v.toStringAsFixed(1)))),
         'totals': widget.totals,
-        'maxMarks': widget.maxMarks,
       });
 
       await _streakService.recordActivity();
@@ -147,12 +146,12 @@ class _MockResultScreenState extends State<MockResultScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor =
-        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
-    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
     final textColor = isDark ? Colors.white : const Color(0xFF014104);
-    final subtextColor = isDark ? Colors.white60 : Colors.grey.shade600;
+    final subtextColor = textColor.withValues(alpha: 0.6);
 
     return PopScope(
       canPop: false,
@@ -237,7 +236,7 @@ class _MockResultScreenState extends State<MockResultScreen>
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                          // Overall Score Card — shows score out of 400
+                          // Overall Score Card
                           Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(24),
@@ -246,8 +245,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                               borderRadius: BorderRadius.circular(20),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(
-                                      alpha: isDark ? 0.25 : 0.05),
+                                  color: theme.shadowColor.withValues(
+                                      alpha: isDark ? 0.25 : 0.16),
                                   blurRadius: 15,
                                   offset: const Offset(0, 5),
                                 ),
@@ -267,11 +266,10 @@ class _MockResultScreenState extends State<MockResultScreen>
                                           'Total Score',
                                           style: GoogleFonts.poppins(
                                             fontSize: 13,
-                                            color: Colors.grey.shade600,
+                                            color: subtextColor,
                                           ),
                                         ),
                                         const SizedBox(height: 4),
-                                        // ── JAMB score out of 400 ──
                                         RichText(
                                           text: TextSpan(
                                             children: [
@@ -280,15 +278,17 @@ class _MockResultScreenState extends State<MockResultScreen>
                                                     .toStringAsFixed(1),
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 32,
-                                                  fontWeight: FontWeight.w800,
+                                                  fontWeight:
+                                                      FontWeight.w800,
                                                   color: textColor,
                                                 ),
                                               ),
                                               TextSpan(
-                                                text: ' / 400',
+                                                text: ' / $_totalMaxMarks',
                                                 style: GoogleFonts.poppins(
                                                   fontSize: 18,
-                                                  fontWeight: FontWeight.w600,
+                                                  fontWeight:
+                                                      FontWeight.w600,
                                                   color: subtextColor,
                                                 ),
                                               ),
@@ -329,8 +329,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(10),
                                   child: LinearProgressIndicator(
-                                    value: _totalJambScore / 400,
-                                    backgroundColor: Colors.grey.shade200,
+                                    value: _totalJambScore / _totalMaxMarks,
+                                    backgroundColor: theme.dividerColor.withValues(alpha: 0.45),
                                     valueColor:
                                         AlwaysStoppedAnimation<Color>(
                                             _getGradeColor()),
@@ -354,16 +354,15 @@ class _MockResultScreenState extends State<MockResultScreen>
                           ),
                           const SizedBox(height: 12),
 
-                          // Per-subject breakdown — shows scaled marks
                           ...widget.rawScores.entries.map((entry) {
                             final subject = entry.key;
                             final rawScore = entry.value;
                             final total = widget.totals[subject] ?? 0;
                             final scaled =
                                 widget.scaledScores[subject] ?? 0.0;
-                            final max = widget.maxMarks[subject] ?? 80;
-                            final subjectPercentage =
-                                total > 0 ? (rawScore / total) * 100 : 0.0;
+                            final subjectPercentage = total > 0
+                                ? (rawScore / total) * 100
+                                : 0.0;
 
                             return Container(
                               margin: const EdgeInsets.only(bottom: 12),
@@ -373,8 +372,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black
-                                        .withValues(alpha: 0.03),
+                                    color: theme.shadowColor
+                                        .withValues(alpha: 0.14),
                                     blurRadius: 10,
                                     offset: const Offset(0, 2),
                                   ),
@@ -398,13 +397,13 @@ class _MockResultScreenState extends State<MockResultScreen>
                                           ),
                                         ),
                                       ),
-                                      // Scaled JAMB marks for this subject
                                       Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.end,
                                         children: [
+                                          // Scaled JAMB marks out of 100
                                           Text(
-                                            '${scaled.toStringAsFixed(1)} / $max',
+                                            '${scaled.toStringAsFixed(1)} / $_maxMarksPerSubject',
                                             style: GoogleFonts.poppins(
                                               fontSize: 15,
                                               fontWeight: FontWeight.w700,
@@ -433,7 +432,8 @@ class _MockResultScreenState extends State<MockResultScreen>
                                             value:
                                                 subjectPercentage / 100,
                                             backgroundColor:
-                                                Colors.grey.shade200,
+                                                theme.dividerColor
+                                                    .withValues(alpha: 0.45),
                                             valueColor:
                                                 AlwaysStoppedAnimation<
                                                     Color>(_accentGreen),

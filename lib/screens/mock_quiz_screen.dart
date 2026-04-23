@@ -3,8 +3,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import '../../provider/theme_provider.dart';
 import '../../models/question_model.dart';
 import 'mock_result_screen.dart';
 
@@ -32,31 +30,15 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
   final Map<String, Map<int, int>> _selectedAnswers = {};
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF014104);
   static const List<String> _optionLabels = ['A', 'B', 'C', 'D'];
 
-  // ── JAMB scoring weights ─────────────────────────────────────────────────
-  // Use of English: 60 questions → 160 marks (each correct = 160/60 ≈ 2.667)
-  // Other subjects: 40 questions → 80 marks each (each correct = 80/40 = 2.0)
-  // Total = 160 + 80 + 80 + 80 = 400 marks
-  static const int _useOfEnglishMaxMarks = 160;
-  static const int _otherSubjectMaxMarks = 80;
-
-  /// Returns the max JAMB marks for a subject based on its question count.
-  /// Use of English has 60 questions → 160 marks.
-  /// All other subjects have 40 questions → 80 marks.
-  int _maxMarksForSubject(String subject) {
-    final questionCount = widget.subjectQuestions[subject]?.length ?? 0;
-    return questionCount == 60 ? _useOfEnglishMaxMarks : _otherSubjectMaxMarks;
-  }
-
-  /// Converts raw correct count to scaled JAMB marks for a subject.
-  /// e.g. 45/60 correct for Use of English = (45/60) × 160 = 120 marks
-  double _scaledScore(String subject, int correctCount) {
-    final total = widget.subjectQuestions[subject]?.length ?? 1;
-    final maxMarks = _maxMarksForSubject(subject);
-    return (correctCount / total) * maxMarks;
-  }
+  // ── JAMB scoring ─────────────────────────────────────────────────────────
+  // All 4 subjects are equal: each worth 100 marks out of 400 total.
+  // Formula: score = correctAnswers × 2.5
+  // Use of English: 60 questions × 2.5 = 100 max
+  // Other subjects: 40 questions × 2.5 = 100 max
+  static const double _marksPerCorrectAnswer = 2.5;
+  static const int _maxMarksPerSubject = 100;
 
   @override
   void initState() {
@@ -132,12 +114,12 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
   void _submitExam() {
     _timer.cancel();
 
-    // Raw correct counts — used for subject breakdown display
+    // Raw correct counts per subject
     final Map<String, int> rawScores = {};
-    // Scaled JAMB marks — used for total out of 400
+    // JAMB scaled scores per subject (correct × 2.5, max 100)
     final Map<String, double> scaledScores = {};
+    // Question counts per subject
     final Map<String, int> totals = {};
-    final Map<String, int> maxMarks = {};
 
     widget.subjectQuestions.forEach((subject, questions) {
       int correct = 0;
@@ -148,9 +130,10 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
         }
       }
       rawScores[subject] = correct;
-      scaledScores[subject] = _scaledScore(subject, correct);
+      // Each correct answer = 2.5 marks, max 100 per subject
+      scaledScores[subject] =
+          (correct * _marksPerCorrectAnswer).clamp(0, _maxMarksPerSubject.toDouble());
       totals[subject] = questions.length;
-      maxMarks[subject] = _maxMarksForSubject(subject);
     });
 
     Navigator.of(context).pushReplacement(
@@ -159,7 +142,6 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
           rawScores: rawScores,
           scaledScores: scaledScores,
           totals: totals,
-          maxMarks: maxMarks,
           subjectQuestions: widget.subjectQuestions,
           selectedAnswers: _selectedAnswers,
         ),
@@ -171,11 +153,11 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: Colors.transparent,
+        backgroundColor: Colors.transparent,
       builder: (context) => Container(
         height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: Column(
@@ -185,7 +167,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey.shade300,
+                color: Theme.of(context).dividerColor,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -195,7 +177,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               style: GoogleFonts.poppins(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: _darkGreen,
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 20),
@@ -215,7 +197,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                         style: GoogleFonts.poppins(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: _darkGreen,
+                          color: Theme.of(context).colorScheme.onSurface,
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -232,9 +214,9 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                         itemBuilder: (context, qIndex) {
                           final isAnswered =
                               _selectedAnswers[subject]!.containsKey(qIndex);
-                          final isCurrent = subjectIndex ==
-                                  _currentSubjectIndex &&
-                              qIndex == _currentQuestionIndex;
+                          final isCurrent =
+                              subjectIndex == _currentSubjectIndex &&
+                                  qIndex == _currentQuestionIndex;
 
                           return GestureDetector(
                             onTap: () =>
@@ -245,11 +227,13 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                     ? _accentGreen
                                     : isAnswered
                                         ? Colors.green.shade100
-                                        : Colors.grey.shade200,
+                                        : Theme.of(context)
+                                            .dividerColor
+                                            .withValues(alpha: 0.45),
                                 borderRadius: BorderRadius.circular(8),
                                 border: Border.all(
                                   color: isCurrent
-                                      ? _darkGreen
+                                      ? Theme.of(context).colorScheme.onSurface
                                       : Colors.transparent,
                                   width: 2,
                                 ),
@@ -263,8 +247,13 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                     color: isCurrent
                                         ? Colors.white
                                         : isAnswered
-                                            ? _darkGreen
-                                            : Colors.grey.shade600,
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface
+                                                .withValues(alpha: 0.6),
                                   ),
                                 ),
                               ),
@@ -322,11 +311,11 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.16),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -342,14 +331,19 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
   Widget _imageFallback() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.grey.shade100,
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.broken_image, color: Colors.grey.shade400),
+          Icon(
+            Icons.broken_image,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
           const SizedBox(width: 8),
           Text('Image not available',
-              style: GoogleFonts.poppins(color: Colors.grey.shade400)),
+              style: GoogleFonts.poppins(
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              )),
         ],
       ),
     );
@@ -380,8 +374,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16)),
             title: Text('Exit Mock Exam?',
-                style:
-                    GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
             content: Text(
               'Your progress will be lost. Are you sure?',
               style: GoogleFonts.poppins(),
@@ -390,7 +383,11 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
                 child: Text('Cancel',
-                    style: TextStyle(color: Colors.grey.shade600)),
+                    style: TextStyle(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.7))),
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context, true),
@@ -408,14 +405,12 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
         }
       },
       child: Builder(builder: (context) {
-        final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-        final bgColor =
-            isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
-        final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-        final textColor =
-            isDark ? Colors.white : const Color(0xFF014104);
-        final subtextColor =
-            isDark ? Colors.white60 : Colors.grey.shade600;
+        final theme = Theme.of(context);
+        final isDark = theme.brightness == Brightness.dark;
+        final bgColor = theme.scaffoldBackgroundColor;
+        final cardColor = theme.cardColor;
+        final textColor = theme.colorScheme.onSurface;
+        final subtextColor = textColor.withValues(alpha: 0.6);
 
         return Scaffold(
           backgroundColor: bgColor,
@@ -429,8 +424,8 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                     color: cardColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black
-                            .withValues(alpha: isDark ? 0.25 : 0.05),
+                        color: theme.shadowColor
+                            .withValues(alpha: isDark ? 0.25 : 0.16),
                         blurRadius: 10,
                         offset: const Offset(0, 2),
                       ),
@@ -439,7 +434,8 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                   child: Column(
                     children: [
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment:
+                            MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             'Mock Exam',
@@ -473,9 +469,9 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                   style: GoogleFonts.poppins(
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
-                                    color: _secondsRemaining < 600
-                                        ? Colors.red.shade700
-                                        : _darkGreen,
+                              color: _secondsRemaining < 600
+                                  ? Colors.red.shade700
+                                      : textColor,
                                   ),
                                 ),
                               ],
@@ -491,7 +487,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                               '${_getTotalAnswered()} / $totalQuestions answered',
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: Colors.grey.shade600,
+                                color: subtextColor,
                               ),
                             ),
                           ),
@@ -540,7 +536,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                           decoration: BoxDecoration(
                             color: isActive
                                 ? _accentGreen
-                                : Colors.grey.shade100,
+                                : theme.dividerColor.withValues(alpha: 0.45),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Column(
@@ -564,7 +560,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                   color: isActive
                                       ? Colors.white
                                           .withValues(alpha: 0.9)
-                                      : Colors.grey.shade600,
+                                      : subtextColor,
                                 ),
                               ),
                             ],
@@ -636,9 +632,7 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                 border: Border.all(
                                   color: isSelected
                                       ? _accentGreen
-                                      : (isDark
-                                          ? Colors.white12
-                                          : Colors.grey.shade200),
+                                      : theme.dividerColor,
                                   width: isSelected ? 2 : 1,
                                 ),
                               ),
@@ -652,15 +646,14 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                                           ? _accentGreen
                                           : (isDark
                                               ? Colors.white10
-                                              : Colors.grey.shade100),
+                                              : theme.dividerColor.withValues(alpha: 0.45)),
                                       shape: BoxShape.circle,
                                     ),
                                     child: Center(
                                       child: Text(
                                         optionIndex <
                                                 _optionLabels.length
-                                            ? _optionLabels[
-                                                optionIndex]
+                                            ? _optionLabels[optionIndex]
                                             : '${optionIndex + 1}',
                                         style: GoogleFonts.poppins(
                                           fontSize: 14,
@@ -700,8 +693,8 @@ class _MockQuizScreenState extends State<MockQuizScreen> {
                     color: cardColor,
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black
-                            .withValues(alpha: isDark ? 0.25 : 0.05),
+                        color: theme.shadowColor
+                            .withValues(alpha: isDark ? 0.25 : 0.16),
                         blurRadius: 10,
                         offset: const Offset(0, -2),
                       ),

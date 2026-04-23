@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:prep_ng/screens/quiz/quiz_loading_screen.dart';
-import '../provider/theme_provider.dart';
 import '../services/purchase_service.dart';
 import '../services/connectivity_service.dart';
 import '../utils/snackbar_util.dart';
@@ -204,14 +202,13 @@ class _SubjectListScreenState extends State<SubjectListScreen>
       return;
     }
 
-    final isDark =
-        Provider.of<ThemeProvider>(context, listen: false).isDarkMode;
-    final cardColor =
-        isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor =
-        isDark ? Colors.white : const Color(0xFF1A2E1F);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final cardColor = theme.dialogTheme.backgroundColor ?? theme.cardColor;
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     final fieldFill =
-        isDark ? const Color(0xFF252E2C) : const Color(0xFFF5FAF6);
+        theme.inputDecorationTheme.fillColor ?? theme.scaffoldBackgroundColor;
 
     showDialog(
       context: context,
@@ -247,9 +244,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                 'Get full access to all practice questions for $subjectName for a one-time fee.',
                 style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: isDark
-                        ? Colors.white60
-                        : Colors.grey.shade500,
+                    color: subtextColor,
                     height: 1.5),
               ),
               const SizedBox(height: 20),
@@ -268,9 +263,7 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                     Text('One-time payment',
                         style: GoogleFonts.poppins(
                             fontSize: 13,
-                            color: isDark
-                                ? Colors.white60
-                                : Colors.grey.shade600)),
+                            color: subtextColor)),
                     const Spacer(),
                     Text('₦500',
                         style: GoogleFonts.poppins(
@@ -291,16 +284,14 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                         decoration: BoxDecoration(
                           color: isDark
                               ? Colors.white12
-                              : Colors.grey.shade100,
+                              : theme.dividerColor.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Center(
                           child: Text('Cancel',
                               style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
-                                  color: isDark
-                                      ? Colors.white60
-                                      : Colors.grey.shade600)),
+                                  color: subtextColor)),
                         ),
                       ),
                     ),
@@ -425,15 +416,12 @@ class _SubjectListScreenState extends State<SubjectListScreen>
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor =
-        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
-    final cardColor =
-        isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor =
-        isDark ? Colors.white : const Color(0xFF1A2E1F);
-    final subtextColor =
-        isDark ? Colors.white60 : Colors.grey.shade500;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -577,9 +565,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                       BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black.withValues(
-                                          alpha:
-                                              isDark ? 0.25 : 0.05),
+                                      color: theme.shadowColor.withValues(
+                                          alpha: isDark ? 0.26 : 0.16),
                                       blurRadius: 12,
                                       offset: const Offset(0, 4),
                                     ),
@@ -595,9 +582,10 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                             ? _accentGreen
                                                 .withValues(alpha: 0.1)
                                             : (isDark
-                                                ? Colors.white10
-                                                : Colors
-                                                    .grey.shade100),
+                                                ? theme.dividerColor
+                                                    .withValues(alpha: 0.5)
+                                                : theme.dividerColor
+                                                    .withValues(alpha: 0.45)),
                                         borderRadius:
                                             BorderRadius.circular(14),
                                       ),
@@ -606,9 +594,8 @@ class _SubjectListScreenState extends State<SubjectListScreen>
                                         color: hasAccess
                                             ? _accentGreen
                                             : (isDark
-                                                ? Colors.white38
-                                                : Colors
-                                                    .grey.shade400),
+                                                ? Colors.white54
+                                                : subtextColor),
                                         size: 22,
                                       ),
                                     ),

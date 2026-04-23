@@ -22,9 +22,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
   late AnimationController _animController;
   late Animation<double> _fadeAnimation;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   @override
   void initState() {
@@ -60,11 +58,14 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
   }
 
   Future<void> _showClearDialog() async {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     final bool? confirm = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        backgroundColor: theme.dialogTheme.backgroundColor ?? theme.cardColor,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -85,12 +86,12 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                   style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: _darkGreen)),
+                      color: textColor)),
               const SizedBox(height: 8),
               Text(
                 'This will permanently delete all your quiz records. This cannot be undone.',
                 style: GoogleFonts.poppins(
-                    fontSize: 13, color: Colors.grey.shade500, height: 1.5),
+                    fontSize: 13, color: subtextColor, height: 1.5),
               ),
               const SizedBox(height: 24),
               Row(
@@ -101,14 +102,14 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: theme.dividerColor.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Center(
                           child: Text('Cancel',
                               style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade600)),
+                                  color: subtextColor)),
                         ),
                       ),
                     ),
@@ -156,7 +157,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
         child: Container(
           padding: const EdgeInsets.all(28),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(20),
           ),
           child: CircularProgressIndicator(
@@ -176,7 +177,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
             hadData ? 'History cleared' : 'No history to clear',
             style: GoogleFonts.poppins(color: Colors.white),
           ),
-          backgroundColor: hadData ? _accentGreen : Colors.grey.shade600,
+          backgroundColor: hadData ? _accentGreen : subtextColor,
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           shape: RoundedRectangleBorder(
@@ -203,8 +204,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           Container(
@@ -568,11 +570,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Theme.of(context).cardColor,
                     borderRadius: BorderRadius.circular(18),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.05),
+                        color: Theme.of(context).shadowColor.withValues(alpha: 0.16),
                         blurRadius: 12,
                         offset: const Offset(0, 4),
                       ),
@@ -592,7 +594,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                 children: [
                                   CircularProgressIndicator(
                                     value: percentage / 100,
-                                    backgroundColor: Colors.grey.shade100,
+                                    backgroundColor: Theme.of(context)
+                                        .dividerColor
+                                        .withValues(alpha: 0.45),
                                     valueColor:
                                         AlwaysStoppedAnimation<Color>(color),
                                     strokeWidth: 5,
@@ -602,7 +606,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 10,
-                                      color: _darkGreen,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                 ],
@@ -618,7 +622,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                     style: GoogleFonts.poppins(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 15,
-                                      color: _darkGreen,
+                                      color: Theme.of(context).colorScheme.onSurface,
                                     ),
                                   ),
                                   const SizedBox(height: 2),
@@ -626,7 +630,10 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                     DateFormat('MMM dd, yyyy • hh:mm a')
                                         .format(date),
                                     style: GoogleFonts.poppins(
-                                      color: Colors.grey.shade400,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSurface
+                                          .withValues(alpha: 0.6),
                                       fontSize: 11,
                                     ),
                                   ),
@@ -669,7 +676,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                       if (breakdown.isNotEmpty) ...[
                         Divider(
                             height: 1,
-                            color: Colors.grey.shade100,
+                            color: Theme.of(context)
+                                .dividerColor
+                                .withValues(alpha: 0.45),
                             indent: 16),
                         Padding(
                           padding:
@@ -706,7 +715,10 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                         style: GoogleFonts.poppins(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.grey.shade600,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withValues(alpha: 0.7),
                                         ),
                                         overflow: TextOverflow.ellipsis,
                                       ),
@@ -720,7 +732,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                                         child: LinearProgressIndicator(
                                           value: subjectPercent / 100,
                                           backgroundColor:
-                                              Colors.grey.shade100,
+                                              Theme.of(context)
+                                                  .dividerColor
+                                                  .withValues(alpha: 0.45),
                                           valueColor:
                                               AlwaysStoppedAnimation<
                                                   Color>(subjectColor),
@@ -773,11 +787,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.16),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -793,7 +807,8 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
               children: [
                 CircularProgressIndicator(
                   value: scorePercent / 100,
-                  backgroundColor: Colors.grey.shade100,
+                  backgroundColor:
+                      Theme.of(context).dividerColor.withValues(alpha: 0.45),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                   strokeWidth: 5,
                 ),
@@ -802,7 +817,7 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w800,
                     fontSize: 10,
-                    color: _darkGreen,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
               ],
@@ -818,14 +833,17 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                   style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
-                    color: _darkGreen,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   DateFormat('MMM dd, yyyy • hh:mm a').format(date),
                   style: GoogleFonts.poppins(
-                    color: Colors.grey.shade400,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
                     fontSize: 11,
                   ),
                 ),
@@ -895,7 +913,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
       builder: (dialogContext) => Dialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        backgroundColor:
+            Theme.of(dialogContext).dialogTheme.backgroundColor ??
+                Theme.of(dialogContext).cardColor,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -915,13 +935,16 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                   style: GoogleFonts.poppins(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
-                      color: _darkGreen)),
+                      color: Theme.of(dialogContext).colorScheme.onSurface)),
               const SizedBox(height: 8),
               Text(
                   'Remove this $subject result? This cannot be undone.',
                   style: GoogleFonts.poppins(
                       fontSize: 13,
-                      color: Colors.grey.shade500,
+                      color: Theme.of(dialogContext)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.6),
                       height: 1.5)),
               const SizedBox(height: 24),
               Row(
@@ -932,13 +955,18 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
+                            color: Theme.of(dialogContext)
+                                .dividerColor
+                                .withValues(alpha: 0.5),
                             borderRadius: BorderRadius.circular(14)),
                         child: Center(
                           child: Text('Cancel',
                               style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade600)),
+                                  color: Theme.of(dialogContext)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6))),
                         ),
                       ),
                     ),
@@ -982,6 +1010,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
     required String title,
     required String subtitle,
   }) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -1002,11 +1033,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                 style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w700,
                     fontSize: 18,
-                    color: _darkGreen)),
+                    color: textColor)),
             const SizedBox(height: 8),
             Text(subtitle,
                 style: GoogleFonts.poppins(
-                    color: Colors.grey.shade400,
+                    color: subtextColor,
                     fontSize: 13,
                     height: 1.6),
                 textAlign: TextAlign.center),
@@ -1017,6 +1048,9 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
   }
 
   Widget _buildErrorState() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -1035,11 +1069,11 @@ class _ProgressHistoryScreenState extends State<ProgressHistoryScreen>
                 style: GoogleFonts.poppins(
                     fontWeight: FontWeight.w700,
                     fontSize: 17,
-                    color: _darkGreen)),
+                    color: textColor)),
             const SizedBox(height: 8),
             Text('Please check your connection and try again',
                 style: GoogleFonts.poppins(
-                    color: Colors.grey.shade500, fontSize: 13),
+                    color: subtextColor, fontSize: 13),
                 textAlign: TextAlign.center),
             const SizedBox(height: 24),
             GestureDetector(

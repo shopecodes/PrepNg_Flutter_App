@@ -33,9 +33,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   bool _neverBeenOnline = false;
   bool _isRefreshing = false;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   @override
   void initState() {
@@ -195,8 +193,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildHeader(),
@@ -399,6 +398,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
 
   // ── Never been online — first time offline ─────────────────────
   Widget _buildNeverOnline() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -421,7 +423,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
               style: GoogleFonts.poppins(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
-                  color: _darkGreen),
+                  color: textColor),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
@@ -431,7 +433,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.grey.shade500,
+                  color: subtextColor,
                   height: 1.6),
             ),
             const SizedBox(height: 24),
@@ -457,6 +459,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   }
 
   Widget _buildError() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -470,14 +475,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
-                    color: _darkGreen)),
+                    color: textColor)),
             const SizedBox(height: 10),
             Text(
               'Check your internet and try again.',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: Colors.grey.shade500,
+                  color: subtextColor,
                   height: 1.5),
             ),
             const SizedBox(height: 24),
@@ -503,6 +508,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
   }
 
   Widget _buildEmpty() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -525,14 +533,14 @@ class _LeaderboardScreenState extends State<LeaderboardScreen>
                 style: GoogleFonts.poppins(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: _darkGreen)),
+                    color: textColor)),
             const SizedBox(height: 10),
             Text(
               'Complete quizzes this week to\nappear on the leaderboard.',
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: Colors.grey.shade500,
+                  color: subtextColor,
                   height: 1.5),
             ),
           ],
@@ -590,16 +598,18 @@ class _TopThreeCard extends StatelessWidget {
     required this.departmentEmoji,
   });
 
-  static const Color _darkGreen = Color(0xFF1A2E1F);
   static const Color _accentGreen = Color(0xFF4CAF7D);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         border: isMe
             ? Border.all(color: _accentGreen, width: 2)
@@ -640,7 +650,7 @@ class _TopThreeCard extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
-                        color: _darkGreen,
+                        color: textColor,
                       ),
                     ),
                     if (isMe) ...[
@@ -669,7 +679,7 @@ class _TopThreeCard extends StatelessWidget {
                   '$departmentEmoji ${entry.department}  ·  ${entry.quizzesTaken} quiz${entry.quizzesTaken == 1 ? '' : 'zes'}',
                   style: GoogleFonts.poppins(
                     fontSize: 12,
-                    color: Colors.grey.shade500,
+                    color: subtextColor,
                   ),
                 ),
               ],
@@ -683,13 +693,13 @@ class _TopThreeCard extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 22,
                   fontWeight: FontWeight.w900,
-                  color: _darkGreen,
+                  color: textColor,
                 ),
               ),
               Text(
                 'pts',
                 style: GoogleFonts.poppins(
-                    fontSize: 11, color: Colors.grey.shade400),
+                    fontSize: 11, color: subtextColor),
               ),
             ],
           ),
@@ -711,26 +721,28 @@ class _LeaderboardRow extends StatelessWidget {
     required this.departmentEmoji,
   });
 
-  static const Color _darkGreen = Color(0xFF1A2E1F);
   static const Color _accentGreen = Color(0xFF4CAF7D);
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: isMe ? _accentGreen.withValues(alpha: 0.06) : Colors.white,
+        color: isMe ? _accentGreen.withValues(alpha: 0.06) : theme.cardColor,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isMe
               ? _accentGreen.withValues(alpha: 0.3)
-              : Colors.grey.shade100,
+              : theme.dividerColor,
           width: isMe ? 1.5 : 1,
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: theme.shadowColor.withValues(alpha: 0.18),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -745,7 +757,7 @@ class _LeaderboardRow extends StatelessWidget {
               style: GoogleFonts.poppins(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
-                color: Colors.grey.shade400,
+                color: subtextColor,
               ),
             ),
           ),
@@ -756,7 +768,7 @@ class _LeaderboardRow extends StatelessWidget {
             decoration: BoxDecoration(
               color: isMe
                   ? _accentGreen.withValues(alpha: 0.15)
-                  : Colors.grey.shade100,
+                  : theme.dividerColor.withValues(alpha: 0.45),
               shape: BoxShape.circle,
             ),
             child: Center(
@@ -767,7 +779,7 @@ class _LeaderboardRow extends StatelessWidget {
                 style: GoogleFonts.poppins(
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
-                  color: isMe ? _accentGreen : Colors.grey.shade500,
+                  color: isMe ? _accentGreen : subtextColor,
                 ),
               ),
             ),
@@ -784,7 +796,7 @@ class _LeaderboardRow extends StatelessWidget {
                       style: GoogleFonts.poppins(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: _darkGreen,
+                        color: textColor,
                       ),
                     ),
                     if (isMe) ...[
@@ -811,7 +823,7 @@ class _LeaderboardRow extends StatelessWidget {
                 Text(
                   '$departmentEmoji  ${entry.quizzesTaken} quiz${entry.quizzesTaken == 1 ? '' : 'zes'}',
                   style: GoogleFonts.poppins(
-                      fontSize: 11, color: Colors.grey.shade400),
+                      fontSize: 11, color: subtextColor),
                 ),
               ],
             ),
@@ -821,7 +833,7 @@ class _LeaderboardRow extends StatelessWidget {
             style: GoogleFonts.poppins(
               fontSize: 14,
               fontWeight: FontWeight.w800,
-              color: isMe ? _accentGreen : _darkGreen,
+              color: isMe ? _accentGreen : textColor,
             ),
           ),
         ],

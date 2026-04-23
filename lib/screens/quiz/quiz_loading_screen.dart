@@ -38,9 +38,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
   late Animation<double> _pulseAnimation;
   late Animation<double> _fadeAnimation;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   List<Color> get _scopeGradient {
     final name = widget.scopeName.toUpperCase();
@@ -49,7 +47,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
     } else if (name.contains('WAEC')) {
       return [const Color(0xFF3A86FF), const Color(0xFF1A5CCC)];
     }
-    return [_accentGreen, _darkGreen];
+    return [_accentGreen, const Color(0xFF1A2E1F)];
   }
 
   @override
@@ -173,7 +171,8 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
       builder: (context) => Dialog(
         shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(24)),
-        backgroundColor: Colors.white,
+        backgroundColor: Theme.of(context).dialogTheme.backgroundColor ??
+            Theme.of(context).cardColor,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
@@ -195,14 +194,17 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                 style: GoogleFonts.poppins(
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
-                    color: _darkGreen),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
               Text(
                 '${widget.scopeName} needs ${widget.questionsPerQuiz} questions, but only $availableQuestions are available for ${widget.subjectName}.\n\nWould you like to practice with what\'s available?',
                 style: GoogleFonts.poppins(
                     fontSize: 13,
-                    color: Colors.grey.shade500,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.6),
                     height: 1.5),
               ),
               const SizedBox(height: 24),
@@ -217,14 +219,19 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                       child: Container(
                         height: 48,
                         decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
+                          color: Theme.of(context)
+                              .dividerColor
+                              .withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Center(
                           child: Text('Cancel',
                               style: GoogleFonts.poppins(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade600)),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6))),
                         ),
                       ),
                     ),
@@ -304,8 +311,11 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: SafeArea(
@@ -369,7 +379,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                   style: GoogleFonts.poppins(
                     fontSize: 26,
                     fontWeight: FontWeight.w800,
-                    color: _darkGreen,
+                    color: textColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -380,7 +390,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                   'Getting your exam ready...',
                   style: GoogleFonts.poppins(
                     fontSize: 14,
-                    color: Colors.grey.shade500,
+                    color: subtextColor,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -425,7 +435,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
                       'Fetching questions from database...',
                       style: GoogleFonts.poppins(
                         fontSize: 12,
-                        color: Colors.grey.shade400,
+                        color: subtextColor,
                       ),
                     ),
                   ],
@@ -445,11 +455,11 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
       padding:
           const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.16),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -465,7 +475,7 @@ class _QuizLoadingScreenState extends State<QuizLoadingScreen>
             style: GoogleFonts.poppins(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: _darkGreen,
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],

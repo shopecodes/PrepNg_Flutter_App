@@ -6,8 +6,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../models/question_model.dart';
-import 'package:provider/provider.dart';
-import '../../provider/theme_provider.dart';
 import '../../services/connectivity_service.dart';
 import 'mock_quiz_screen.dart';
 
@@ -417,11 +415,11 @@ class _MockSubjectSelectionScreenState
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Provider.of<ThemeProvider>(context).isDarkMode;
-    final bgColor =
-        isDark ? const Color(0xFF121817) : const Color(0xFFF5FAF6);
-    final cardColor = isDark ? const Color(0xFF1E2625) : Colors.white;
-    final textColor = isDark ? Colors.white : const Color(0xFF1A2E1F);
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final bgColor = theme.scaffoldBackgroundColor;
+    final cardColor = theme.cardColor;
+    final textColor = theme.colorScheme.onSurface;
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -549,6 +547,7 @@ class _MockSubjectSelectionScreenState
   }
 
   Widget _buildError({bool isDark = false}) {
+    final textColor = Theme.of(context).colorScheme.onSurface;
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -562,7 +561,7 @@ class _MockSubjectSelectionScreenState
               textAlign: TextAlign.center,
               style: GoogleFonts.poppins(
                   fontSize: 13,
-                  color: isDark ? Colors.white60 : Colors.grey.shade600,
+                  color: textColor.withValues(alpha: 0.6),
                   height: 1.5),
             ),
             const SizedBox(height: 24),
@@ -663,6 +662,7 @@ class _MockSubjectSelectionScreenState
     Color cardColor = Colors.white,
     Color textColor = const Color(0xFF1A2E1F),
   }) {
+    final theme = Theme.of(context);
     final bool isLocked = !isUnlocked && !isMandatory;
 
     return GestureDetector(
@@ -678,15 +678,15 @@ class _MockSubjectSelectionScreenState
               : isLocked
                   ? (isDark
                       ? Colors.white.withValues(alpha: 0.03)
-                      : Colors.grey.shade50)
+                      : theme.dividerColor.withValues(alpha: 0.3))
                   : cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isSelected
                 ? _accentGreen.withValues(alpha: 0.5)
                 : isLocked
-                    ? (isDark ? Colors.white12 : Colors.grey.shade200)
-                    : (isDark ? Colors.white12 : Colors.grey.shade200),
+                    ? theme.dividerColor.withValues(alpha: isDark ? 0.4 : 0.8)
+                    : theme.dividerColor.withValues(alpha: isDark ? 0.4 : 0.8),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isLocked
@@ -710,8 +710,8 @@ class _MockSubjectSelectionScreenState
                     : isLocked
                         ? (isDark
                             ? Colors.white.withValues(alpha: 0.05)
-                            : Colors.grey.shade100)
-                        : Colors.grey.shade100,
+                            : theme.dividerColor.withValues(alpha: 0.45))
+                        : theme.dividerColor.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Center(
@@ -719,7 +719,9 @@ class _MockSubjectSelectionScreenState
                   icon,
                   style: TextStyle(
                     fontSize: 20,
-                    color: isLocked ? Colors.grey.shade400 : null,
+                    color: isLocked
+                        ? theme.colorScheme.onSurface.withValues(alpha: 0.45)
+                        : null,
                   ),
                 ),
               ),
@@ -738,11 +740,11 @@ class _MockSubjectSelectionScreenState
                       color: isLocked
                           ? (isDark
                               ? Colors.white30
-                              : Colors.grey.shade400)
+                              : textColor.withValues(alpha: 0.45))
                           : isDisabled
                               ? (isDark
                                   ? Colors.white30
-                                  : Colors.grey.shade400)
+                                  : textColor.withValues(alpha: 0.45))
                               : textColor,
                     ),
                   ),
@@ -754,7 +756,7 @@ class _MockSubjectSelectionScreenState
                         fontSize: 11,
                         color: isDark
                             ? Colors.white24
-                            : Colors.grey.shade400,
+                            : textColor.withValues(alpha: 0.45),
                       ),
                     ),
                   ],
@@ -809,7 +811,7 @@ class _MockSubjectSelectionScreenState
                   border: Border.all(
                       color: isDark
                           ? Colors.white24
-                          : Colors.grey.shade300,
+                          : theme.dividerColor.withValues(alpha: 0.85),
                       width: 2),
                   shape: BoxShape.circle,
                 ),
@@ -824,14 +826,15 @@ class _MockSubjectSelectionScreenState
     bool isDark = false,
     Color cardColor = Colors.white,
   }) {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
       decoration: BoxDecoration(
         color: cardColor,
         boxShadow: [
           BoxShadow(
-            color:
-                Colors.black.withValues(alpha: isDark ? 0.3 : 0.06),
+            color: theme.shadowColor.withValues(alpha: isDark ? 0.3 : 0.18),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -848,7 +851,7 @@ class _MockSubjectSelectionScreenState
                     colors: [Color(0xFF4CAF7D), Color(0xFF2E8B57)],
                   )
                 : null,
-            color: _canStart ? null : Colors.grey.shade300,
+            color: _canStart ? null : theme.dividerColor.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(16),
             boxShadow: _canStart
                 ? [
@@ -875,7 +878,7 @@ class _MockSubjectSelectionScreenState
                         Icons.play_arrow_rounded,
                         color: _canStart
                             ? Colors.white
-                            : Colors.grey.shade500,
+                            : textColor.withValues(alpha: 0.6),
                         size: 22,
                       ),
                       const SizedBox(width: 8),
@@ -888,7 +891,7 @@ class _MockSubjectSelectionScreenState
                           fontWeight: FontWeight.w700,
                           color: _canStart
                               ? Colors.white
-                              : Colors.grey.shade500,
+                              : textColor.withValues(alpha: 0.6),
                         ),
                       ),
                     ],

@@ -33,9 +33,7 @@ class _QuizScreenState extends State<QuizScreen>
 
   StreamSubscription<Set<String>>? _bookmarkSubscription;
 
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   void _navigateToResults(QuizProvider provider) {
     Navigator.of(context).pushReplacement(
@@ -147,11 +145,11 @@ class _QuizScreenState extends State<QuizScreen>
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.16),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -167,15 +165,20 @@ class _QuizScreenState extends State<QuizScreen>
   Widget _imageFallback() {
     return Container(
       padding: const EdgeInsets.all(16),
-      color: Colors.grey.shade100,
+      color: Theme.of(context).dividerColor.withValues(alpha: 0.45),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.broken_image, color: Colors.grey.shade400),
+          Icon(
+            Icons.broken_image,
+            color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+          ),
           const SizedBox(width: 8),
           Text(
             'Image not available',
-            style: GoogleFonts.poppins(color: Colors.grey.shade400),
+            style: GoogleFonts.poppins(
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ),
         ],
       ),
@@ -192,9 +195,9 @@ class _QuizScreenState extends State<QuizScreen>
               quizProvider.onQuizFinished!();
             }
           });
-          return const Scaffold(
-            backgroundColor: Color(0xFFF5FAF6),
-            body: Center(
+          return Scaffold(
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+            body: const Center(
                 child: CircularProgressIndicator(
                     color: Color(0xFF4CAF7D))),
           );
@@ -225,7 +228,7 @@ class _QuizScreenState extends State<QuizScreen>
         return PopScope(
           canPop: false,
           child: Scaffold(
-            backgroundColor: _bgColor,
+            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
             body: SafeArea(
               child: Column(
                 children: [
@@ -240,7 +243,7 @@ class _QuizScreenState extends State<QuizScreen>
                             style: GoogleFonts.poppins(
                               fontSize: 16,
                               fontWeight: FontWeight.w700,
-                              color: _darkGreen,
+                              color: Theme.of(context).colorScheme.onSurface,
                             ),
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -257,17 +260,17 @@ class _QuizScreenState extends State<QuizScreen>
                             decoration: BoxDecoration(
                               color: isBookmarked
                                   ? _accentGreen.withValues(alpha: 0.12)
-                                  : Colors.white,
+                                  : Theme.of(context).cardColor,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: isBookmarked
                                     ? _accentGreen.withValues(alpha: 0.4)
-                                    : Colors.grey.shade200,
+                                    : Theme.of(context).dividerColor,
                                 width: 1.5,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.04),
+                                  color: Theme.of(context).shadowColor.withValues(alpha: 0.14),
                                   blurRadius: 8,
                                   offset: const Offset(0, 2),
                                 ),
@@ -288,7 +291,10 @@ class _QuizScreenState extends State<QuizScreen>
                                     size: 20,
                                     color: isBookmarked
                                         ? _accentGreen
-                                        : Colors.grey.shade400,
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface
+                                            .withValues(alpha: 0.6),
                                   ),
                           ),
                         ),
@@ -348,7 +354,10 @@ class _QuizScreenState extends State<QuizScreen>
                               '${quizProvider.currentQuestionIndex + 1} / ${quizProvider.questions.length}',
                               style: GoogleFonts.poppins(
                                 fontSize: 12,
-                                color: Colors.grey.shade500,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withValues(alpha: 0.6),
                               ),
                             ),
                           ],
@@ -358,7 +367,8 @@ class _QuizScreenState extends State<QuizScreen>
                           borderRadius: BorderRadius.circular(8),
                           child: LinearProgressIndicator(
                             value: progressValue,
-                            backgroundColor: Colors.grey.shade200,
+                            backgroundColor:
+                                Theme.of(context).dividerColor.withValues(alpha: 0.45),
                             valueColor: AlwaysStoppedAnimation<Color>(
                                 _accentGreen),
                             minHeight: 6,
@@ -387,12 +397,13 @@ class _QuizScreenState extends State<QuizScreen>
                                 width: double.infinity,
                                 padding: const EdgeInsets.all(20),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: Theme.of(context).cardColor,
                                   borderRadius: BorderRadius.circular(20),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: Colors.black
-                                          .withValues(alpha: 0.06),
+                                      color: Theme.of(context)
+                                          .shadowColor
+                                          .withValues(alpha: 0.18),
                                       blurRadius: 16,
                                       offset: const Offset(0, 6),
                                     ),
@@ -403,7 +414,7 @@ class _QuizScreenState extends State<QuizScreen>
                                   style: GoogleFonts.poppins(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
-                                    color: _darkGreen,
+                                    color: Theme.of(context).colorScheme.onSurface,
                                     height: 1.5,
                                   ),
                                 ),
@@ -479,8 +490,6 @@ class _OptionTile extends StatelessWidget {
   });
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
-
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -491,10 +500,10 @@ class _OptionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: isSelected
               ? _accentGreen.withValues(alpha: 0.08)
-              : Colors.white,
+              : Theme.of(context).cardColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isSelected ? _accentGreen : Colors.grey.shade200,
+            color: isSelected ? _accentGreen : Theme.of(context).dividerColor,
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
@@ -507,7 +516,7 @@ class _OptionTile extends StatelessWidget {
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.04),
+                    color: Theme.of(context).shadowColor.withValues(alpha: 0.14),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -520,14 +529,21 @@ class _OptionTile extends StatelessWidget {
               width: 32,
               height: 32,
               decoration: BoxDecoration(
-                color: isSelected ? _accentGreen : Colors.grey.shade100,
+                color: isSelected
+                    ? _accentGreen
+                    : Theme.of(context).dividerColor.withValues(alpha: 0.45),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Center(
                 child: Text(
                   String.fromCharCode('A'.codeUnitAt(0) + index),
                   style: GoogleFonts.poppins(
-                    color: isSelected ? Colors.white : Colors.grey.shade500,
+                    color: isSelected
+                        ? Colors.white
+                        : Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withValues(alpha: 0.6),
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
@@ -540,7 +556,12 @@ class _OptionTile extends StatelessWidget {
                 text,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: isSelected ? _darkGreen : Colors.grey.shade700,
+                  color: isSelected
+                      ? Theme.of(context).colorScheme.onSurface
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurface
+                          .withValues(alpha: 0.85),
                   fontWeight:
                       isSelected ? FontWeight.w600 : FontWeight.w400,
                   height: 1.4,
@@ -583,10 +604,10 @@ class _QuizNavigationBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: Theme.of(context).shadowColor.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, -4),
           ),
@@ -602,21 +623,27 @@ class _QuizNavigationBar extends StatelessWidget {
               height: 52,
               decoration: BoxDecoration(
                 color: isFirstQuestion
-                    ? Colors.grey.shade100
-                    : Colors.white,
+                    ? Theme.of(context).dividerColor.withValues(alpha: 0.45)
+                    : Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isFirstQuestion
-                      ? Colors.grey.shade200
-                      : Colors.grey.shade300,
+                      ? Theme.of(context).dividerColor
+                      : Theme.of(context).dividerColor.withValues(alpha: 0.8),
                   width: 1.5,
                 ),
               ),
               child: Icon(
                 Icons.arrow_back_rounded,
                 color: isFirstQuestion
-                    ? Colors.grey.shade300
-                    : Colors.grey.shade600,
+                    ? Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.45)
+                    : Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withValues(alpha: 0.7),
                 size: 22,
               ),
             ),

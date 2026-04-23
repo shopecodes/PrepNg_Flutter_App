@@ -22,10 +22,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
   List<BookmarkedQuestion> _bookmarks = [];
   bool _isLoading = true;
 
-  // Color palette
-  static const Color _bgColor = Color(0xFFF5FAF6);
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
 
   @override
   void initState() {
@@ -84,8 +81,9 @@ class _BookmarksScreenState extends State<BookmarksScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: _bgColor,
+      backgroundColor: theme.scaffoldBackgroundColor,
       body: Column(
         children: [
           _buildHeader(),
@@ -185,6 +183,9 @@ class _BookmarksScreenState extends State<BookmarksScreen>
 
   // ── Empty State ────────────────────────────────────────────────
   Widget _buildEmpty() {
+    final theme = Theme.of(context);
+    final textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     return FadeTransition(
       opacity: _fadeAnimation,
       child: Center(
@@ -212,7 +213,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
                 style: GoogleFonts.poppins(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: _darkGreen,
+                  color: textColor,
                 ),
               ),
               const SizedBox(height: 10),
@@ -221,7 +222,7 @@ class _BookmarksScreenState extends State<BookmarksScreen>
                 textAlign: TextAlign.center,
                 style: GoogleFonts.poppins(
                   fontSize: 14,
-                  color: Colors.grey.shade500,
+                  color: subtextColor,
                   height: 1.5,
                 ),
               ),
@@ -277,21 +278,22 @@ class _BookmarkCardState extends State<_BookmarkCard> {
   int? _selectedOption;
 
   static const Color _accentGreen = Color(0xFF4CAF7D);
-  static const Color _darkGreen = Color(0xFF1A2E1F);
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    var textColor = theme.colorScheme.onSurface;
+    final subtextColor = textColor.withValues(alpha: 0.6);
     final b = widget.bookmark;
     final correctIndex = b.correctAnswerIndex;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.cardColor,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.06),
+            color: theme.shadowColor.withValues(alpha: 0.18),
             blurRadius: 16,
             offset: const Offset(0, 6),
           ),
@@ -355,7 +357,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                           style: GoogleFonts.poppins(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: _darkGreen,
+                            color: textColor,
                             height: 1.4,
                           ),
                           maxLines: _expanded ? null : 2,
@@ -373,7 +375,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                     duration: const Duration(milliseconds: 200),
                     child: Icon(
                       Icons.keyboard_arrow_down_rounded,
-                      color: Colors.grey.shade400,
+                      color: subtextColor,
                       size: 22,
                     ),
                   ),
@@ -399,9 +401,9 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                     final isSelected = i == _selectedOption;
                     final showResult = _selectedOption != null;
 
-                    Color borderColor = Colors.grey.shade200;
-                    Color bgColor = Colors.grey.shade50;
-                    Color textColor = Colors.grey.shade700;
+                    Color borderColor = theme.dividerColor;
+                    Color bgColor = theme.cardColor;
+                    Color optionTextColor = textColor;
                     IconData? trailingIcon;
                     Color? iconColor;
 
@@ -409,7 +411,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                       if (isCorrect) {
                         borderColor = _accentGreen;
                         bgColor = _accentGreen.withValues(alpha: 0.08);
-                        textColor = _darkGreen;
+                        optionTextColor = textColor;
                         trailingIcon = Icons.check_circle_rounded;
                         iconColor = _accentGreen;
                       } else if (isSelected && !isCorrect) {
@@ -444,7 +446,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                                     ? _accentGreen
                                     : isSelected && showResult
                                         ? Colors.red.shade400
-                                        : Colors.grey.shade200,
+                                        : theme.dividerColor,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Center(
@@ -457,7 +459,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                                     color: showResult &&
                                             (isCorrect || isSelected)
                                         ? Colors.white
-                                        : Colors.grey.shade500,
+                                        : subtextColor,
                                   ),
                                 ),
                               ),
@@ -468,7 +470,7 @@ class _BookmarkCardState extends State<_BookmarkCard> {
                                 b.options[i],
                                 style: GoogleFonts.poppins(
                                   fontSize: 13,
-                                  color: textColor,
+                                  color: optionTextColor,
                                   fontWeight: isCorrect && showResult
                                       ? FontWeight.w600
                                       : FontWeight.w400,
